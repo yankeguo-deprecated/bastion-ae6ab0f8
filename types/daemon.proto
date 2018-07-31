@@ -1,0 +1,79 @@
+syntax = "proto3";
+
+package types;
+
+message User {
+    string account = 2;
+    string nickname = 3;
+    bool is_admin = 4;
+    bool is_blocked = 5;
+    int64 created_at = 6;
+    int64 updated_at = 7;
+    int64 viewed_at = 8;
+}
+
+message ListUsersRequest {
+}
+
+message ListUsersResponse {
+    repeated User users = 1;
+}
+
+message CreateUserRequest {
+    string account = 1;
+    string password = 2;
+    string nickname = 3;
+    bool is_admin = 4;
+}
+
+message CreateUserResponse {
+    User user = 1;
+}
+
+message TouchUserRequest {
+    string account = 1;
+}
+
+message TouchUserResponse {
+}
+
+message UpdateUserRequest {
+    bool update_nickname = 1;
+    string nickname = 2;
+    bool update_password = 3;
+    string password = 4;
+    bool update_is_admin = 5;
+    bool is_admin = 6;
+    bool update_is_blocked = 7;
+    bool is_blocked = 8;
+}
+
+message UpdateUserResponse {
+    User user = 1;
+}
+
+message AuthenticateUserRequest {
+    string account = 1;
+    string password = 2;
+}
+
+message AuthenticateUserResponse {
+    User user = 1;
+}
+
+service UserService {
+    rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {
+    }
+
+    rpc CreateUser (CreateUserRequest) returns (CreateUserResponse) {
+    }
+
+    rpc TouchUser (TouchUserRequest) returns (TouchUserResponse) {
+    }
+
+    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {
+    }
+
+    rpc AuthenticateUser (AuthenticateUserRequest) returns (AuthenticateUserResponse) {
+    }
+}

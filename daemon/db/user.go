@@ -5,12 +5,14 @@ import (
 	"time"
 
 	"golang.org/x/crypto/bcrypt"
+	"github.com/yankeguo/bastion/types"
 )
 
 // User user model
 type User struct {
 	Model
 	Account        string     `gorm:"not null;unique_index" json:"account"`    // account name
+	Nickname       string     `gorm:"not null;type:text" json:"nickname"`      // nickname
 	PasswordDigest string     `gorm:"not null;type:text" json:"-"`             // password encrypted by bcrypt
 	IsAdmin        bool       `gorm:"not null;default:false" json:"isAdmin"`   // is this user system admin
 	IsBlocked      bool       `gorm:"not null;default:false" json:"isBlocked"` // is this user blocked
@@ -37,6 +39,21 @@ func (u *User) SetPassword(p string) (err error) {
 }
 
 // CheckPassword check password
-func (u *User) CheckPassword(p string) bool {
+func (u User) CheckPassword(p string) bool {
 	return bcrypt.CompareHashAndPassword([]byte(u.PasswordDigest), []byte(p)) == nil
+}
+
+// ToRPCUser to rpc user
+func (u User) ToRPCUser() (g *types.User) {
+	g = &types.User{}
+	g.Account = u.Account
+	g.Nickname = u.Nickname
+	g.IsAdmin = u.IsAdmin
+	g.IsBlocked = u.IsBlocked
+	g.CreatedAt = u.CreatedAt.Unix()
+	g.UpdatedAt = u.UpdatedAt.Unix()
+	if u.UsedAt != nil {
+		g.ViewedAt = u.UsedAt.Unix()
+	}
+	return
 }

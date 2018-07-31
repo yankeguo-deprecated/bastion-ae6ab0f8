@@ -15,6 +15,6 @@ RUN apt-get update &&\
 WORKDIR /root
 
 ADD dummy-init /usr/bin
-ADD etc/bash_completion.d/bunker_ssh_config /etc/bash_completion.d
+ADD etc/bash_completion.d/bastion_ssh_config /etc/bash_completion.d
 
 CMD ["/usr/bin/dummy-init"]

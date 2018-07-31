@@ -1,5 +1,0 @@
-daemon:
-  db: testdata/database.sqlite3
-  client_key: testdata/client_rsa
-  host_key: testdata/host_rsa
-  sandbox_data: testdata/sandboxes

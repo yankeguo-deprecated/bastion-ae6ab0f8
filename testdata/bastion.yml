@@ -1,0 +1,8 @@
+daemon:
+  db: testdata/database.sqlite3
+sshd:
+  client_key:
+    - testdata/client_rsa
+  host_key: testdata/host_rsa
+  sandbox_dir: testdata/sandboxes
+  replay_dir: testdata/replays
