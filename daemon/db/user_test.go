@@ -14,7 +14,7 @@ func TestUser_BeforeSave(t *testing.T) {
 	}
 	u := &User{
 		Account: "test+user",
-		IsAdmin: true,
+		IsAdmin: 1,
 	}
 	u.SetPassword("qwerty")
 	if err = db.Create(u).Error; err == nil {

@@ -36,3 +36,7 @@ func Open(filename string) (db *DB, err error) {
 func (db *DB) Migrate() error {
 	return db.AutoMigrate(new(User)).Error
 }
+
+func IsRecordNotFound(err error) bool {
+	return gorm.IsRecordNotFoundError(err)
+}

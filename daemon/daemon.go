@@ -7,12 +7,19 @@ import (
 	"net"
 	"fmt"
 	"github.com/pkg/errors"
+	"google.golang.org/grpc/status"
+	"google.golang.org/grpc/codes"
+)
+
+var (
+	errRecordNotFound = status.Error(codes.InvalidArgument, "record not found")
+	errDatabase       = status.Error(codes.Internal, "database error")
+	errInternal       = status.Error(codes.Internal, "internal error")
 )
 
 // Daemon daemon instance
 type Daemon struct {
-	DB *db.DB
-
+	DB     *db.DB
 	Server *grpc.Server
 
 	opts types.DaemonOptions
@@ -52,4 +59,16 @@ func (d *Daemon) Shutdown() (err error) {
 		d.Server = nil
 	}
 	return
+}
+
+func IsRecordNotFound(err error) bool {
+	return db.IsRecordNotFound(err)
+}
+
+func DatabaseErrorToGRPCError(err error) error {
+	if IsRecordNotFound(err) {
+		return errRecordNotFound
+	} else {
+		return errDatabase
+	}
 }

@@ -26,7 +26,7 @@ func TestDB_Migrate(t *testing.T) {
 	}
 	u := &User{
 		Account: "testuser",
-		IsAdmin: true,
+		IsAdmin: 1,
 	}
 	u.SetPassword("qwerty")
 	if err = db.Create(u).Error; err != nil {
@@ -41,7 +41,7 @@ func TestDB_Migrate(t *testing.T) {
 	if err = db.Find(&m, id).Error; err != nil {
 		t.Fatal("failed to retrieve")
 	}
-	if !m.IsAdmin {
+	if m.IsAdmin == 0 {
 		t.Fatal("failed to retrieve bool")
 	}
 }

@@ -35,17 +35,19 @@ message TouchUserRequest {
 }
 
 message TouchUserResponse {
+    User user = 1;
 }
 
 message UpdateUserRequest {
-    bool update_nickname = 1;
-    string nickname = 2;
-    bool update_password = 3;
-    string password = 4;
-    bool update_is_admin = 5;
-    bool is_admin = 6;
-    bool update_is_blocked = 7;
-    bool is_blocked = 8;
+    string account = 1;
+    bool update_nickname = 2;
+    string nickname = 3;
+    bool update_password = 4;
+    string password = 5;
+    bool update_is_admin = 6;
+    bool is_admin = 7;
+    bool update_is_blocked = 8;
+    bool is_blocked = 9;
 }
 
 message UpdateUserResponse {

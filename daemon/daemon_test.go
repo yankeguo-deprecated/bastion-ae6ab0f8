@@ -11,7 +11,8 @@ import (
 	"google.golang.org/grpc"
 	"context"
 	"github.com/yankeguo/bastion/daemon/db"
-	)
+	"github.com/yankeguo/bastion/utils"
+)
 
 func temporaryFile() string {
 	buf := make([]byte, 8, 8)
@@ -28,6 +29,7 @@ func TestDaemon_Run(t *testing.T) {
 	go d.Run()
 	defer d.Shutdown()
 	time.Sleep(time.Second)
+	d.DB.LogMode(true)
 
 	// Set up a connection to the server.
 	conn, err := grpc.Dial("127.0.0.1:10089", grpc.WithInsecure())
@@ -47,8 +49,7 @@ func TestDaemon_Run(t *testing.T) {
 	}
 
 	nu := &db.User{Account: "test1", Nickname: "test user1"}
-	nu.SetPassword("qwerty")
-
+	nu.PasswordDigest, _ = utils.BcryptGenerate("qwerty")
 	d.DB.Create(&nu)
 
 	res, err := c.AuthenticateUser(context.Background(), &types.AuthenticateUserRequest{
