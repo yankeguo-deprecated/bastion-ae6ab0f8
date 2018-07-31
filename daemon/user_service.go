@@ -1,94 +1,168 @@
 package daemon
 
 import (
-	"github.com/yankeguo/bastion/daemon/db"
+	"time"
+
+	"github.com/asdine/storm"
+	"github.com/jinzhu/copier"
+	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
+	"github.com/yankeguo/bastion/utils"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"github.com/yankeguo/bastion/utils"
 )
 
 var (
 	errInvalidAuthentication = status.Error(codes.InvalidArgument, "user not found or invalid password")
 )
 
-func whereAccount(a string) map[string]interface{} {
-	return map[string]interface{}{"account": a}
+func (d *Daemon) ListUsers(c context.Context, req *types.ListUsersRequest) (res *types.ListUsersResponse, err error) {
+	var users []models.User
+	if err = d.DB.All(&users); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	ret := make([]*types.User, 0, len(users))
+	for _, u := range users {
+		ret = append(ret, u.ToGRPCUser())
+	}
+	res = &types.ListUsersResponse{Users: ret}
+	return
 }
 
-func (d *Daemon) ListUsers(context.Context, *types.ListUsersRequest) (*types.ListUsersResponse, error) {
-	panic("implement me")
+func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (res *types.CreateUserResponse, err error) {
+	// fix request
+	if len(req.Password) == 0 {
+		err = errFieldMissing("password")
+		return
+	}
+	if len(req.Nickname) == 0 {
+		req.Nickname = req.Account
+	}
+
+	// start a transaction
+	var tx storm.Node
+	if tx, err = d.DB.Begin(true); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	defer tx.Rollback()
+
+	u := models.User{}
+	// find existing
+	if err = tx.One("Account", req.Account, &u); err != nil {
+		// return if not a ErrNotFound error
+		if err != storm.ErrNotFound {
+			err = ConvertStormError(err)
+			return
+		}
+	} else {
+		// found existing, raise error
+		err = errDuplicatedField("account")
+		return
+	}
+	// assign values
+	copier.Copy(&u, req)
+	// create password
+	if u.PasswordDigest, err = utils.BcryptGenerate(req.Password); err != nil {
+		err = errInternal
+		return
+	}
+	// assign created_at/updated_at
+	u.CreatedAt = time.Now().Unix()
+	u.UpdatedAt = u.CreatedAt
+	if err = tx.Save(&u); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	// commit transaction
+	if err = tx.Commit(); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	// build response
+	res = &types.CreateUserResponse{User: u.ToGRPCUser()}
+	return
 }
 
-func (d *Daemon) CreateUser(context.Context, *types.CreateUserRequest) (*types.CreateUserResponse, error) {
-	panic("implement me")
-}
-
-func (d *Daemon) TouchUser(context.Context, *types.TouchUserRequest) (*types.TouchUserResponse, error) {
-	panic("implement me")
+func (d *Daemon) TouchUser(c context.Context, req *types.TouchUserRequest) (res *types.TouchUserResponse, err error) {
+	u := models.User{}
+	// find by account
+	if err = d.DB.One("Account", req.Account, &u); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	// update viewed_at
+	u.ViewedAt = time.Now().Unix()
+	// save
+	if err = d.DB.UpdateField(&u, "ViewedAt", u.ViewedAt); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	// build response
+	res = &types.TouchUserResponse{User: u.ToGRPCUser()}
+	return
 }
 
 func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (res *types.UpdateUserResponse, err error) {
-	update := map[string]interface{}{}
+	u := models.User{}
+	// find by account
+	if err = d.DB.One("Account", req.Account, &u); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	// update user
+	if req.UpdateIsBlocked {
+		u.IsBlocked = req.IsBlocked
+	}
+	if req.UpdateIsAdmin {
+		u.IsAdmin = req.IsAdmin
+	}
 	if req.UpdateNickname {
-		update["nickname"] = req.Nickname
+		u.Nickname = req.Nickname
 	}
 	if req.UpdatePassword {
-		var hs string
-		if hs, err = utils.BcryptGenerate(req.Password); err != nil {
+		if u.PasswordDigest, err = utils.BcryptGenerate(req.Password); err != nil {
 			err = errInternal
 			return
 		}
-		update["password_digest"] = hs
 	}
-	if req.UpdateIsAdmin {
-		if req.IsAdmin {
-			update["is_admin"] = 1
-		} else {
-			update["is_admin"] = 0
-		}
-	}
-	if req.UpdateIsBlocked {
-		if req.IsBlocked {
-			update["is_blocked"] = 1
-		} else {
-			update["is_blocked"] = 0
-		}
-	}
-	q := d.DB.Model(new(db.User)).Where(whereAccount(req.Account)).Update(update)
-	if err = q.Error; err != nil {
-		err = errDatabase
+	// update updated_at
+	u.UpdatedAt = time.Now().Unix()
+	// save
+	if err = d.DB.Update(&u); err != nil {
+		err = ConvertStormError(err)
 		return
 	}
-	if q.RowsAffected == 0 {
-		err = errRecordNotFound
-		return
-	}
-	u := db.User{}
-	if err = d.DB.Find(&u, whereAccount(req.Account)).Error; err != nil {
-		err = DatabaseErrorToGRPCError(err)
-		return
-	}
-	res = &types.UpdateUserResponse{User: u.ToRPCUser()}
+	// build response
+	res = &types.UpdateUserResponse{User: u.ToGRPCUser()}
 	return
 }
 
 func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUserRequest) (res *types.AuthenticateUserResponse, err error) {
-	u := db.User{}
-	if err = d.DB.Find(&u, whereAccount(req.Account)).Error; err != nil {
-		if IsRecordNotFound(err) {
-			// not using record not found, hide the existence of the user
+	u := models.User{}
+	// find by account
+	if err = d.DB.One("Account", req.Account, &u); err != nil {
+		if err == storm.ErrNotFound {
 			err = errInvalidAuthentication
 		} else {
 			err = errDatabase
 		}
 		return
 	}
-	if u.ID == 0 || !utils.BcryptValidate(u.PasswordDigest, req.Password) {
+	// validate password
+	if !utils.BcryptValidate(u.PasswordDigest, req.Password) {
 		err = errInvalidAuthentication
 		return
 	}
-	res = &types.AuthenticateUserResponse{User: u.ToRPCUser()}
+	// update viewed_at
+	u.ViewedAt = time.Now().Unix()
+	if err = d.DB.UpdateField(&u, "ViewedAt", u.ViewedAt); err != nil {
+		err = ConvertStormError(err)
+		return
+	}
+	// build response
+	res = &types.AuthenticateUserResponse{User: u.ToGRPCUser()}
 	return
 }

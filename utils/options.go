@@ -2,8 +2,8 @@ package utils
 
 import (
 	"github.com/yankeguo/bastion/types"
-	"io/ioutil"
 	"gopkg.in/yaml.v2"
+	"io/ioutil"
 )
 
 func defaultStr(s *string, d string) {
@@ -34,7 +34,7 @@ func LoadOptions(f string) (opt types.Options, err error) {
 		return
 	}
 	// default values
-	defaultStr(&opt.Daemon.DB, "/var/lib/bastion/database.sqlite3")
+	defaultStr(&opt.Daemon.DB, "/var/lib/bastion/database.bolt")
 	defaultStr(&opt.Daemon.Host, "127.0.0.1")
 	defaultInt(&opt.Daemon.Port, 9777)
 	defaultStr(&opt.Web.Host, "127.0.0.1")

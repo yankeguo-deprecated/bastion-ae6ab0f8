@@ -1,5 +1,5 @@
 daemon:
-  db: testdata/database.sqlite3
+  db: testdata/database.bolt
 sshd:
   client_key:
     - testdata/client_rsa

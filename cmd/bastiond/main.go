@@ -4,9 +4,9 @@ import (
 	"flag"
 	"log"
 
+	"github.com/yankeguo/bastion/daemon"
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
-	"github.com/yankeguo/bastion/daemon"
 	"os"
 	"os/signal"
 	"syscall"

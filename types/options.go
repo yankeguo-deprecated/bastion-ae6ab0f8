@@ -1,7 +1,7 @@
 package types
 
 import (
-		"encoding/json"
+	"encoding/json"
 )
 
 // Options options for bastion

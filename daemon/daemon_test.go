@@ -1,68 +1,40 @@
 package daemon
 
 import (
-	"path/filepath"
-	"os"
-	"encoding/hex"
 	"crypto/rand"
+	"encoding/hex"
+	"os"
+	"path/filepath"
 	"testing"
-	"github.com/yankeguo/bastion/types"
 	"time"
+
+	"github.com/yankeguo/bastion/types"
 	"google.golang.org/grpc"
-	"context"
-	"github.com/yankeguo/bastion/daemon/db"
-	"github.com/yankeguo/bastion/utils"
 )
+
+var d *Daemon
 
 func temporaryFile() string {
 	buf := make([]byte, 8, 8)
 	rand.Read(buf)
-	return filepath.Join(os.TempDir(), "bnktestdb"+hex.EncodeToString(buf)+".sqlite3")
+	return filepath.Join(os.TempDir(), "bnktestdb"+hex.EncodeToString(buf)+".bolt")
 }
 
-func TestDaemon_Run(t *testing.T) {
-	d := New(types.DaemonOptions{
+func withDaemon(t *testing.T, cb func(*testing.T, *Daemon, *grpc.ClientConn)) {
+	d = New(types.DaemonOptions{
 		DB:   temporaryFile(),
 		Host: "127.0.0.1",
-		Port: 10089,
+		Port: 1997,
 	})
 	go d.Run()
 	defer d.Shutdown()
-	time.Sleep(time.Second)
-	d.DB.LogMode(true)
-
-	// Set up a connection to the server.
-	conn, err := grpc.Dial("127.0.0.1:10089", grpc.WithInsecure())
-	if err != nil {
-		t.Fatalf("did not connect: %v", err)
+	time.Sleep(time.Second / 2)
+	var err error
+	var c *grpc.ClientConn
+	if c, err = grpc.Dial("127.0.0.1:1997", grpc.WithInsecure()); err != nil {
+		t.Error(err)
+		return
 	}
-	defer conn.Close()
-
-	c := types.NewUserServiceClient(conn)
-
-	_, err = c.AuthenticateUser(context.Background(), &types.AuthenticateUserRequest{
-		Account:  "test1",
-		Password: "qwerty",
-	})
-	if err == nil {
-		t.Fatal("not failed")
-	}
-
-	nu := &db.User{Account: "test1", Nickname: "test user1"}
-	nu.PasswordDigest, _ = utils.BcryptGenerate("qwerty")
-	d.DB.Create(&nu)
-
-	res, err := c.AuthenticateUser(context.Background(), &types.AuthenticateUserRequest{
-		Account:  "test1",
-		Password: "qwerty",
-	})
-	if err != nil {
-		t.Fatal("failed", err)
-	}
-	if res.User.Nickname != "test user1" {
-		t.Fatal("failed")
-	}
-	if time.Unix(res.User.CreatedAt, 0).In(time.UTC).Day() != time.Now().In(time.UTC).Day() {
-		t.Fatal("failed created at")
-	}
+	defer c.Close()
+	cb(t, d, c)
 }

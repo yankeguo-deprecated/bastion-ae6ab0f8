@@ -1,26 +1,27 @@
 package daemon
 
 import (
-	"github.com/yankeguo/bastion/types"
-	"github.com/yankeguo/bastion/daemon/db"
-	"google.golang.org/grpc"
-	"net"
 	"fmt"
+	"net"
+	"os"
+	"path/filepath"
+
+	"github.com/asdine/storm"
 	"github.com/pkg/errors"
-	"google.golang.org/grpc/status"
-	"google.golang.org/grpc/codes"
+	"github.com/yankeguo/bastion/daemon/models"
+	"github.com/yankeguo/bastion/types"
+	"google.golang.org/grpc"
 )
 
 var (
-	errRecordNotFound = status.Error(codes.InvalidArgument, "record not found")
-	errDatabase       = status.Error(codes.Internal, "database error")
-	errInternal       = status.Error(codes.Internal, "internal error")
+	ErrDaemonAlreadyRunning = errors.New("daemon is already running")
 )
 
 // Daemon daemon instance
 type Daemon struct {
-	DB     *db.DB
-	Server *grpc.Server
+	DB       *storm.DB
+	Listener net.Listener
+	Server   *grpc.Server
 
 	opts types.DaemonOptions
 }
@@ -30,27 +31,55 @@ func New(opts types.DaemonOptions) *Daemon {
 }
 
 func (d *Daemon) Run() (err error) {
+	defer d.cleanup()
+	// ensure database directory
+	os.MkdirAll(filepath.Dir(d.opts.DB), 0640)
 	// open database
-	if d.DB, err = db.Open(d.opts.DB); err != nil {
+	if d.DB != nil {
+		err = ErrDaemonAlreadyRunning
 		return
 	}
-	// migrate
-	if err = d.DB.Migrate(); err != nil {
+	if d.DB, err = storm.Open(d.opts.DB); err != nil {
 		return
+	}
+	// migrate database
+	for _, m := range models.AllModels {
+		if err = d.DB.Init(m); err != nil {
+			return
+		}
 	}
 	// create listener
-	var l net.Listener
-	if l, err = net.Listen("tcp", fmt.Sprintf("%s:%d", d.opts.Host, d.opts.Port)); err != nil {
+	if d.Listener != nil {
+		err = ErrDaemonAlreadyRunning
 		return
 	}
-	// create d.Server
+	if d.Listener, err = net.Listen("tcp", fmt.Sprintf("%s:%d", d.opts.Host, d.opts.Port)); err != nil {
+		return
+	}
+	// create server
 	if d.Server != nil {
-		err = errors.New("daemon is already started")
+		err = ErrDaemonAlreadyRunning
 		return
 	}
 	d.Server = grpc.NewServer()
 	types.RegisterUserServiceServer(d.Server, d)
-	return d.Server.Serve(l)
+	// serve
+	return d.Server.Serve(d.Listener)
+}
+
+func (d *Daemon) cleanup() {
+	if d.Server != nil {
+		d.Server.GracefulStop()
+		d.Server = nil
+	}
+	if d.Listener != nil {
+		d.Listener.Close()
+		d.Listener = nil
+	}
+	if d.DB != nil {
+		d.DB.Close()
+		d.DB = nil
+	}
 }
 
 func (d *Daemon) Shutdown() (err error) {
@@ -59,16 +88,4 @@ func (d *Daemon) Shutdown() (err error) {
 		d.Server = nil
 	}
 	return
-}
-
-func IsRecordNotFound(err error) bool {
-	return db.IsRecordNotFound(err)
-}
-
-func DatabaseErrorToGRPCError(err error) error {
-	if IsRecordNotFound(err) {
-		return errRecordNotFound
-	} else {
-		return errDatabase
-	}
 }
