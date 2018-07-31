@@ -79,3 +79,47 @@ service UserService {
     rpc AuthenticateUser (AuthenticateUserRequest) returns (AuthenticateUserResponse) {
     }
 }
+
+message Node {
+    string hostname = 1;
+    string user = 2;
+    string address = 3;
+    string source = 4;
+    int64 created_at = 5;
+}
+
+message ListNodesRequest {
+}
+
+message ListNodesResponse {
+    repeated Node nodes = 1;
+}
+
+message PutNodeRequest {
+    string hostname = 1;
+    string user = 2;
+    string address = 3;
+    string source = 4;
+}
+
+message PutNodeResponse {
+    Node node = 1;
+}
+
+message DeleteNodeRequest {
+    string hostname = 1;
+}
+
+message DeleteNodeResponse {
+}
+
+service NodeService {
+    rpc ListNodes (ListNodesRequest) returns (ListNodesResponse) {
+    }
+
+    rpc PutNode (PutNodeRequest) returns (PutNodeResponse) {
+    }
+
+    rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse) {
+    }
+}

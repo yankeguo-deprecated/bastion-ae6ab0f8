@@ -30,6 +30,23 @@ func New(opts types.DaemonOptions) *Daemon {
 	return &Daemon{opts: opts}
 }
 
+func (d *Daemon) Transaction(writable bool, cb func(storm.Node) error) (err error) {
+	var tx storm.Node
+	if tx, err = d.DB.Begin(writable); err != nil {
+		err = errFromStorm(err)
+		return
+	}
+	defer tx.Rollback()
+	if err = cb(tx); err != nil {
+		return
+	}
+	if err = tx.Commit(); err != nil {
+		err = errFromStorm(err)
+		return
+	}
+	return
+}
+
 func (d *Daemon) Run() (err error) {
 	defer d.cleanup()
 	// ensure database directory
@@ -63,6 +80,7 @@ func (d *Daemon) Run() (err error) {
 	}
 	d.Server = grpc.NewServer()
 	types.RegisterUserServiceServer(d.Server, d)
+	types.RegisterNodeServiceServer(d.Server, d)
 	// serve
 	return d.Server.Serve(d.Listener)
 }

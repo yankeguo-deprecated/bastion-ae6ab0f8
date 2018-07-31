@@ -1,6 +1,7 @@
 package daemon
 
 import (
+	"github.com/asdine/storm"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -11,10 +12,29 @@ var (
 	errInternal       = status.Error(codes.Internal, "internal error")
 )
 
-func errFieldMissing(key string) error {
-	return status.Errorf(codes.InvalidArgument, "missing field '%s'", key)
-}
-
 func errDuplicatedField(key string) error {
 	return status.Errorf(codes.InvalidArgument, "duplicated field '%s'", key)
+}
+
+func errFromStorm(err error) error {
+	if err == nil {
+		return nil
+	} else if err == storm.ErrNotFound {
+		return errRecordNotFound
+	} else {
+		return status.Error(codes.Internal, err.Error())
+	}
+}
+
+func checkDuplication(db storm.Node, bucket string, keyName string, keyVal interface{}) (err error) {
+	var exists bool
+	if exists, err = db.KeyExists(bucket, keyVal); err != nil {
+		err = errFromStorm(err)
+		return
+	}
+	if exists {
+		err = errDuplicatedField(keyName)
+		return
+	}
+	return
 }

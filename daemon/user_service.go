@@ -20,7 +20,7 @@ var (
 func (d *Daemon) ListUsers(c context.Context, req *types.ListUsersRequest) (res *types.ListUsersResponse, err error) {
 	var users []models.User
 	if err = d.DB.All(&users); err != nil {
-		err = ConvertStormError(err)
+		err = errFromStorm(err)
 		return
 	}
 	ret := make([]*types.User, 0, len(users))
@@ -33,52 +33,35 @@ func (d *Daemon) ListUsers(c context.Context, req *types.ListUsersRequest) (res 
 
 func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (res *types.CreateUserResponse, err error) {
 	// fix request
-	if len(req.Password) == 0 {
-		err = errFieldMissing("password")
+	if err = req.Validate(); err != nil {
 		return
 	}
-	if len(req.Nickname) == 0 {
-		req.Nickname = req.Account
-	}
 
-	// start a transaction
-	var tx storm.Node
-	if tx, err = d.DB.Begin(true); err != nil {
-		err = ConvertStormError(err)
-		return
-	}
-	defer tx.Rollback()
-
+	// inside a transaction
 	u := models.User{}
-	// find existing
-	if err = tx.One("Account", req.Account, &u); err != nil {
-		// return if not a ErrNotFound error
-		if err != storm.ErrNotFound {
-			err = ConvertStormError(err)
+	err = d.Transaction(true, func(db storm.Node) (err error) {
+		// find existing
+		if err = checkDuplication(db, "User", "account", req.Account); err != nil {
 			return
 		}
-	} else {
-		// found existing, raise error
-		err = errDuplicatedField("account")
+		// assign values
+		copier.Copy(&u, req)
+		// create password
+		if u.PasswordDigest, err = utils.BcryptGenerate(req.Password); err != nil {
+			err = errInternal
+			return
+		}
+		// assign created_at / updated_at and save
+		u.CreatedAt = time.Now().Unix()
+		u.UpdatedAt = u.CreatedAt
+		if err = db.Save(&u); err != nil {
+			err = errFromStorm(err)
+			return
+		}
 		return
-	}
-	// assign values
-	copier.Copy(&u, req)
-	// create password
-	if u.PasswordDigest, err = utils.BcryptGenerate(req.Password); err != nil {
-		err = errInternal
-		return
-	}
-	// assign created_at/updated_at
-	u.CreatedAt = time.Now().Unix()
-	u.UpdatedAt = u.CreatedAt
-	if err = tx.Save(&u); err != nil {
-		err = ConvertStormError(err)
-		return
-	}
-	// commit transaction
-	if err = tx.Commit(); err != nil {
-		err = ConvertStormError(err)
+	})
+	// return if err != nil
+	if err != nil {
 		return
 	}
 	// build response
@@ -90,14 +73,14 @@ func (d *Daemon) TouchUser(c context.Context, req *types.TouchUserRequest) (res 
 	u := models.User{}
 	// find by account
 	if err = d.DB.One("Account", req.Account, &u); err != nil {
-		err = ConvertStormError(err)
+		err = errFromStorm(err)
 		return
 	}
 	// update viewed_at
 	u.ViewedAt = time.Now().Unix()
 	// save
 	if err = d.DB.UpdateField(&u, "ViewedAt", u.ViewedAt); err != nil {
-		err = ConvertStormError(err)
+		err = errFromStorm(err)
 		return
 	}
 	// build response
@@ -106,10 +89,14 @@ func (d *Daemon) TouchUser(c context.Context, req *types.TouchUserRequest) (res 
 }
 
 func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (res *types.UpdateUserResponse, err error) {
+	// validate request
+	if err = req.Validate(); err != nil {
+		return
+	}
+	// find user by account
 	u := models.User{}
-	// find by account
 	if err = d.DB.One("Account", req.Account, &u); err != nil {
-		err = ConvertStormError(err)
+		err = errFromStorm(err)
 		return
 	}
 	// update user
@@ -132,7 +119,7 @@ func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (re
 	u.UpdatedAt = time.Now().Unix()
 	// save
 	if err = d.DB.Update(&u); err != nil {
-		err = ConvertStormError(err)
+		err = errFromStorm(err)
 		return
 	}
 	// build response
@@ -144,6 +131,7 @@ func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUser
 	u := models.User{}
 	// find by account
 	if err = d.DB.One("Account", req.Account, &u); err != nil {
+		// hide not found error
 		if err == storm.ErrNotFound {
 			err = errInvalidAuthentication
 		} else {
@@ -159,7 +147,7 @@ func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUser
 	// update viewed_at
 	u.ViewedAt = time.Now().Unix()
 	if err = d.DB.UpdateField(&u, "ViewedAt", u.ViewedAt); err != nil {
-		err = ConvertStormError(err)
+		err = errFromStorm(err)
 		return
 	}
 	// build response

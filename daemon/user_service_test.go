@@ -7,6 +7,7 @@ import (
 	"github.com/yankeguo/bastion/utils"
 	"google.golang.org/grpc"
 	"testing"
+	"time"
 )
 
 func TestDaemon_ListUsers(t *testing.T) {
@@ -86,29 +87,28 @@ func TestDaemon_TouchUser(t *testing.T) {
 func TestDaemon_UpdateUser(t *testing.T) {
 	withDaemon(t, func(t *testing.T, daemon *Daemon, conn *grpc.ClientConn) {
 		c := types.NewUserServiceClient(conn)
-		u := models.User{
-			Account:   "testuser",
-			IsAdmin:   false,
-			IsBlocked: true,
-		}
-		u.PasswordDigest, _ = utils.BcryptGenerate("qwerty")
-		daemon.DB.Save(&u)
+		c.CreateUser(context.Background(), &types.CreateUserRequest{
+			Account:  "testuser",
+			Password: "qwerty",
+			IsAdmin:  true,
+		})
+		time.Sleep(time.Second + time.Millisecond*100)
 		res, err := c.UpdateUser(context.Background(), &types.UpdateUserRequest{
 			Account:         "testuser",
 			UpdateIsAdmin:   true,
-			IsAdmin:         true,
+			IsAdmin:         false,
 			UpdateIsBlocked: true,
-			IsBlocked:       false,
+			IsBlocked:       true,
 			UpdateNickname:  true,
-			Nickname:        "test user",
+			Nickname:        "test user ",
 		})
-		if err != nil || res.User.ViewedAt == 0 {
+		if err != nil || res.User.UpdatedAt == res.User.CreatedAt {
 			t.Fatal(err)
 		}
-		if !res.User.IsAdmin {
+		if res.User.IsAdmin {
 			t.Fatal("failed 1")
 		}
-		if res.User.IsBlocked {
+		if !res.User.IsBlocked {
 			t.Fatal("failed 2")
 		}
 		if res.User.Nickname != "test user" {
