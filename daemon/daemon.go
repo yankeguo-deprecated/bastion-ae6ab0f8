@@ -81,6 +81,7 @@ func (d *Daemon) Run() (err error) {
 	d.Server = grpc.NewServer()
 	types.RegisterUserServiceServer(d.Server, d)
 	types.RegisterNodeServiceServer(d.Server, d)
+	types.RegisterKeyServiceServer(d.Server, d)
 	// serve
 	return d.Server.Serve(d.Listener)
 }

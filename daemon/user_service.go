@@ -41,7 +41,7 @@ func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (re
 	u := models.User{}
 	err = d.Transaction(true, func(db storm.Node) (err error) {
 		// find existing
-		if err = checkDuplication(db, "User", "account", req.Account); err != nil {
+		if err = checkDuplicated(db, "User", "account", req.Account); err != nil {
 			return
 		}
 		// assign values

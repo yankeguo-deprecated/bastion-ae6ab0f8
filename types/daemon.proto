@@ -123,3 +123,46 @@ service NodeService {
     rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse) {
     }
 }
+
+message Key {
+    string fingerprint = 1;
+    string account = 2;
+    string name = 3;
+    int64 created_at = 4;
+}
+
+message ListKeysRequest {
+    string account = 1;
+}
+
+message ListKeysResponse {
+    repeated Key keys = 1;
+}
+
+message CreateKeyRequest {
+    string fingerprint = 1;
+    string account = 2;
+    string name = 3;
+}
+
+message CreateKeyResponse {
+    Key key = 1;
+}
+
+message DeleteKeyRequest {
+    string fingerprint = 1;
+}
+
+message DeleteKeyResponse {
+}
+
+service KeyService {
+    rpc ListKeys (ListKeysRequest) returns (ListKeysResponse) {
+    }
+
+    rpc CreateKey (CreateKeyRequest) returns (CreateKeyResponse) {
+    }
+
+    rpc DeleteKey (DeleteKeyRequest) returns (DeleteKeyResponse) {
+    }
+}

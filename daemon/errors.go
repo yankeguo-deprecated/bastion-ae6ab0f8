@@ -13,7 +13,7 @@ var (
 )
 
 func errDuplicatedField(key string) error {
-	return status.Errorf(codes.InvalidArgument, "duplicated field '%s'", key)
+	return status.Errorf(codes.AlreadyExists, "duplicated field '%s'", key)
 }
 
 func errFromStorm(err error) error {
@@ -26,7 +26,7 @@ func errFromStorm(err error) error {
 	}
 }
 
-func checkDuplication(db storm.Node, bucket string, keyName string, keyVal interface{}) (err error) {
+func checkDuplicated(db storm.Node, bucket string, keyName string, keyVal interface{}) (err error) {
 	var exists bool
 	if exists, err = db.KeyExists(bucket, keyVal); err != nil {
 		err = errFromStorm(err)

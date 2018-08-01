@@ -23,6 +23,8 @@ var (
 	NodeHostnamePattern = regexp.MustCompile(`[0-9a-zA-Z_.-]{4,64}`)
 	NodeUserPattern     = UserAccountPattern
 	NodeAddressPattern  = regexp.MustCompile(`^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:\d+)?$`)
+
+	KeyFingerprintPattern = regexp.MustCompile(`SHA256:[0-9a-zA-Z+/]{43}`)
 )
 
 func errMissingField(key string) error {
@@ -35,6 +37,10 @@ func errInvalidField(key string, should string) error {
 
 func trimSpace(s *string) {
 	*s = strings.TrimSpace(*s)
+}
+
+type Validator interface {
+	Validate() (error)
 }
 
 func (m *CreateUserRequest) Validate() (err error) {
@@ -102,6 +108,33 @@ func (m *PutNodeRequest) Validate() (err error) {
 		m.Source = NodeSourceManual
 	} else if m.Source != NodeSourceManual && m.Source != NodeSourceConsul {
 		err = errInvalidField("source", "one of 'manual' or 'consul'")
+		return
+	}
+	return
+}
+
+func (m *CreateKeyRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	trimSpace(&m.Fingerprint)
+	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {
+		err = errInvalidField("fingerprint", "a valid ssh fingerprint in sha256 digest")
+		return
+	}
+	trimSpace(&m.Name)
+	if len(m.Name) == 0 {
+		m.Name = "no name"
+	}
+	return
+}
+
+func (m *DeleteKeyRequest) Validate() (err error) {
+	trimSpace(&m.Fingerprint)
+	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {
+		err = errInvalidField("fingerprint", "a valid ssh fingerprint in sha256 digest")
 		return
 	}
 	return
