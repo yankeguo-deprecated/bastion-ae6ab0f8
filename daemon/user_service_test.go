@@ -31,7 +31,7 @@ func TestDaemon_ListUsers(t *testing.T) {
 	})
 }
 
-func TestDaemon_CreateUser(t *testing.T) {
+func TestDaemon_CreateGetUser(t *testing.T) {
 	withDaemon(t, func(t *testing.T, daemon *Daemon, conn *grpc.ClientConn) {
 		c := types.NewUserServiceClient(conn)
 		res, err := c.CreateUser(context.Background(), &types.CreateUserRequest{
@@ -61,6 +61,16 @@ func TestDaemon_CreateUser(t *testing.T) {
 			t.Fatal("failed 3")
 		}
 		t.Log(res, err)
+		res1, err := c.GetUser(context.Background(), &types.GetUserRequest{
+			Account: "testuser",
+		})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res1.User.CreatedAt == 0 {
+			t.Fatal("failed 4")
+		}
+		t.Log(res1)
 	})
 }
 

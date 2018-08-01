@@ -31,6 +31,13 @@ func TestDaemon_ListPutDeleteNode(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
+		res1, err := ns.GetNode(context.Background(), &types.GetNodeRequest{Hostname: "localhost2"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res1.Node.Address != "127.0.0.2" {
+			t.Fatal("failed 5")
+		}
 		res, err = ns.ListNodes(context.Background(), &types.ListNodesRequest{})
 		if err != nil {
 			t.Fatal(err)

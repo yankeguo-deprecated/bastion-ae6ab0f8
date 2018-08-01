@@ -16,6 +16,7 @@ func (d *Daemon) ListNodes(c context.Context, req *types.ListNodesRequest) (res 
 		return
 	}
 	ret := make([]*types.Node, 0, len(ns))
+
 	for _, n := range ns {
 		ret = append(ret, n.ToGRPCNode())
 	}
@@ -45,5 +46,18 @@ func (d *Daemon) DeleteNode(c context.Context, req *types.DeleteNodeRequest) (re
 	req.Hostname = strings.TrimSpace(req.Hostname)
 	res = &types.DeleteNodeResponse{}
 	err = errFromStorm(d.DB.DeleteStruct(&models.Node{Hostname: req.Hostname}))
+	return
+}
+
+func (d *Daemon) GetNode(c context.Context, req *types.GetNodeRequest) (res *types.GetNodeResponse, err error) {
+	if err = req.Validate(); err != nil {
+		return
+	}
+	n := models.Node{}
+	if err = d.DB.One("Hostname", req.Hostname, &n); err != nil {
+		err = errFromStorm(err)
+		return
+	}
+	res = &types.GetNodeResponse{Node: n.ToGRPCNode()}
 	return
 }

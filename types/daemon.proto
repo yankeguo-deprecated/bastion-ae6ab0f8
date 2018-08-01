@@ -63,6 +63,14 @@ message AuthenticateUserResponse {
     User user = 1;
 }
 
+message GetUserRequest {
+    string account = 1;
+}
+
+message GetUserResponse {
+    User user = 1;
+}
+
 service UserService {
     rpc ListUsers (ListUsersRequest) returns (ListUsersResponse) {
     }
@@ -77,6 +85,9 @@ service UserService {
     }
 
     rpc AuthenticateUser (AuthenticateUserRequest) returns (AuthenticateUserResponse) {
+    }
+
+    rpc GetUser (GetUserRequest) returns (GetUserResponse) {
     }
 }
 
@@ -113,6 +124,14 @@ message DeleteNodeRequest {
 message DeleteNodeResponse {
 }
 
+message GetNodeRequest {
+    string hostname = 1;
+}
+
+message GetNodeResponse {
+    Node node = 1;
+}
+
 service NodeService {
     rpc ListNodes (ListNodesRequest) returns (ListNodesResponse) {
     }
@@ -121,6 +140,9 @@ service NodeService {
     }
 
     rpc DeleteNode (DeleteNodeRequest) returns (DeleteNodeResponse) {
+    }
+
+    rpc GetNode (GetNodeRequest) returns (GetNodeResponse) {
     }
 }
 
@@ -156,6 +178,14 @@ message DeleteKeyRequest {
 message DeleteKeyResponse {
 }
 
+message GetKeyRequest {
+    string fingerprint = 1;
+}
+
+message GetKeyResponse {
+    Key key = 1;
+}
+
 service KeyService {
     rpc ListKeys (ListKeysRequest) returns (ListKeysResponse) {
     }
@@ -164,5 +194,8 @@ service KeyService {
     }
 
     rpc DeleteKey (DeleteKeyRequest) returns (DeleteKeyResponse) {
+    }
+
+    rpc GetKey (GetKeyRequest) returns (GetKeyResponse) {
     }
 }

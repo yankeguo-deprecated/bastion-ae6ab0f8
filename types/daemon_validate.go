@@ -40,7 +40,7 @@ func trimSpace(s *string) {
 }
 
 type Validator interface {
-	Validate() (error)
+	Validate() error
 }
 
 func (m *CreateUserRequest) Validate() (err error) {
@@ -83,6 +83,15 @@ func (m *UpdateUserRequest) Validate() (err error) {
 	return
 }
 
+func (m *GetUserRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	return
+}
+
 func (m *PutNodeRequest) Validate() (err error) {
 	trimSpace(&m.Hostname)
 	if !NodeHostnamePattern.MatchString(m.Hostname) {
@@ -113,6 +122,15 @@ func (m *PutNodeRequest) Validate() (err error) {
 	return
 }
 
+func (m *GetNodeRequest) Validate() (err error) {
+	trimSpace(&m.Hostname)
+	if len(m.Hostname) == 0 {
+		err = errMissingField("hostname")
+		return
+	}
+	return
+}
+
 func (m *CreateKeyRequest) Validate() (err error) {
 	trimSpace(&m.Account)
 	if len(m.Account) == 0 {
@@ -132,6 +150,15 @@ func (m *CreateKeyRequest) Validate() (err error) {
 }
 
 func (m *DeleteKeyRequest) Validate() (err error) {
+	trimSpace(&m.Fingerprint)
+	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {
+		err = errInvalidField("fingerprint", "a valid ssh fingerprint in sha256 digest")
+		return
+	}
+	return
+}
+
+func (m *GetKeyRequest) Validate() (err error) {
 	trimSpace(&m.Fingerprint)
 	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {
 		err = errInvalidField("fingerprint", "a valid ssh fingerprint in sha256 digest")

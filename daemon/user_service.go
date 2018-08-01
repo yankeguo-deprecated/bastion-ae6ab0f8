@@ -154,3 +154,16 @@ func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUser
 	res = &types.AuthenticateUserResponse{User: u.ToGRPCUser()}
 	return
 }
+
+func (d *Daemon) GetUser(c context.Context, req *types.GetUserRequest) (res *types.GetUserResponse, err error) {
+	if err = req.Validate(); err != nil {
+		return
+	}
+	u := models.User{}
+	if err = d.DB.One("Account", req.Account, &u); err != nil {
+		err = errFromStorm(err)
+		return
+	}
+	res = &types.GetUserResponse{User: u.ToGRPCUser()}
+	return
+}

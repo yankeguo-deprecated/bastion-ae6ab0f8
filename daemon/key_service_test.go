@@ -1,17 +1,17 @@
 package daemon
 
 import (
-	"testing"
-	"crypto/rsa"
+	"context"
 	"crypto/rand"
+	"crypto/rsa"
+	"github.com/yankeguo/bastion/types"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
-	"github.com/yankeguo/bastion/types"
-	"context"
+	"testing"
 )
 
 func TestDaemon_CreateListDeleteKeys(t *testing.T) {
-	v, err := rsa.GenerateKey(rand.Reader, 4096)
+	v, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -19,7 +19,7 @@ func TestDaemon_CreateListDeleteKeys(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	v2, err := rsa.GenerateKey(rand.Reader, 4096)
+	v2, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -79,6 +79,16 @@ func TestDaemon_CreateListDeleteKeys(t *testing.T) {
 		}
 
 		t.Log(res1)
+
+		res2, err := s.GetKey(context.Background(), &types.GetKeyRequest{Fingerprint: fp})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res2.Key.Account != "test" {
+			t.Fatal("failed")
+		}
+
+		t.Log(res2)
 
 		_, err = s.DeleteKey(context.Background(), &types.DeleteKeyRequest{Fingerprint: fp})
 		if err != nil {

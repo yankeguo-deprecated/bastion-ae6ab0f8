@@ -1,12 +1,12 @@
 package daemon
 
 import (
-	"github.com/yankeguo/bastion/types"
-	"golang.org/x/net/context"
-	"github.com/yankeguo/bastion/daemon/models"
-	"strings"
 	"github.com/asdine/storm"
 	"github.com/jinzhu/copier"
+	"github.com/yankeguo/bastion/daemon/models"
+	"github.com/yankeguo/bastion/types"
+	"golang.org/x/net/context"
+	"strings"
 	"time"
 )
 
@@ -53,5 +53,17 @@ func (d *Daemon) DeleteKey(c context.Context, req *types.DeleteKeyRequest) (res 
 	}
 	err = errFromStorm(d.DB.DeleteStruct(&models.Key{Fingerprint: req.Fingerprint}))
 	res = &types.DeleteKeyResponse{}
+	return
+}
+
+func (d *Daemon) GetKey(c context.Context, req *types.GetKeyRequest) (res *types.GetKeyResponse, err error) {
+	if err = req.Validate(); err != nil {
+		return
+	}
+	k := models.Key{}
+	if err = d.DB.One("Fingerprint", req.Fingerprint, &k); err != nil {
+		return
+	}
+	res = &types.GetKeyResponse{Key: k.ToGRPCKey()}
 	return
 }
