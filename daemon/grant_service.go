@@ -21,6 +21,7 @@ func (d *Daemon) PutGrant(c context.Context, req *types.PutGrantRequest) (res *t
 		err = errFromStorm(err)
 		return
 	}
+	res = &types.PutGrantResponse{Grant: n.ToGRPCGrant()}
 	return
 }
 
@@ -47,10 +48,12 @@ func (d *Daemon) DeleteGrant(c context.Context, req *types.DeleteGrantRequest) (
 	}
 	n := models.Grant{}
 	copier.Copy(&n, req)
-	if err = d.DB.Delete("Grant", n.BuildID()); err != nil {
+	n.ID = n.BuildID()
+	if err = d.DB.DeleteStruct(&n); err != nil {
 		err = errFromStorm(err)
 		return
 	}
+	res = &types.DeleteGrantResponse{}
 	return
 }
 
