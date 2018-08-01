@@ -10,7 +10,7 @@ type Node struct {
 	Hostname  string `storm:"id"`
 	User      string
 	Address   string
-	Source    string
+	Source    string `storm:"index"`
 	CreatedAt int64
 }
 

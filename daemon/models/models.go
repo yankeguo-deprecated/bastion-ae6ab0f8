@@ -1,9 +1,8 @@
 package models
 
-var (
-	AllModels = []interface{}{
-		new(User),
-		new(Node),
-		new(Key),
-	}
-)
+var AllModels = []interface{}{
+	new(User),
+	new(Node),
+	new(Key),
+	new(Grant),
+}

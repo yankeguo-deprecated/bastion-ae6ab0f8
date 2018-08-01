@@ -199,3 +199,81 @@ service KeyService {
     rpc GetKey (GetKeyRequest) returns (GetKeyResponse) {
     }
 }
+
+message Grant {
+    string account = 1;
+    string hostname_pattern = 2;
+    string user = 3;
+    int64 expired_at = 4;
+    int64 created_at = 5;
+}
+
+message GrantItem {
+    string hostname = 1;
+    string user = 2;
+    int64 expired_at = 3;
+}
+
+message PutGrantRequest {
+    string account = 1;
+    string hostname_pattern = 2;
+    string user = 3;
+    int64 expired_at = 4;
+}
+
+message PutGrantResponse {
+    Grant grant = 1;
+}
+
+message ListGrantsRequest {
+    string account = 1;
+}
+
+message ListGrantsResponse {
+    repeated Grant grants = 1;
+    int64 now = 2;
+}
+
+message ListGrantItemsRequest {
+    string account = 1;
+}
+
+message ListGrantItemsResponse {
+    repeated GrantItem grant_items = 1;
+}
+
+message DeleteGrantRequest {
+    string account = 1;
+    string hostname_pattern = 2;
+    string user = 3;
+}
+
+message DeleteGrantResponse {
+}
+
+message CheckGrantRequest {
+    string account = 1;
+    string hostname = 2;
+    string user = 3;
+}
+
+message CheckGrantResponse {
+    bool ok = 1;
+}
+
+service GrantService {
+    rpc PutGrant (PutGrantRequest) returns (PutGrantResponse) {
+    }
+
+    rpc ListGrants (ListGrantsRequest) returns (ListGrantsResponse) {
+    }
+
+    rpc DeleteGrant (DeleteGrantRequest) returns (DeleteGrantResponse) {
+    }
+
+    rpc CheckGrant (CheckGrantRequest) returns (CheckGrantResponse) {
+    }
+
+    rpc ListGrantItems (ListGrantItemsRequest) returns (ListGrantItemsResponse) {
+    }
+}

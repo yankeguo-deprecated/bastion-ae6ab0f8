@@ -82,6 +82,7 @@ func (d *Daemon) Run() (err error) {
 	types.RegisterUserServiceServer(d.Server, d)
 	types.RegisterNodeServiceServer(d.Server, d)
 	types.RegisterKeyServiceServer(d.Server, d)
+	types.RegisterGrantServiceServer(d.Server, d)
 	// serve
 	return d.Server.Serve(d.Listener)
 }

@@ -25,6 +25,11 @@ var (
 	NodeAddressPattern  = regexp.MustCompile(`^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}(:\d+)?$`)
 
 	KeyFingerprintPattern = regexp.MustCompile(`SHA256:[0-9a-zA-Z+/]{43}`)
+
+	GrantHostnamePatternPattern = regexp.MustCompile(`[0-9a-zA-Z_.*-]{4,64}`)
+	GrantUserPattern            = UserAccountPattern
+
+	errInvalidFingerprint = errInvalidField("fingerprint", "a valid ssh sha256 fingerprint of public key")
 )
 
 func errMissingField(key string) error {
@@ -36,7 +41,9 @@ func errInvalidField(key string, should string) error {
 }
 
 func trimSpace(s *string) {
-	*s = strings.TrimSpace(*s)
+	if s != nil {
+		*s = strings.TrimSpace(*s)
+	}
 }
 
 type Validator interface {
@@ -139,7 +146,7 @@ func (m *CreateKeyRequest) Validate() (err error) {
 	}
 	trimSpace(&m.Fingerprint)
 	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {
-		err = errInvalidField("fingerprint", "a valid ssh fingerprint in sha256 digest")
+		err = errInvalidFingerprint
 		return
 	}
 	trimSpace(&m.Name)
@@ -152,7 +159,7 @@ func (m *CreateKeyRequest) Validate() (err error) {
 func (m *DeleteKeyRequest) Validate() (err error) {
 	trimSpace(&m.Fingerprint)
 	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {
-		err = errInvalidField("fingerprint", "a valid ssh fingerprint in sha256 digest")
+		err = errInvalidFingerprint
 		return
 	}
 	return
@@ -161,7 +168,82 @@ func (m *DeleteKeyRequest) Validate() (err error) {
 func (m *GetKeyRequest) Validate() (err error) {
 	trimSpace(&m.Fingerprint)
 	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {
-		err = errInvalidField("fingerprint", "a valid ssh fingerprint in sha256 digest")
+		err = errInvalidFingerprint
+		return
+	}
+	return
+}
+
+func (m *PutGrantRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	trimSpace(&m.HostnamePattern)
+	if !GrantHostnamePatternPattern.MatchString(m.HostnamePattern) {
+		err = errInvalidField("hostname_pattern", "valid hostname pattern with options wildcards")
+		return
+	}
+	trimSpace(&m.User)
+	if !GrantUserPattern.MatchString(m.User) {
+		err = errInvalidField("user", "a valid linux user")
+		return
+	}
+	return
+}
+
+func (m *ListGrantsRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	return
+}
+
+func (m *DeleteGrantRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	trimSpace(&m.HostnamePattern)
+	if !GrantHostnamePatternPattern.MatchString(m.HostnamePattern) {
+		err = errInvalidField("hostname_pattern", "valid hostname pattern with wildcard support")
+		return
+	}
+	trimSpace(&m.User)
+	if !GrantUserPattern.MatchString(m.User) {
+		err = errInvalidField("user", "valid linux user")
+		return
+	}
+	return
+}
+
+func (m *CheckGrantRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	trimSpace(&m.Hostname)
+	if !NodeHostnamePattern.MatchString(m.Hostname) {
+		err = errInvalidField("hostname", "valid hostname")
+		return
+	}
+	trimSpace(&m.User)
+	if !GrantUserPattern.MatchString(m.User) {
+		err = errInvalidField("user", "valid linux user")
+		return
+	}
+	return
+}
+
+func (m *ListGrantItemsRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
 		return
 	}
 	return
