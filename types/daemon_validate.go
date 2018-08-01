@@ -186,7 +186,9 @@ func (m *PutGrantRequest) Validate() (err error) {
 		return
 	}
 	trimSpace(&m.User)
-	if !GrantUserPattern.MatchString(m.User) {
+	if len(m.User) == 0 {
+		m.User = NodeUserRoot
+	} else if !GrantUserPattern.MatchString(m.User) {
 		err = errInvalidField("user", "a valid linux user")
 		return
 	}
