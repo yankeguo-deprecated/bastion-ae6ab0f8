@@ -5,4 +5,5 @@ var AllModels = []interface{}{
 	new(Node),
 	new(Key),
 	new(Grant),
+	new(Session),
 }

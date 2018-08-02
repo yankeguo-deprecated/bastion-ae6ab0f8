@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"unicode/utf8"
 	"strings"
+	"unicode/utf8"
 )
 
 var asteriskRune rune

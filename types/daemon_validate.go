@@ -250,3 +250,34 @@ func (m *ListGrantItemsRequest) Validate() (err error) {
 	}
 	return
 }
+
+func (m *CreateSessionRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	trimSpace(&m.Command)
+	trimSpace(&m.ReplayFile)
+	return
+}
+
+func (m *FinishSessionRequest) Validate() (err error) {
+	if m.Id == 0 {
+		err = errMissingField("id")
+		return
+	}
+	return
+}
+
+func (m *ListSessionsRequest) Validate() (err error) {
+	if m.Skip < 0 {
+		err = errInvalidField("skip", "positive or zero")
+		return
+	}
+	if m.Limit < 1 {
+		err = errInvalidField("limit", "positive")
+		return
+	}
+	return
+}

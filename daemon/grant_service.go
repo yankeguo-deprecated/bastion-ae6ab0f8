@@ -1,12 +1,12 @@
 package daemon
 
 import (
-	"github.com/yankeguo/bastion/types"
-	"golang.org/x/net/context"
-	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/jinzhu/copier"
-	"time"
+	"github.com/yankeguo/bastion/daemon/models"
+	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
+	"golang.org/x/net/context"
+	"time"
 )
 
 func (d *Daemon) PutGrant(c context.Context, req *types.PutGrantRequest) (res *types.PutGrantResponse, err error) {

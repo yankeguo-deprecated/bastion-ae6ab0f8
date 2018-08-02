@@ -40,7 +40,7 @@ func (m *User) Reset()         { *m = User{} }
 func (m *User) String() string { return proto.CompactTextString(m) }
 func (*User) ProtoMessage()    {}
 func (*User) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{0}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{0}
 }
 func (m *User) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_User.Unmarshal(m, b)
@@ -119,7 +119,7 @@ func (m *ListUsersRequest) Reset()         { *m = ListUsersRequest{} }
 func (m *ListUsersRequest) String() string { return proto.CompactTextString(m) }
 func (*ListUsersRequest) ProtoMessage()    {}
 func (*ListUsersRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{1}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{1}
 }
 func (m *ListUsersRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListUsersRequest.Unmarshal(m, b)
@@ -150,7 +150,7 @@ func (m *ListUsersResponse) Reset()         { *m = ListUsersResponse{} }
 func (m *ListUsersResponse) String() string { return proto.CompactTextString(m) }
 func (*ListUsersResponse) ProtoMessage()    {}
 func (*ListUsersResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{2}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{2}
 }
 func (m *ListUsersResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListUsersResponse.Unmarshal(m, b)
@@ -191,7 +191,7 @@ func (m *CreateUserRequest) Reset()         { *m = CreateUserRequest{} }
 func (m *CreateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateUserRequest) ProtoMessage()    {}
 func (*CreateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{3}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{3}
 }
 func (m *CreateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserRequest.Unmarshal(m, b)
@@ -250,7 +250,7 @@ func (m *CreateUserResponse) Reset()         { *m = CreateUserResponse{} }
 func (m *CreateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateUserResponse) ProtoMessage()    {}
 func (*CreateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{4}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{4}
 }
 func (m *CreateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateUserResponse.Unmarshal(m, b)
@@ -288,7 +288,7 @@ func (m *TouchUserRequest) Reset()         { *m = TouchUserRequest{} }
 func (m *TouchUserRequest) String() string { return proto.CompactTextString(m) }
 func (*TouchUserRequest) ProtoMessage()    {}
 func (*TouchUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{5}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{5}
 }
 func (m *TouchUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TouchUserRequest.Unmarshal(m, b)
@@ -326,7 +326,7 @@ func (m *TouchUserResponse) Reset()         { *m = TouchUserResponse{} }
 func (m *TouchUserResponse) String() string { return proto.CompactTextString(m) }
 func (*TouchUserResponse) ProtoMessage()    {}
 func (*TouchUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{6}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{6}
 }
 func (m *TouchUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_TouchUserResponse.Unmarshal(m, b)
@@ -372,7 +372,7 @@ func (m *UpdateUserRequest) Reset()         { *m = UpdateUserRequest{} }
 func (m *UpdateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserRequest) ProtoMessage()    {}
 func (*UpdateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{7}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{7}
 }
 func (m *UpdateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserRequest.Unmarshal(m, b)
@@ -466,7 +466,7 @@ func (m *UpdateUserResponse) Reset()         { *m = UpdateUserResponse{} }
 func (m *UpdateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*UpdateUserResponse) ProtoMessage()    {}
 func (*UpdateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{8}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{8}
 }
 func (m *UpdateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_UpdateUserResponse.Unmarshal(m, b)
@@ -505,7 +505,7 @@ func (m *AuthenticateUserRequest) Reset()         { *m = AuthenticateUserRequest
 func (m *AuthenticateUserRequest) String() string { return proto.CompactTextString(m) }
 func (*AuthenticateUserRequest) ProtoMessage()    {}
 func (*AuthenticateUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{9}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{9}
 }
 func (m *AuthenticateUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AuthenticateUserRequest.Unmarshal(m, b)
@@ -550,7 +550,7 @@ func (m *AuthenticateUserResponse) Reset()         { *m = AuthenticateUserRespon
 func (m *AuthenticateUserResponse) String() string { return proto.CompactTextString(m) }
 func (*AuthenticateUserResponse) ProtoMessage()    {}
 func (*AuthenticateUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{10}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{10}
 }
 func (m *AuthenticateUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_AuthenticateUserResponse.Unmarshal(m, b)
@@ -588,7 +588,7 @@ func (m *GetUserRequest) Reset()         { *m = GetUserRequest{} }
 func (m *GetUserRequest) String() string { return proto.CompactTextString(m) }
 func (*GetUserRequest) ProtoMessage()    {}
 func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{11}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{11}
 }
 func (m *GetUserRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetUserRequest.Unmarshal(m, b)
@@ -626,7 +626,7 @@ func (m *GetUserResponse) Reset()         { *m = GetUserResponse{} }
 func (m *GetUserResponse) String() string { return proto.CompactTextString(m) }
 func (*GetUserResponse) ProtoMessage()    {}
 func (*GetUserResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{12}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{12}
 }
 func (m *GetUserResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetUserResponse.Unmarshal(m, b)
@@ -668,7 +668,7 @@ func (m *Node) Reset()         { *m = Node{} }
 func (m *Node) String() string { return proto.CompactTextString(m) }
 func (*Node) ProtoMessage()    {}
 func (*Node) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{13}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{13}
 }
 func (m *Node) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Node.Unmarshal(m, b)
@@ -733,7 +733,7 @@ func (m *ListNodesRequest) Reset()         { *m = ListNodesRequest{} }
 func (m *ListNodesRequest) String() string { return proto.CompactTextString(m) }
 func (*ListNodesRequest) ProtoMessage()    {}
 func (*ListNodesRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{14}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{14}
 }
 func (m *ListNodesRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesRequest.Unmarshal(m, b)
@@ -764,7 +764,7 @@ func (m *ListNodesResponse) Reset()         { *m = ListNodesResponse{} }
 func (m *ListNodesResponse) String() string { return proto.CompactTextString(m) }
 func (*ListNodesResponse) ProtoMessage()    {}
 func (*ListNodesResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{15}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{15}
 }
 func (m *ListNodesResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListNodesResponse.Unmarshal(m, b)
@@ -805,7 +805,7 @@ func (m *PutNodeRequest) Reset()         { *m = PutNodeRequest{} }
 func (m *PutNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*PutNodeRequest) ProtoMessage()    {}
 func (*PutNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{16}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{16}
 }
 func (m *PutNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PutNodeRequest.Unmarshal(m, b)
@@ -864,7 +864,7 @@ func (m *PutNodeResponse) Reset()         { *m = PutNodeResponse{} }
 func (m *PutNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*PutNodeResponse) ProtoMessage()    {}
 func (*PutNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{17}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{17}
 }
 func (m *PutNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PutNodeResponse.Unmarshal(m, b)
@@ -902,7 +902,7 @@ func (m *DeleteNodeRequest) Reset()         { *m = DeleteNodeRequest{} }
 func (m *DeleteNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteNodeRequest) ProtoMessage()    {}
 func (*DeleteNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{18}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{18}
 }
 func (m *DeleteNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNodeRequest.Unmarshal(m, b)
@@ -939,7 +939,7 @@ func (m *DeleteNodeResponse) Reset()         { *m = DeleteNodeResponse{} }
 func (m *DeleteNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteNodeResponse) ProtoMessage()    {}
 func (*DeleteNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{19}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{19}
 }
 func (m *DeleteNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteNodeResponse.Unmarshal(m, b)
@@ -970,7 +970,7 @@ func (m *GetNodeRequest) Reset()         { *m = GetNodeRequest{} }
 func (m *GetNodeRequest) String() string { return proto.CompactTextString(m) }
 func (*GetNodeRequest) ProtoMessage()    {}
 func (*GetNodeRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{20}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{20}
 }
 func (m *GetNodeRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeRequest.Unmarshal(m, b)
@@ -1008,7 +1008,7 @@ func (m *GetNodeResponse) Reset()         { *m = GetNodeResponse{} }
 func (m *GetNodeResponse) String() string { return proto.CompactTextString(m) }
 func (*GetNodeResponse) ProtoMessage()    {}
 func (*GetNodeResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{21}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{21}
 }
 func (m *GetNodeResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetNodeResponse.Unmarshal(m, b)
@@ -1049,7 +1049,7 @@ func (m *Key) Reset()         { *m = Key{} }
 func (m *Key) String() string { return proto.CompactTextString(m) }
 func (*Key) ProtoMessage()    {}
 func (*Key) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{22}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{22}
 }
 func (m *Key) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Key.Unmarshal(m, b)
@@ -1108,7 +1108,7 @@ func (m *ListKeysRequest) Reset()         { *m = ListKeysRequest{} }
 func (m *ListKeysRequest) String() string { return proto.CompactTextString(m) }
 func (*ListKeysRequest) ProtoMessage()    {}
 func (*ListKeysRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{23}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{23}
 }
 func (m *ListKeysRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListKeysRequest.Unmarshal(m, b)
@@ -1146,7 +1146,7 @@ func (m *ListKeysResponse) Reset()         { *m = ListKeysResponse{} }
 func (m *ListKeysResponse) String() string { return proto.CompactTextString(m) }
 func (*ListKeysResponse) ProtoMessage()    {}
 func (*ListKeysResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{24}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{24}
 }
 func (m *ListKeysResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListKeysResponse.Unmarshal(m, b)
@@ -1186,7 +1186,7 @@ func (m *CreateKeyRequest) Reset()         { *m = CreateKeyRequest{} }
 func (m *CreateKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*CreateKeyRequest) ProtoMessage()    {}
 func (*CreateKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{25}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{25}
 }
 func (m *CreateKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateKeyRequest.Unmarshal(m, b)
@@ -1238,7 +1238,7 @@ func (m *CreateKeyResponse) Reset()         { *m = CreateKeyResponse{} }
 func (m *CreateKeyResponse) String() string { return proto.CompactTextString(m) }
 func (*CreateKeyResponse) ProtoMessage()    {}
 func (*CreateKeyResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{26}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{26}
 }
 func (m *CreateKeyResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CreateKeyResponse.Unmarshal(m, b)
@@ -1276,7 +1276,7 @@ func (m *DeleteKeyRequest) Reset()         { *m = DeleteKeyRequest{} }
 func (m *DeleteKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteKeyRequest) ProtoMessage()    {}
 func (*DeleteKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{27}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{27}
 }
 func (m *DeleteKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteKeyRequest.Unmarshal(m, b)
@@ -1313,7 +1313,7 @@ func (m *DeleteKeyResponse) Reset()         { *m = DeleteKeyResponse{} }
 func (m *DeleteKeyResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteKeyResponse) ProtoMessage()    {}
 func (*DeleteKeyResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{28}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{28}
 }
 func (m *DeleteKeyResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteKeyResponse.Unmarshal(m, b)
@@ -1344,7 +1344,7 @@ func (m *GetKeyRequest) Reset()         { *m = GetKeyRequest{} }
 func (m *GetKeyRequest) String() string { return proto.CompactTextString(m) }
 func (*GetKeyRequest) ProtoMessage()    {}
 func (*GetKeyRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{29}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{29}
 }
 func (m *GetKeyRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetKeyRequest.Unmarshal(m, b)
@@ -1382,7 +1382,7 @@ func (m *GetKeyResponse) Reset()         { *m = GetKeyResponse{} }
 func (m *GetKeyResponse) String() string { return proto.CompactTextString(m) }
 func (*GetKeyResponse) ProtoMessage()    {}
 func (*GetKeyResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{30}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{30}
 }
 func (m *GetKeyResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GetKeyResponse.Unmarshal(m, b)
@@ -1424,7 +1424,7 @@ func (m *Grant) Reset()         { *m = Grant{} }
 func (m *Grant) String() string { return proto.CompactTextString(m) }
 func (*Grant) ProtoMessage()    {}
 func (*Grant) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{31}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{31}
 }
 func (m *Grant) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Grant.Unmarshal(m, b)
@@ -1492,7 +1492,7 @@ func (m *GrantItem) Reset()         { *m = GrantItem{} }
 func (m *GrantItem) String() string { return proto.CompactTextString(m) }
 func (*GrantItem) ProtoMessage()    {}
 func (*GrantItem) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{32}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{32}
 }
 func (m *GrantItem) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_GrantItem.Unmarshal(m, b)
@@ -1547,7 +1547,7 @@ func (m *PutGrantRequest) Reset()         { *m = PutGrantRequest{} }
 func (m *PutGrantRequest) String() string { return proto.CompactTextString(m) }
 func (*PutGrantRequest) ProtoMessage()    {}
 func (*PutGrantRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{33}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{33}
 }
 func (m *PutGrantRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PutGrantRequest.Unmarshal(m, b)
@@ -1606,7 +1606,7 @@ func (m *PutGrantResponse) Reset()         { *m = PutGrantResponse{} }
 func (m *PutGrantResponse) String() string { return proto.CompactTextString(m) }
 func (*PutGrantResponse) ProtoMessage()    {}
 func (*PutGrantResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{34}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{34}
 }
 func (m *PutGrantResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_PutGrantResponse.Unmarshal(m, b)
@@ -1644,7 +1644,7 @@ func (m *ListGrantsRequest) Reset()         { *m = ListGrantsRequest{} }
 func (m *ListGrantsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListGrantsRequest) ProtoMessage()    {}
 func (*ListGrantsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{35}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{35}
 }
 func (m *ListGrantsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListGrantsRequest.Unmarshal(m, b)
@@ -1683,7 +1683,7 @@ func (m *ListGrantsResponse) Reset()         { *m = ListGrantsResponse{} }
 func (m *ListGrantsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListGrantsResponse) ProtoMessage()    {}
 func (*ListGrantsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{36}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{36}
 }
 func (m *ListGrantsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListGrantsResponse.Unmarshal(m, b)
@@ -1728,7 +1728,7 @@ func (m *ListGrantItemsRequest) Reset()         { *m = ListGrantItemsRequest{} }
 func (m *ListGrantItemsRequest) String() string { return proto.CompactTextString(m) }
 func (*ListGrantItemsRequest) ProtoMessage()    {}
 func (*ListGrantItemsRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{37}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{37}
 }
 func (m *ListGrantItemsRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListGrantItemsRequest.Unmarshal(m, b)
@@ -1766,7 +1766,7 @@ func (m *ListGrantItemsResponse) Reset()         { *m = ListGrantItemsResponse{}
 func (m *ListGrantItemsResponse) String() string { return proto.CompactTextString(m) }
 func (*ListGrantItemsResponse) ProtoMessage()    {}
 func (*ListGrantItemsResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{38}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{38}
 }
 func (m *ListGrantItemsResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_ListGrantItemsResponse.Unmarshal(m, b)
@@ -1806,7 +1806,7 @@ func (m *DeleteGrantRequest) Reset()         { *m = DeleteGrantRequest{} }
 func (m *DeleteGrantRequest) String() string { return proto.CompactTextString(m) }
 func (*DeleteGrantRequest) ProtoMessage()    {}
 func (*DeleteGrantRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{39}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{39}
 }
 func (m *DeleteGrantRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteGrantRequest.Unmarshal(m, b)
@@ -1857,7 +1857,7 @@ func (m *DeleteGrantResponse) Reset()         { *m = DeleteGrantResponse{} }
 func (m *DeleteGrantResponse) String() string { return proto.CompactTextString(m) }
 func (*DeleteGrantResponse) ProtoMessage()    {}
 func (*DeleteGrantResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{40}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{40}
 }
 func (m *DeleteGrantResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_DeleteGrantResponse.Unmarshal(m, b)
@@ -1890,7 +1890,7 @@ func (m *CheckGrantRequest) Reset()         { *m = CheckGrantRequest{} }
 func (m *CheckGrantRequest) String() string { return proto.CompactTextString(m) }
 func (*CheckGrantRequest) ProtoMessage()    {}
 func (*CheckGrantRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{41}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{41}
 }
 func (m *CheckGrantRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckGrantRequest.Unmarshal(m, b)
@@ -1942,7 +1942,7 @@ func (m *CheckGrantResponse) Reset()         { *m = CheckGrantResponse{} }
 func (m *CheckGrantResponse) String() string { return proto.CompactTextString(m) }
 func (*CheckGrantResponse) ProtoMessage()    {}
 func (*CheckGrantResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_daemon_01f436a08ac87e6c, []int{42}
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{42}
 }
 func (m *CheckGrantResponse) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_CheckGrantResponse.Unmarshal(m, b)
@@ -1967,6 +1967,376 @@ func (m *CheckGrantResponse) GetOk() bool {
 		return m.Ok
 	}
 	return false
+}
+
+type Session struct {
+	Id                   int64    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Account              string   `protobuf:"bytes,2,opt,name=account,proto3" json:"account,omitempty"`
+	Command              string   `protobuf:"bytes,3,opt,name=command,proto3" json:"command,omitempty"`
+	CreatedAt            int64    `protobuf:"varint,4,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	FinishedAt           int64    `protobuf:"varint,5,opt,name=finished_at,json=finishedAt,proto3" json:"finished_at,omitempty"`
+	IsRecorded           bool     `protobuf:"varint,6,opt,name=is_recorded,json=isRecorded,proto3" json:"is_recorded,omitempty"`
+	ReplayFile           string   `protobuf:"bytes,7,opt,name=replay_file,json=replayFile,proto3" json:"replay_file,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *Session) Reset()         { *m = Session{} }
+func (m *Session) String() string { return proto.CompactTextString(m) }
+func (*Session) ProtoMessage()    {}
+func (*Session) Descriptor() ([]byte, []int) {
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{43}
+}
+func (m *Session) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_Session.Unmarshal(m, b)
+}
+func (m *Session) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_Session.Marshal(b, m, deterministic)
+}
+func (dst *Session) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Session.Merge(dst, src)
+}
+func (m *Session) XXX_Size() int {
+	return xxx_messageInfo_Session.Size(m)
+}
+func (m *Session) XXX_DiscardUnknown() {
+	xxx_messageInfo_Session.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_Session proto.InternalMessageInfo
+
+func (m *Session) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+func (m *Session) GetAccount() string {
+	if m != nil {
+		return m.Account
+	}
+	return ""
+}
+
+func (m *Session) GetCommand() string {
+	if m != nil {
+		return m.Command
+	}
+	return ""
+}
+
+func (m *Session) GetCreatedAt() int64 {
+	if m != nil {
+		return m.CreatedAt
+	}
+	return 0
+}
+
+func (m *Session) GetFinishedAt() int64 {
+	if m != nil {
+		return m.FinishedAt
+	}
+	return 0
+}
+
+func (m *Session) GetIsRecorded() bool {
+	if m != nil {
+		return m.IsRecorded
+	}
+	return false
+}
+
+func (m *Session) GetReplayFile() string {
+	if m != nil {
+		return m.ReplayFile
+	}
+	return ""
+}
+
+type CreateSessionRequest struct {
+	Account              string   `protobuf:"bytes,1,opt,name=account,proto3" json:"account,omitempty"`
+	Command              string   `protobuf:"bytes,2,opt,name=command,proto3" json:"command,omitempty"`
+	IsRecorded           bool     `protobuf:"varint,3,opt,name=is_recorded,json=isRecorded,proto3" json:"is_recorded,omitempty"`
+	ReplayFile           string   `protobuf:"bytes,4,opt,name=replay_file,json=replayFile,proto3" json:"replay_file,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateSessionRequest) Reset()         { *m = CreateSessionRequest{} }
+func (m *CreateSessionRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateSessionRequest) ProtoMessage()    {}
+func (*CreateSessionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{44}
+}
+func (m *CreateSessionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateSessionRequest.Unmarshal(m, b)
+}
+func (m *CreateSessionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateSessionRequest.Marshal(b, m, deterministic)
+}
+func (dst *CreateSessionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateSessionRequest.Merge(dst, src)
+}
+func (m *CreateSessionRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateSessionRequest.Size(m)
+}
+func (m *CreateSessionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateSessionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateSessionRequest proto.InternalMessageInfo
+
+func (m *CreateSessionRequest) GetAccount() string {
+	if m != nil {
+		return m.Account
+	}
+	return ""
+}
+
+func (m *CreateSessionRequest) GetCommand() string {
+	if m != nil {
+		return m.Command
+	}
+	return ""
+}
+
+func (m *CreateSessionRequest) GetIsRecorded() bool {
+	if m != nil {
+		return m.IsRecorded
+	}
+	return false
+}
+
+func (m *CreateSessionRequest) GetReplayFile() string {
+	if m != nil {
+		return m.ReplayFile
+	}
+	return ""
+}
+
+type CreateSessionResponse struct {
+	Session              *Session `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *CreateSessionResponse) Reset()         { *m = CreateSessionResponse{} }
+func (m *CreateSessionResponse) String() string { return proto.CompactTextString(m) }
+func (*CreateSessionResponse) ProtoMessage()    {}
+func (*CreateSessionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{45}
+}
+func (m *CreateSessionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateSessionResponse.Unmarshal(m, b)
+}
+func (m *CreateSessionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateSessionResponse.Marshal(b, m, deterministic)
+}
+func (dst *CreateSessionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateSessionResponse.Merge(dst, src)
+}
+func (m *CreateSessionResponse) XXX_Size() int {
+	return xxx_messageInfo_CreateSessionResponse.Size(m)
+}
+func (m *CreateSessionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateSessionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_CreateSessionResponse proto.InternalMessageInfo
+
+func (m *CreateSessionResponse) GetSession() *Session {
+	if m != nil {
+		return m.Session
+	}
+	return nil
+}
+
+type FinishSessionRequest struct {
+	Id                   int64    `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *FinishSessionRequest) Reset()         { *m = FinishSessionRequest{} }
+func (m *FinishSessionRequest) String() string { return proto.CompactTextString(m) }
+func (*FinishSessionRequest) ProtoMessage()    {}
+func (*FinishSessionRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{46}
+}
+func (m *FinishSessionRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FinishSessionRequest.Unmarshal(m, b)
+}
+func (m *FinishSessionRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FinishSessionRequest.Marshal(b, m, deterministic)
+}
+func (dst *FinishSessionRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FinishSessionRequest.Merge(dst, src)
+}
+func (m *FinishSessionRequest) XXX_Size() int {
+	return xxx_messageInfo_FinishSessionRequest.Size(m)
+}
+func (m *FinishSessionRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_FinishSessionRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FinishSessionRequest proto.InternalMessageInfo
+
+func (m *FinishSessionRequest) GetId() int64 {
+	if m != nil {
+		return m.Id
+	}
+	return 0
+}
+
+type FinishSessionResponse struct {
+	Session              *Session `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *FinishSessionResponse) Reset()         { *m = FinishSessionResponse{} }
+func (m *FinishSessionResponse) String() string { return proto.CompactTextString(m) }
+func (*FinishSessionResponse) ProtoMessage()    {}
+func (*FinishSessionResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{47}
+}
+func (m *FinishSessionResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_FinishSessionResponse.Unmarshal(m, b)
+}
+func (m *FinishSessionResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_FinishSessionResponse.Marshal(b, m, deterministic)
+}
+func (dst *FinishSessionResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_FinishSessionResponse.Merge(dst, src)
+}
+func (m *FinishSessionResponse) XXX_Size() int {
+	return xxx_messageInfo_FinishSessionResponse.Size(m)
+}
+func (m *FinishSessionResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_FinishSessionResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_FinishSessionResponse proto.InternalMessageInfo
+
+func (m *FinishSessionResponse) GetSession() *Session {
+	if m != nil {
+		return m.Session
+	}
+	return nil
+}
+
+type ListSessionsRequest struct {
+	Skip                 int32    `protobuf:"varint,1,opt,name=skip,proto3" json:"skip,omitempty"`
+	Limit                int32    `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *ListSessionsRequest) Reset()         { *m = ListSessionsRequest{} }
+func (m *ListSessionsRequest) String() string { return proto.CompactTextString(m) }
+func (*ListSessionsRequest) ProtoMessage()    {}
+func (*ListSessionsRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{48}
+}
+func (m *ListSessionsRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListSessionsRequest.Unmarshal(m, b)
+}
+func (m *ListSessionsRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListSessionsRequest.Marshal(b, m, deterministic)
+}
+func (dst *ListSessionsRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListSessionsRequest.Merge(dst, src)
+}
+func (m *ListSessionsRequest) XXX_Size() int {
+	return xxx_messageInfo_ListSessionsRequest.Size(m)
+}
+func (m *ListSessionsRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListSessionsRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListSessionsRequest proto.InternalMessageInfo
+
+func (m *ListSessionsRequest) GetSkip() int32 {
+	if m != nil {
+		return m.Skip
+	}
+	return 0
+}
+
+func (m *ListSessionsRequest) GetLimit() int32 {
+	if m != nil {
+		return m.Limit
+	}
+	return 0
+}
+
+type ListSessionsResponse struct {
+	Skip                 int32      `protobuf:"varint,1,opt,name=skip,proto3" json:"skip,omitempty"`
+	Limit                int32      `protobuf:"varint,2,opt,name=limit,proto3" json:"limit,omitempty"`
+	Total                int32      `protobuf:"varint,3,opt,name=total,proto3" json:"total,omitempty"`
+	Sessions             []*Session `protobuf:"bytes,4,rep,name=sessions,proto3" json:"sessions,omitempty"`
+	XXX_NoUnkeyedLiteral struct{}   `json:"-"`
+	XXX_unrecognized     []byte     `json:"-"`
+	XXX_sizecache        int32      `json:"-"`
+}
+
+func (m *ListSessionsResponse) Reset()         { *m = ListSessionsResponse{} }
+func (m *ListSessionsResponse) String() string { return proto.CompactTextString(m) }
+func (*ListSessionsResponse) ProtoMessage()    {}
+func (*ListSessionsResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_daemon_82e3433d51dee7ac, []int{49}
+}
+func (m *ListSessionsResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_ListSessionsResponse.Unmarshal(m, b)
+}
+func (m *ListSessionsResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_ListSessionsResponse.Marshal(b, m, deterministic)
+}
+func (dst *ListSessionsResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_ListSessionsResponse.Merge(dst, src)
+}
+func (m *ListSessionsResponse) XXX_Size() int {
+	return xxx_messageInfo_ListSessionsResponse.Size(m)
+}
+func (m *ListSessionsResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_ListSessionsResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_ListSessionsResponse proto.InternalMessageInfo
+
+func (m *ListSessionsResponse) GetSkip() int32 {
+	if m != nil {
+		return m.Skip
+	}
+	return 0
+}
+
+func (m *ListSessionsResponse) GetLimit() int32 {
+	if m != nil {
+		return m.Limit
+	}
+	return 0
+}
+
+func (m *ListSessionsResponse) GetTotal() int32 {
+	if m != nil {
+		return m.Total
+	}
+	return 0
+}
+
+func (m *ListSessionsResponse) GetSessions() []*Session {
+	if m != nil {
+		return m.Sessions
+	}
+	return nil
 }
 
 func init() {
@@ -2013,6 +2383,13 @@ func init() {
 	proto.RegisterType((*DeleteGrantResponse)(nil), "types.DeleteGrantResponse")
 	proto.RegisterType((*CheckGrantRequest)(nil), "types.CheckGrantRequest")
 	proto.RegisterType((*CheckGrantResponse)(nil), "types.CheckGrantResponse")
+	proto.RegisterType((*Session)(nil), "types.Session")
+	proto.RegisterType((*CreateSessionRequest)(nil), "types.CreateSessionRequest")
+	proto.RegisterType((*CreateSessionResponse)(nil), "types.CreateSessionResponse")
+	proto.RegisterType((*FinishSessionRequest)(nil), "types.FinishSessionRequest")
+	proto.RegisterType((*FinishSessionResponse)(nil), "types.FinishSessionResponse")
+	proto.RegisterType((*ListSessionsRequest)(nil), "types.ListSessionsRequest")
+	proto.RegisterType((*ListSessionsResponse)(nil), "types.ListSessionsResponse")
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -2774,86 +3151,233 @@ var _GrantService_serviceDesc = grpc.ServiceDesc{
 	Metadata: "daemon.proto",
 }
 
-func init() { proto.RegisterFile("daemon.proto", fileDescriptor_daemon_01f436a08ac87e6c) }
+// SessionServiceClient is the client API for SessionService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
+type SessionServiceClient interface {
+	CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*CreateSessionResponse, error)
+	FinishSession(ctx context.Context, in *FinishSessionRequest, opts ...grpc.CallOption) (*FinishSessionResponse, error)
+	ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error)
+}
 
-var fileDescriptor_daemon_01f436a08ac87e6c = []byte{
-	// 1241 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x58, 0xef, 0x6e, 0x1b, 0x45,
-	0x10, 0xcf, 0xf9, 0x6c, 0xc7, 0x1e, 0xa7, 0xc9, 0x79, 0xdb, 0x24, 0xd7, 0xa3, 0x69, 0xc3, 0xaa,
-	0x82, 0x50, 0x4a, 0x50, 0x42, 0x29, 0x12, 0x08, 0xa9, 0x21, 0x88, 0xa8, 0x4a, 0xd5, 0x46, 0x07,
-	0xf9, 0x82, 0x84, 0x2c, 0xe7, 0xbc, 0x24, 0x27, 0xd7, 0x77, 0xe6, 0x6e, 0xdd, 0xe0, 0x6f, 0x7c,
-	0x03, 0x24, 0x9e, 0x81, 0x47, 0xe0, 0x2d, 0x78, 0x00, 0xde, 0x84, 0x47, 0x40, 0xfb, 0xf7, 0xf6,
-	0xf6, 0x92, 0x70, 0x41, 0x2d, 0xdf, 0x7c, 0x33, 0xbb, 0xb3, 0xbf, 0xfd, 0xcd, 0xec, 0xcc, 0x2f,
-	0x81, 0xa5, 0xd1, 0x90, 0x4c, 0xd2, 0x64, 0x7b, 0x9a, 0xa5, 0x34, 0x45, 0x2d, 0x3a, 0x9f, 0x92,
-	0x1c, 0xff, 0xe5, 0x40, 0xf3, 0x38, 0x27, 0x19, 0xf2, 0x61, 0x71, 0x18, 0x45, 0xe9, 0x2c, 0xa1,
-	0x7e, 0x63, 0xd3, 0xd9, 0xea, 0x86, 0xea, 0x13, 0x05, 0xd0, 0x49, 0xe2, 0x68, 0x9c, 0x0c, 0x27,
-	0xc4, 0x77, 0xb9, 0x4b, 0x7f, 0xa3, 0xdb, 0xd0, 0x89, 0xf3, 0xc1, 0x70, 0x34, 0x89, 0x13, 0xbf,
-	0xb9, 0xe9, 0x6c, 0x75, 0xc2, 0xc5, 0x38, 0xdf, 0x63, 0x9f, 0x68, 0x03, 0x20, 0xce, 0x07, 0x27,
-	0x2f, 0xd3, 0x68, 0x4c, 0x46, 0x7e, 0x8b, 0x3b, 0xbb, 0x71, 0xfe, 0x85, 0x30, 0x30, 0x77, 0x94,
-	0x91, 0x21, 0x25, 0xa3, 0xc1, 0x90, 0xfa, 0xed, 0x4d, 0x67, 0xcb, 0x0d, 0xbb, 0xd2, 0xb2, 0x47,
-	0x99, 0x7b, 0x36, 0x1d, 0x29, 0xf7, 0xa2, 0x70, 0x4b, 0xcb, 0x1e, 0x45, 0x6f, 0x41, 0xf7, 0x55,
-	0x4c, 0xce, 0x85, 0xb7, 0xc3, 0xbd, 0x1d, 0x61, 0xd8, 0xa3, 0x18, 0x81, 0xf7, 0x2c, 0xce, 0x29,
-	0xbb, 0x56, 0x1e, 0x92, 0x1f, 0x66, 0x24, 0xa7, 0xf8, 0x31, 0xf4, 0x0d, 0x5b, 0x3e, 0x4d, 0x93,
-	0x9c, 0xa0, 0xb7, 0xa1, 0x35, 0x63, 0x06, 0xdf, 0xd9, 0x74, 0xb7, 0x7a, 0xbb, 0xbd, 0x6d, 0xce,
-	0xc9, 0x36, 0x5b, 0x14, 0x0a, 0x0f, 0xfe, 0xc9, 0x81, 0xfe, 0x3e, 0x47, 0xc5, 0xad, 0x22, 0x9a,
-	0x49, 0x96, 0x53, 0x21, 0x6b, 0x3a, 0xcc, 0xf3, 0xf3, 0x34, 0x1b, 0x49, 0x1e, 0xf5, 0xf7, 0x7f,
-	0x24, 0x12, 0x7f, 0x0c, 0xc8, 0x44, 0x20, 0xb1, 0xdf, 0x83, 0x26, 0x43, 0xc8, 0xcf, 0xb7, 0xa0,
-	0x73, 0x07, 0x7e, 0x08, 0xde, 0x37, 0xe9, 0x2c, 0x3a, 0xab, 0x85, 0x1b, 0x3f, 0x82, 0xbe, 0xb1,
-	0xba, 0xee, 0x19, 0x7f, 0x36, 0xa0, 0x7f, 0xcc, 0x93, 0x52, 0x8f, 0x9d, 0x77, 0x61, 0x45, 0xe4,
-	0x70, 0xa0, 0x89, 0x68, 0xf0, 0xcb, 0x2e, 0x0b, 0xf3, 0x73, 0x45, 0xc7, 0x55, 0x54, 0x15, 0x41,
-	0x34, 0xd3, 0x4d, 0x33, 0xc8, 0x91, 0xc1, 0xb7, 0x5e, 0xd1, 0xb2, 0x72, 0xf1, 0x8e, 0x0e, 0xa2,
-	0x69, 0x6f, 0xf3, 0x20, 0x37, 0x84, 0xf9, 0xa9, 0xac, 0x62, 0x33, 0x2f, 0x8b, 0xe5, 0x02, 0x7f,
-	0x00, 0xfd, 0x22, 0x84, 0xaa, 0xf3, 0x0e, 0x5f, 0xb3, 0xa2, 0x82, 0x18, 0xd5, 0x6e, 0x2c, 0xea,
-	0x5a, 0x8f, 0x81, 0xa5, 0xd8, 0xa4, 0xb1, 0x2e, 0xfd, 0x2f, 0x60, 0x7d, 0x6f, 0x46, 0xcf, 0x48,
-	0x42, 0xe3, 0xe8, 0x75, 0x54, 0x28, 0xfe, 0x0c, 0xfc, 0x6a, 0xc0, 0xba, 0x68, 0x1e, 0xc0, 0xf2,
-	0x01, 0xa1, 0xf5, 0xca, 0x6d, 0x17, 0x56, 0xf4, 0xda, 0xba, 0xf1, 0x7f, 0x76, 0xa0, 0xf9, 0x3c,
-	0x1d, 0xf1, 0xe2, 0x38, 0x4b, 0x73, 0xca, 0x8b, 0x43, 0xc4, 0xd5, 0xdf, 0x08, 0xc9, 0x28, 0xe2,
-	0x66, 0xfc, 0x37, 0x87, 0x31, 0x1a, 0x65, 0x24, 0xcf, 0x65, 0x2d, 0xa9, 0x4f, 0xb4, 0x06, 0xed,
-	0x3c, 0x9d, 0x65, 0x11, 0xe1, 0x15, 0xd4, 0x0d, 0xe5, 0x97, 0xd5, 0x9c, 0x5a, 0x56, 0x73, 0x52,
-	0x0d, 0x86, 0x81, 0xb1, 0x1b, 0x8c, 0xb4, 0x15, 0x0d, 0x26, 0x61, 0x06, 0xab, 0xc1, 0xb0, 0x45,
-	0xa1, 0xf0, 0xe0, 0x0c, 0x96, 0x8f, 0x66, 0x7c, 0x9b, 0x62, 0xed, 0x8d, 0x5f, 0x8f, 0xb1, 0xaf,
-	0xcf, 0x2c, 0xd8, 0x67, 0x78, 0x2c, 0xf6, 0xf9, 0x12, 0xee, 0xc0, 0x1f, 0x42, 0xff, 0x4b, 0xf2,
-	0x92, 0x50, 0x52, 0x13, 0x2a, 0xbe, 0x05, 0xc8, 0xdc, 0x20, 0xce, 0xc1, 0x0f, 0x79, 0x91, 0xd4,
-	0x8d, 0x21, 0xca, 0xe4, 0x7a, 0x40, 0x29, 0xb8, 0x87, 0x64, 0x8e, 0x36, 0xa1, 0xf7, 0x7d, 0x9c,
-	0x9c, 0x92, 0x6c, 0x9a, 0xc5, 0xba, 0xfe, 0x4c, 0xd3, 0x15, 0x13, 0x0f, 0x41, 0xd3, 0xe8, 0x3c,
-	0xfc, 0xb7, 0x55, 0x12, 0x4d, 0xbb, 0x24, 0xde, 0x87, 0x15, 0x96, 0xfe, 0x43, 0x32, 0xcf, 0xeb,
-	0x54, 0xbf, 0x57, 0x2c, 0x96, 0xf7, 0xba, 0x0b, 0xcd, 0x31, 0x99, 0xab, 0x4a, 0x01, 0x79, 0xaf,
-	0x43, 0x32, 0x0f, 0xb9, 0x1d, 0x9f, 0x80, 0x27, 0xa6, 0x00, 0x33, 0xc9, 0x13, 0x5e, 0xf3, 0x1d,
-	0xf1, 0x8e, 0x9a, 0x75, 0xfc, 0x0c, 0x09, 0xec, 0x0e, 0xb8, 0x63, 0x32, 0x97, 0x7c, 0x9b, 0xb8,
-	0x98, 0x19, 0x3f, 0x02, 0x4f, 0x64, 0xf9, 0x3a, 0xb0, 0xf0, 0x4d, 0x55, 0x4c, 0xc6, 0x41, 0x78,
-	0x07, 0x6e, 0x1c, 0x10, 0x7a, 0xad, 0x38, 0xdb, 0xbc, 0x9a, 0xea, 0xa3, 0xfd, 0xdd, 0x81, 0xd6,
-	0x41, 0x36, 0x4c, 0xae, 0xea, 0x8f, 0xef, 0x81, 0xa7, 0xea, 0x6f, 0x30, 0x1d, 0x52, 0x4a, 0xb2,
-	0x44, 0x72, 0xb7, 0xa2, 0xec, 0x47, 0xc2, 0xac, 0x5f, 0xa3, 0x6b, 0xbc, 0xc6, 0x0d, 0x00, 0xf2,
-	0xe3, 0x34, 0xce, 0x4a, 0x75, 0x22, 0x2d, 0x42, 0xd7, 0x5c, 0xd5, 0x59, 0xbe, 0x85, 0x2e, 0xc7,
-	0xf7, 0x94, 0x92, 0xc9, 0xb5, 0x1b, 0x41, 0xf9, 0x68, 0xd7, 0x3a, 0x1a, 0xff, 0xea, 0xf0, 0x67,
-	0xcf, 0xe3, 0xff, 0xfb, 0x98, 0x78, 0xa3, 0x34, 0xe0, 0xc7, 0xe0, 0x15, 0x50, 0x64, 0xea, 0x30,
-	0xb4, 0x4e, 0x99, 0x41, 0x26, 0x6f, 0x49, 0x26, 0x4f, 0x2c, 0x12, 0x2e, 0xfc, 0x81, 0xe8, 0xb2,
-	0xdc, 0x56, 0xe3, 0xa1, 0x3d, 0x03, 0x64, 0x2e, 0x97, 0x07, 0xdd, 0x87, 0x36, 0x8f, 0xa6, 0x1e,
-	0x5b, 0xf9, 0x24, 0xe9, 0x43, 0x1e, 0xb8, 0x49, 0x7a, 0xce, 0xef, 0xec, 0x86, 0xec, 0x27, 0xde,
-	0x81, 0x55, 0x1d, 0x8d, 0x25, 0xa8, 0x06, 0x80, 0x43, 0x58, 0xb3, 0xb7, 0x48, 0x10, 0x3b, 0xd0,
-	0xe3, 0x07, 0x0d, 0x62, 0x66, 0x96, 0x48, 0x3c, 0x13, 0x09, 0x5b, 0x1f, 0xc2, 0xa9, 0xde, 0x8a,
-	0x27, 0xaa, 0xa3, 0xfe, 0x2f, 0x29, 0xc4, 0xab, 0x70, 0xb3, 0x74, 0x9c, 0x7c, 0xa6, 0xdf, 0x41,
-	0x7f, 0xff, 0x8c, 0x44, 0xe3, 0x9a, 0x20, 0xcc, 0x22, 0x6e, 0x5c, 0x52, 0xc4, 0xe6, 0xa9, 0xf7,
-	0x01, 0x99, 0xe1, 0x25, 0x5b, 0xcb, 0xd0, 0x48, 0xc7, 0x3c, 0x74, 0x27, 0x6c, 0xa4, 0xe3, 0xdd,
-	0x3f, 0x5c, 0xe8, 0x31, 0x69, 0xf0, 0x35, 0xc9, 0x5e, 0xc5, 0x11, 0x41, 0x4f, 0xa0, 0xab, 0xe5,
-	0x3d, 0x5a, 0x97, 0x2c, 0xda, 0x7f, 0x04, 0x04, 0x7e, 0xd5, 0x21, 0x2f, 0xb5, 0x80, 0xf6, 0x01,
-	0x0a, 0x95, 0x8d, 0xd4, 0xca, 0x8a, 0xf4, 0x0f, 0x6e, 0x5f, 0xe0, 0xd1, 0x41, 0x9e, 0x40, 0x57,
-	0xab, 0x68, 0x0d, 0xc3, 0x56, 0xe1, 0x1a, 0x46, 0x45, 0x70, 0x0b, 0x18, 0x85, 0x12, 0xd4, 0x30,
-	0x2a, 0x1a, 0x5b, 0xc3, 0xa8, 0xca, 0x46, 0xbc, 0x80, 0x8e, 0xc1, 0xb3, 0x65, 0x1c, 0xba, 0x2b,
-	0x37, 0x5c, 0x22, 0x18, 0x83, 0x7b, 0x97, 0xfa, 0x75, 0xd8, 0x4f, 0x61, 0x51, 0x8a, 0x36, 0xb4,
-	0xaa, 0x0a, 0xb5, 0x24, 0xf8, 0x82, 0x35, 0xdb, 0xac, 0xf6, 0xee, 0xfe, 0xd6, 0x80, 0x1e, 0x1b,
-	0xd2, 0x56, 0xc2, 0xb8, 0x5c, 0x2a, 0x25, 0xcc, 0x14, 0x55, 0xa5, 0x84, 0x95, 0x94, 0x95, 0x40,
-	0x23, 0x45, 0x8c, 0x46, 0x53, 0x16, 0x52, 0x1a, 0x8d, 0xa5, 0x75, 0x04, 0xcb, 0x85, 0x36, 0xd1,
-	0x2c, 0x57, 0xf4, 0x8d, 0x66, 0xf9, 0x02, 0x21, 0xa3, 0xe8, 0x28, 0x01, 0x28, 0x4b, 0x1b, 0x93,
-	0x8e, 0xf2, 0xde, 0xdd, 0x5f, 0x1a, 0x00, 0x87, 0x64, 0xae, 0xd8, 0xf8, 0x1c, 0x3a, 0x4a, 0x10,
-	0xa0, 0x35, 0xe3, 0xce, 0x86, 0x9c, 0x08, 0xd6, 0x2b, 0x76, 0xb3, 0xec, 0xf4, 0xdc, 0xd6, 0x64,
-	0xda, 0x6a, 0x21, 0xf0, 0xab, 0x0e, 0x33, 0x82, 0x1e, 0xc8, 0x3a, 0x82, 0x3d, 0xd8, 0x03, 0xbf,
-	0xea, 0xd0, 0x11, 0x3e, 0x81, 0xb6, 0x18, 0xc5, 0xe8, 0x56, 0x71, 0x6b, 0x63, 0xef, 0xaa, 0x65,
-	0xd5, 0x54, 0xfc, 0xdd, 0x80, 0x25, 0xfe, 0xd8, 0x0d, 0x32, 0xd4, 0x6c, 0x40, 0x46, 0x0a, 0xcd,
-	0x7e, 0xa3, 0xc9, 0xb0, 0x87, 0x88, 0xc8, 0x6d, 0xd1, 0xf3, 0x91, 0x59, 0x41, 0xa5, 0xa9, 0xa1,
-	0x73, 0x5b, 0x1d, 0x10, 0x78, 0x01, 0x7d, 0x05, 0x3d, 0xa3, 0xf7, 0xa1, 0x72, 0x1d, 0x94, 0x90,
-	0x04, 0x17, 0xb9, 0x4a, 0x5d, 0x45, 0x77, 0xb3, 0xa2, 0xab, 0xd8, 0xfd, 0xb3, 0xe8, 0x2a, 0x95,
-	0xd6, 0x87, 0x17, 0xd0, 0x0b, 0x58, 0x2e, 0x0f, 0x11, 0x74, 0xc7, 0xc6, 0x6e, 0x8e, 0xa3, 0x60,
-	0xe3, 0x12, 0xaf, 0x0a, 0x78, 0xd2, 0xe6, 0xff, 0x02, 0xfa, 0xe8, 0x9f, 0x00, 0x00, 0x00, 0xff,
-	0xff, 0x03, 0x55, 0x30, 0x28, 0x12, 0x12, 0x00, 0x00,
+type sessionServiceClient struct {
+	cc *grpc.ClientConn
+}
+
+func NewSessionServiceClient(cc *grpc.ClientConn) SessionServiceClient {
+	return &sessionServiceClient{cc}
+}
+
+func (c *sessionServiceClient) CreateSession(ctx context.Context, in *CreateSessionRequest, opts ...grpc.CallOption) (*CreateSessionResponse, error) {
+	out := new(CreateSessionResponse)
+	err := c.cc.Invoke(ctx, "/types.SessionService/CreateSession", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sessionServiceClient) FinishSession(ctx context.Context, in *FinishSessionRequest, opts ...grpc.CallOption) (*FinishSessionResponse, error) {
+	out := new(FinishSessionResponse)
+	err := c.cc.Invoke(ctx, "/types.SessionService/FinishSession", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *sessionServiceClient) ListSessions(ctx context.Context, in *ListSessionsRequest, opts ...grpc.CallOption) (*ListSessionsResponse, error) {
+	out := new(ListSessionsResponse)
+	err := c.cc.Invoke(ctx, "/types.SessionService/ListSessions", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// SessionServiceServer is the server API for SessionService service.
+type SessionServiceServer interface {
+	CreateSession(context.Context, *CreateSessionRequest) (*CreateSessionResponse, error)
+	FinishSession(context.Context, *FinishSessionRequest) (*FinishSessionResponse, error)
+	ListSessions(context.Context, *ListSessionsRequest) (*ListSessionsResponse, error)
+}
+
+func RegisterSessionServiceServer(s *grpc.Server, srv SessionServiceServer) {
+	s.RegisterService(&_SessionService_serviceDesc, srv)
+}
+
+func _SessionService_CreateSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionServiceServer).CreateSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/types.SessionService/CreateSession",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).CreateSession(ctx, req.(*CreateSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SessionService_FinishSession_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FinishSessionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionServiceServer).FinishSession(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/types.SessionService/FinishSession",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).FinishSession(ctx, req.(*FinishSessionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _SessionService_ListSessions_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListSessionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SessionServiceServer).ListSessions(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/types.SessionService/ListSessions",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SessionServiceServer).ListSessions(ctx, req.(*ListSessionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _SessionService_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "types.SessionService",
+	HandlerType: (*SessionServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "CreateSession",
+			Handler:    _SessionService_CreateSession_Handler,
+		},
+		{
+			MethodName: "FinishSession",
+			Handler:    _SessionService_FinishSession_Handler,
+		},
+		{
+			MethodName: "ListSessions",
+			Handler:    _SessionService_ListSessions_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "daemon.proto",
+}
+
+func init() { proto.RegisterFile("daemon.proto", fileDescriptor_daemon_82e3433d51dee7ac) }
+
+var fileDescriptor_daemon_82e3433d51dee7ac = []byte{
+	// 1516 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0xbc, 0x58, 0xdd, 0x6e, 0x1b, 0xc5,
+	0x17, 0xcf, 0xfa, 0x23, 0xb6, 0x8f, 0x13, 0xc7, 0x9e, 0x26, 0xe9, 0x76, 0xfb, 0x95, 0xff, 0xa8,
+	0xea, 0x3f, 0x94, 0x12, 0x94, 0x50, 0x8a, 0x04, 0x42, 0x34, 0x14, 0xb5, 0xaa, 0x12, 0xb5, 0xd5,
+	0x96, 0xde, 0x20, 0x21, 0xcb, 0xf5, 0x4e, 0x9b, 0x95, 0xed, 0x5d, 0xb3, 0xb3, 0x6e, 0xf0, 0x1d,
+	0xe2, 0x06, 0x90, 0xfa, 0x0c, 0x3c, 0x02, 0x6f, 0xc1, 0x35, 0xe2, 0x4d, 0xb8, 0xe3, 0x16, 0xcd,
+	0xe7, 0xce, 0xce, 0x3a, 0xc9, 0x06, 0xb5, 0xdc, 0x79, 0xcf, 0x99, 0x39, 0xf3, 0x9b, 0xdf, 0x39,
+	0x73, 0x3e, 0x0c, 0x2b, 0xc1, 0x80, 0x4c, 0xe2, 0x68, 0x67, 0x9a, 0xc4, 0x69, 0x8c, 0xea, 0xe9,
+	0x7c, 0x4a, 0x28, 0xfe, 0xd3, 0x81, 0xda, 0x73, 0x4a, 0x12, 0xe4, 0x42, 0x63, 0x30, 0x1c, 0xc6,
+	0xb3, 0x28, 0x75, 0x2b, 0x5b, 0xce, 0x76, 0xcb, 0x57, 0x9f, 0xc8, 0x83, 0x66, 0x14, 0x0e, 0x47,
+	0xd1, 0x60, 0x42, 0xdc, 0x2a, 0x57, 0xe9, 0x6f, 0x74, 0x09, 0x9a, 0x21, 0xed, 0x0f, 0x82, 0x49,
+	0x18, 0xb9, 0xb5, 0x2d, 0x67, 0xbb, 0xe9, 0x37, 0x42, 0xba, 0xcf, 0x3e, 0xd1, 0x55, 0x80, 0x90,
+	0xf6, 0x5f, 0x8c, 0xe3, 0xe1, 0x88, 0x04, 0x6e, 0x9d, 0x2b, 0x5b, 0x21, 0xfd, 0x52, 0x08, 0x98,
+	0x7a, 0x98, 0x90, 0x41, 0x4a, 0x82, 0xfe, 0x20, 0x75, 0x97, 0xb7, 0x9c, 0xed, 0xaa, 0xdf, 0x92,
+	0x92, 0xfd, 0x94, 0xa9, 0x67, 0xd3, 0x40, 0xa9, 0x1b, 0x42, 0x2d, 0x25, 0xfb, 0x29, 0xba, 0x0c,
+	0xad, 0xd7, 0x21, 0x39, 0x16, 0xda, 0x26, 0xd7, 0x36, 0x85, 0x60, 0x3f, 0xc5, 0x08, 0xba, 0x87,
+	0x21, 0x4d, 0xd9, 0xb5, 0xa8, 0x4f, 0xbe, 0x9b, 0x11, 0x9a, 0xe2, 0xbb, 0xd0, 0x33, 0x64, 0x74,
+	0x1a, 0x47, 0x94, 0xa0, 0xff, 0x41, 0x7d, 0xc6, 0x04, 0xae, 0xb3, 0x55, 0xdd, 0x6e, 0xef, 0xb5,
+	0x77, 0x38, 0x27, 0x3b, 0x6c, 0x91, 0x2f, 0x34, 0xf8, 0x07, 0x07, 0x7a, 0xf7, 0x39, 0x2a, 0x2e,
+	0x15, 0xd6, 0x4c, 0xb2, 0x9c, 0x02, 0x59, 0xd3, 0x01, 0xa5, 0xc7, 0x71, 0x12, 0x48, 0x1e, 0xf5,
+	0xf7, 0xbf, 0x24, 0x12, 0x7f, 0x0c, 0xc8, 0x44, 0x20, 0xb1, 0x5f, 0x87, 0x1a, 0x43, 0xc8, 0xcf,
+	0xb7, 0xa0, 0x73, 0x05, 0xbe, 0x0d, 0xdd, 0xaf, 0xe3, 0xd9, 0xf0, 0xa8, 0x14, 0x6e, 0x7c, 0x07,
+	0x7a, 0xc6, 0xea, 0xb2, 0x67, 0xfc, 0x5e, 0x81, 0xde, 0x73, 0xee, 0x94, 0x72, 0xec, 0xfc, 0x1f,
+	0xd6, 0x84, 0x0f, 0xfb, 0x9a, 0x88, 0x0a, 0xbf, 0x6c, 0x47, 0x88, 0x1f, 0x2b, 0x3a, 0x4e, 0xa3,
+	0x2a, 0x33, 0xa2, 0x99, 0xae, 0x99, 0x46, 0x9e, 0x1a, 0x7c, 0xeb, 0x15, 0x75, 0xcb, 0x17, 0x37,
+	0xb5, 0x11, 0x4d, 0xfb, 0x32, 0x37, 0xb2, 0x2a, 0xc4, 0x8f, 0x64, 0x14, 0x9b, 0x7e, 0x69, 0xe4,
+	0x03, 0xfc, 0x16, 0xf4, 0x32, 0x13, 0x2a, 0xce, 0x9b, 0x7c, 0xcd, 0x9a, 0x32, 0x62, 0x44, 0xbb,
+	0xb1, 0xa8, 0x65, 0x3d, 0x06, 0xe6, 0x62, 0x93, 0xc6, 0xb2, 0xf4, 0x3f, 0x81, 0x8b, 0xfb, 0xb3,
+	0xf4, 0x88, 0x44, 0x69, 0x38, 0x7c, 0x1b, 0x11, 0x8a, 0x3f, 0x03, 0xb7, 0x68, 0xb0, 0x2c, 0x9a,
+	0x5b, 0xd0, 0x79, 0x48, 0xd2, 0x72, 0xe1, 0xb6, 0x07, 0x6b, 0x7a, 0x6d, 0x59, 0xfb, 0x3f, 0x39,
+	0x50, 0x7b, 0x1c, 0x07, 0x3c, 0x38, 0x8e, 0x62, 0x9a, 0xf2, 0xe0, 0x10, 0x76, 0xf5, 0x37, 0x42,
+	0xd2, 0x8a, 0xb8, 0x19, 0xff, 0xcd, 0x61, 0x04, 0x41, 0x42, 0x28, 0x95, 0xb1, 0xa4, 0x3e, 0xd1,
+	0x26, 0x2c, 0xd3, 0x78, 0x96, 0x0c, 0x09, 0x8f, 0xa0, 0x96, 0x2f, 0xbf, 0xac, 0xe4, 0x54, 0xb7,
+	0x92, 0x93, 0x4a, 0x30, 0x0c, 0x8c, 0x9d, 0x60, 0xa4, 0x2c, 0x4b, 0x30, 0x11, 0x13, 0x58, 0x09,
+	0x86, 0x2d, 0xf2, 0x85, 0x06, 0x27, 0xd0, 0x79, 0x3a, 0xe3, 0xdb, 0x14, 0x6b, 0xef, 0xfc, 0x7a,
+	0x8c, 0x7d, 0x7d, 0x66, 0xc6, 0x3e, 0xc3, 0x63, 0xb1, 0xcf, 0x97, 0x70, 0x05, 0xfe, 0x10, 0x7a,
+	0x5f, 0x91, 0x31, 0x49, 0x49, 0x49, 0xa8, 0x78, 0x1d, 0x90, 0xb9, 0x41, 0x9c, 0x83, 0x6f, 0xf3,
+	0x20, 0x29, 0x6b, 0x43, 0x84, 0xc9, 0xf9, 0x80, 0xa6, 0x50, 0x3d, 0x20, 0x73, 0xb4, 0x05, 0xed,
+	0x97, 0x61, 0xf4, 0x8a, 0x24, 0xd3, 0x24, 0xd4, 0xf1, 0x67, 0x8a, 0x4e, 0xa9, 0x78, 0x08, 0x6a,
+	0x46, 0xe6, 0xe1, 0xbf, 0xad, 0x90, 0xa8, 0xd9, 0x21, 0xf1, 0x3e, 0xac, 0x31, 0xf7, 0x1f, 0x90,
+	0x39, 0x2d, 0x13, 0xfd, 0xdd, 0x6c, 0xb1, 0xbc, 0xd7, 0x35, 0xa8, 0x8d, 0xc8, 0x5c, 0x45, 0x0a,
+	0xc8, 0x7b, 0x1d, 0x90, 0xb9, 0xcf, 0xe5, 0xf8, 0x05, 0x74, 0x45, 0x15, 0x60, 0x22, 0x79, 0xc2,
+	0x5b, 0xbe, 0x23, 0xde, 0x55, 0xb5, 0x8e, 0x9f, 0x21, 0x81, 0x5d, 0x81, 0xea, 0x88, 0xcc, 0x25,
+	0xdf, 0x26, 0x2e, 0x26, 0xc6, 0x77, 0xa0, 0x2b, 0xbc, 0x7c, 0x1e, 0x58, 0xf8, 0x82, 0x0a, 0x26,
+	0xe3, 0x20, 0xbc, 0x0b, 0xab, 0x0f, 0x49, 0x7a, 0x2e, 0x3b, 0x3b, 0x3c, 0x9a, 0xca, 0xa3, 0xfd,
+	0xd5, 0x81, 0xfa, 0xc3, 0x64, 0x10, 0x9d, 0x96, 0x1f, 0xdf, 0x83, 0xae, 0x8a, 0xbf, 0xfe, 0x74,
+	0x90, 0xa6, 0x24, 0x89, 0x24, 0x77, 0x6b, 0x4a, 0xfe, 0x54, 0x88, 0xf5, 0x6b, 0xac, 0x1a, 0xaf,
+	0xf1, 0x2a, 0x00, 0xf9, 0x7e, 0x1a, 0x26, 0xb9, 0x38, 0x91, 0x12, 0xd1, 0xd7, 0x9c, 0x96, 0x59,
+	0xbe, 0x81, 0x16, 0xc7, 0xf7, 0x28, 0x25, 0x93, 0x73, 0x27, 0x82, 0xfc, 0xd1, 0x55, 0xeb, 0x68,
+	0xfc, 0x8b, 0xc3, 0x9f, 0x3d, 0xb7, 0x7f, 0x76, 0x99, 0x78, 0xa7, 0x34, 0xe0, 0xbb, 0xd0, 0xcd,
+	0xa0, 0x48, 0xd7, 0x61, 0xa8, 0xbf, 0x62, 0x02, 0xe9, 0xbc, 0x15, 0xe9, 0x3c, 0xb1, 0x48, 0xa8,
+	0xf0, 0x07, 0x22, 0xcb, 0x72, 0x59, 0x89, 0x87, 0x76, 0x08, 0xc8, 0x5c, 0x2e, 0x0f, 0xba, 0x01,
+	0xcb, 0xdc, 0x9a, 0x7a, 0x6c, 0xf9, 0x93, 0xa4, 0x0e, 0x75, 0xa1, 0x1a, 0xc5, 0xc7, 0xfc, 0xce,
+	0x55, 0x9f, 0xfd, 0xc4, 0xbb, 0xb0, 0xa1, 0xad, 0x31, 0x07, 0x95, 0x00, 0x70, 0x00, 0x9b, 0xf6,
+	0x16, 0x09, 0x62, 0x17, 0xda, 0xfc, 0xa0, 0x7e, 0xc8, 0xc4, 0x12, 0x49, 0xd7, 0x44, 0xc2, 0xd6,
+	0xfb, 0xf0, 0x4a, 0x6f, 0xc5, 0x13, 0x95, 0x51, 0xff, 0x13, 0x17, 0xe2, 0x0d, 0xb8, 0x90, 0x3b,
+	0x4e, 0x3e, 0xd3, 0x6f, 0xa1, 0x77, 0xff, 0x88, 0x0c, 0x47, 0x25, 0x41, 0x98, 0x41, 0x5c, 0x39,
+	0x21, 0x88, 0xcd, 0x53, 0x6f, 0x00, 0x32, 0xcd, 0x4b, 0xb6, 0x3a, 0x50, 0x89, 0x47, 0xdc, 0x74,
+	0xd3, 0xaf, 0xc4, 0x23, 0xfc, 0x87, 0x03, 0x8d, 0x67, 0x84, 0xd2, 0x30, 0x8e, 0x98, 0x2e, 0x0c,
+	0xb8, 0xae, 0xea, 0x57, 0xc2, 0xe0, 0x94, 0x9c, 0xe7, 0x42, 0x63, 0x18, 0x4f, 0x26, 0x83, 0x28,
+	0x50, 0x95, 0x52, 0x7e, 0x9e, 0x91, 0xdd, 0xd1, 0x75, 0x9e, 0x89, 0x42, 0x7a, 0x64, 0x3e, 0x5b,
+	0x50, 0x22, 0xb1, 0x20, 0xa4, 0xfd, 0x84, 0x0c, 0xe3, 0x24, 0x20, 0x81, 0x6c, 0x25, 0x21, 0xa4,
+	0xbe, 0x94, 0xb0, 0x05, 0x09, 0x99, 0x8e, 0x07, 0xf3, 0xfe, 0xcb, 0x70, 0x4c, 0x78, 0x2b, 0xd9,
+	0xf2, 0x41, 0x88, 0x1e, 0x84, 0x63, 0x82, 0xdf, 0x38, 0xb0, 0x2e, 0x92, 0xaf, 0xbc, 0xd7, 0xd9,
+	0xd4, 0x1a, 0xd7, 0xa9, 0xe4, 0xaf, 0x63, 0xc1, 0xa9, 0x9e, 0x05, 0xa7, 0x56, 0x80, 0xb3, 0x0f,
+	0x1b, 0x16, 0x1a, 0xe9, 0x89, 0x6d, 0x68, 0x50, 0x21, 0x92, 0xef, 0xb4, 0x23, 0x63, 0x56, 0x2d,
+	0x54, 0x6a, 0x7c, 0x13, 0xd6, 0x1f, 0x70, 0x86, 0xac, 0x0b, 0x59, 0xfe, 0x62, 0x47, 0x59, 0xeb,
+	0xce, 0x7d, 0xd4, 0x17, 0x70, 0x81, 0x3d, 0x33, 0x29, 0xd7, 0xef, 0x12, 0x41, 0x8d, 0x8e, 0xc2,
+	0x29, 0xdf, 0x5d, 0xf7, 0xf9, 0x6f, 0xb4, 0x0e, 0xf5, 0x71, 0x38, 0x09, 0x45, 0x6c, 0xd4, 0x7d,
+	0xf1, 0x81, 0x7f, 0x74, 0x60, 0x3d, 0x6f, 0x41, 0x62, 0x28, 0x6d, 0x82, 0x49, 0xd3, 0x38, 0x1d,
+	0x8c, 0x39, 0xdb, 0x75, 0x5f, 0x7c, 0xa0, 0x5b, 0xd0, 0x94, 0x20, 0xa9, 0x5b, 0xe3, 0x6f, 0xdc,
+	0xbe, 0x84, 0xd6, 0xef, 0xfd, 0x56, 0x85, 0x36, 0xeb, 0x77, 0x9f, 0x91, 0xe4, 0x75, 0x38, 0x24,
+	0xe8, 0x1e, 0xb4, 0xf4, 0xcc, 0x8a, 0x2e, 0xca, 0x6d, 0xf6, 0x64, 0xeb, 0xb9, 0x45, 0x85, 0x7c,
+	0xa9, 0x4b, 0xe8, 0x3e, 0x40, 0x36, 0x3a, 0x22, 0xb5, 0xb2, 0x30, 0xcf, 0x7a, 0x97, 0x16, 0x68,
+	0xb4, 0x91, 0x7b, 0xd0, 0xd2, 0xa3, 0xa1, 0x86, 0x61, 0x8f, 0x96, 0x1a, 0x46, 0x61, 0x8a, 0x14,
+	0x30, 0xb2, 0xf1, 0x46, 0xc3, 0x28, 0x0c, 0x8e, 0x1a, 0x46, 0x71, 0x16, 0xc2, 0x4b, 0xe8, 0x39,
+	0x74, 0xed, 0xd9, 0x04, 0x5d, 0x93, 0x1b, 0x4e, 0x98, 0x82, 0xbc, 0xeb, 0x27, 0xea, 0xb5, 0xd9,
+	0x4f, 0xa1, 0x21, 0x27, 0x11, 0xb4, 0xa1, 0xb2, 0x6f, 0x6e, 0x8a, 0xf1, 0x36, 0x6d, 0xb1, 0xda,
+	0xbb, 0xf7, 0xa6, 0x02, 0x6d, 0xd6, 0x79, 0x5a, 0x0e, 0xe3, 0x33, 0x40, 0xce, 0x61, 0xe6, 0xa4,
+	0x90, 0x73, 0x58, 0x6e, 0x5c, 0x10, 0x68, 0x64, 0x67, 0xae, 0xd1, 0xe4, 0xa7, 0x03, 0x8d, 0xc6,
+	0x6a, 0xe0, 0x05, 0xcb, 0x59, 0xc3, 0xad, 0x59, 0x2e, 0x34, 0xed, 0x9a, 0xe5, 0x05, 0xdd, 0xb9,
+	0xa2, 0x23, 0x07, 0x20, 0xdf, 0xaf, 0x9b, 0x74, 0xe4, 0xf7, 0xee, 0xfd, 0x5c, 0x01, 0x38, 0x20,
+	0x73, 0xc5, 0xc6, 0xe7, 0xd0, 0x54, 0x5d, 0x2e, 0xda, 0x34, 0xee, 0x6c, 0xf4, 0xc8, 0xde, 0xc5,
+	0x82, 0xdc, 0x0c, 0x3b, 0xdd, 0x8c, 0x6a, 0x32, 0xed, 0x16, 0xd8, 0x73, 0x8b, 0x0a, 0xd3, 0x82,
+	0xee, 0x32, 0xb5, 0x05, 0xbb, 0x5b, 0xf5, 0xdc, 0xa2, 0x42, 0x5b, 0xf8, 0x04, 0x96, 0x45, 0x7f,
+	0x89, 0xd6, 0xb3, 0x5b, 0x1b, 0x7b, 0x37, 0x2c, 0xa9, 0xa6, 0xe2, 0xaf, 0x0a, 0xac, 0xf0, 0x0a,
+	0x66, 0x90, 0xa1, 0x1a, 0x1e, 0x64, 0xb8, 0xd0, 0x2c, 0xa2, 0x9a, 0x0c, 0xbb, 0x33, 0x12, 0xbe,
+	0xcd, 0x1a, 0x19, 0x64, 0x46, 0x50, 0xae, 0x15, 0xd2, 0xbe, 0x2d, 0x76, 0x3d, 0x78, 0x09, 0x3d,
+	0x80, 0xb6, 0x51, 0xd0, 0x51, 0x3e, 0x0e, 0x72, 0x48, 0xbc, 0x45, 0xaa, 0x5c, 0x56, 0xd1, 0x25,
+	0x3a, 0xcb, 0x2a, 0x76, 0x53, 0x90, 0x65, 0x95, 0x42, 0x3d, 0xc7, 0x4b, 0xe8, 0x09, 0x74, 0xf2,
+	0x9d, 0x11, 0xba, 0x62, 0x63, 0x37, 0x7b, 0x2c, 0xef, 0xea, 0x09, 0x5a, 0x4d, 0xf9, 0xdf, 0x0e,
+	0x74, 0x64, 0x4e, 0x55, 0xa4, 0x1f, 0xc2, 0x6a, 0xae, 0x88, 0xa1, 0xcb, 0xb9, 0x68, 0xc9, 0xd7,
+	0x25, 0xef, 0xca, 0x62, 0xa5, 0x46, 0x7c, 0x08, 0xab, 0xb9, 0x3a, 0xa5, 0xad, 0x2d, 0xaa, 0x72,
+	0xda, 0xda, 0xc2, 0xd2, 0x86, 0x97, 0xd0, 0x23, 0x58, 0x31, 0x0b, 0x0e, 0xf2, 0x8c, 0xfb, 0x59,
+	0x75, 0xcc, 0xbb, 0xbc, 0x50, 0xa7, 0x4c, 0xbd, 0x58, 0xe6, 0xff, 0xe8, 0x7e, 0xf4, 0x4f, 0x00,
+	0x00, 0x00, 0xff, 0xff, 0x53, 0xe0, 0xff, 0x4c, 0xe1, 0x15, 0x00, 0x00,
 }

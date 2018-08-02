@@ -1,10 +1,10 @@
 package daemon
 
 import (
-	"testing"
-	"google.golang.org/grpc"
-	"github.com/yankeguo/bastion/types"
 	"context"
+	"github.com/yankeguo/bastion/types"
+	"google.golang.org/grpc"
+	"testing"
 	"time"
 )
 

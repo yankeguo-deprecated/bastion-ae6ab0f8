@@ -40,9 +40,11 @@ func (d *Daemon) Transaction(writable bool, cb func(storm.Node) error) (err erro
 	if err = cb(tx); err != nil {
 		return
 	}
-	if err = tx.Commit(); err != nil {
-		err = errFromStorm(err)
-		return
+	if writable {
+		if err = tx.Commit(); err != nil {
+			err = errFromStorm(err)
+			return
+		}
 	}
 	return
 }
@@ -83,6 +85,7 @@ func (d *Daemon) Run() (err error) {
 	types.RegisterNodeServiceServer(d.Server, d)
 	types.RegisterKeyServiceServer(d.Server, d)
 	types.RegisterGrantServiceServer(d.Server, d)
+	types.RegisterSessionServiceServer(d.Server, d)
 	// serve
 	return d.Server.Serve(d.Listener)
 }

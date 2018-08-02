@@ -277,3 +277,55 @@ service GrantService {
     rpc ListGrantItems (ListGrantItemsRequest) returns (ListGrantItemsResponse) {
     }
 }
+
+message Session {
+    int64 id = 1;
+    string account = 2;
+    string command = 3;
+    int64 created_at = 4;
+    int64 finished_at = 5;
+    bool is_recorded = 6;
+    string replay_file = 7;
+}
+
+message CreateSessionRequest {
+    string account = 1;
+    string command = 2;
+    bool is_recorded = 3;
+    string replay_file = 4;
+}
+
+message CreateSessionResponse {
+    Session session = 1;
+}
+
+message FinishSessionRequest {
+    int64 id = 1;
+}
+
+message FinishSessionResponse {
+    Session session = 1;
+}
+
+message ListSessionsRequest {
+    int32 skip = 1;
+    int32 limit = 2;
+}
+
+message ListSessionsResponse {
+    int32 skip = 1;
+    int32 limit = 2;
+    int32 total = 3;
+    repeated Session sessions = 4;
+}
+
+service SessionService {
+    rpc CreateSession (CreateSessionRequest) returns (CreateSessionResponse) {
+    }
+
+    rpc FinishSession (FinishSessionRequest) returns (FinishSessionResponse) {
+    }
+
+    rpc ListSessions (ListSessionsRequest) returns (ListSessionsResponse) {
+    }
+}
