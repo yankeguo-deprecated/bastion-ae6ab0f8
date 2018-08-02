@@ -156,6 +156,15 @@ func (m *CreateKeyRequest) Validate() (err error) {
 	return
 }
 
+func (m *ListKeysRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	return
+}
+
 func (m *DeleteKeyRequest) Validate() (err error) {
 	trimSpace(&m.Fingerprint)
 	if !KeyFingerprintPattern.MatchString(m.Fingerprint) {

@@ -6,15 +6,21 @@ import (
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/net/context"
-	"strings"
 	"time"
 )
 
 func (d *Daemon) ListKeys(c context.Context, req *types.ListKeysRequest) (res *types.ListKeysResponse, err error) {
-	var keys []models.Key
-	if err = d.DB.Find("Account", strings.TrimSpace(req.Account), &keys); err != nil {
-		err = errFromStorm(err)
+	if err = req.Validate(); err != nil {
 		return
+	}
+	var keys []models.Key
+	if err = d.DB.Find("Account", req.Account, &keys); err != nil {
+		if err == storm.ErrNotFound {
+			err = nil
+		} else {
+			err = errFromStorm(err)
+			return
+		}
 	}
 	ret := make([]*types.Key, 0, len(keys))
 	for _, k := range keys {

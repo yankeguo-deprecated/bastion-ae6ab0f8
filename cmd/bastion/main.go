@@ -7,6 +7,8 @@ import (
 	"google.golang.org/grpc"
 	"github.com/yankeguo/bastion/types"
 	"context"
+	"io/ioutil"
+	"golang.org/x/crypto/ssh"
 )
 
 func newConnection(c *cli.Context) (conn *grpc.ClientConn, err error) {
@@ -78,6 +80,70 @@ func main() {
 						for _, u := range res.Users {
 							log.Println(u)
 						}
+						return nil
+					},
+				},
+				{
+					Name:  "list-keys",
+					Usage: "list keys of a user",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "account", Usage: "account of the user"},
+					},
+					Action: func(c *cli.Context) error {
+						conn, err := newConnection(c)
+						if err != nil {
+							return err
+						}
+						defer conn.Close()
+						ks := types.NewKeyServiceClient(conn)
+						res, err := ks.ListKeys(context.Background(), &types.ListKeysRequest{Account: c.String("account")})
+						if err != nil {
+							return err
+						}
+						for _, k := range res.Keys {
+							log.Println(k)
+						}
+						return nil
+					},
+				},
+				{
+					Name:  "add-key",
+					Usage: "add key to a user",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "account", Usage: "account of the user"},
+						cli.StringFlag{Name: "name", Usage: "name of the key"},
+						cli.StringFlag{Name: "fingerprint", Usage: "fingerprint of the key"},
+						cli.StringFlag{Name: "file", Usage: "the public key file"},
+					},
+					Action: func(c *cli.Context) error {
+						fp := c.String("fingerprint")
+						file := c.String("file")
+						if len(file) > 0 {
+							buf, err := ioutil.ReadFile(file)
+							if err != nil {
+								return err
+							}
+							pk, _, _, _, err := ssh.ParseAuthorizedKey(buf)
+							if err != nil {
+								return err
+							}
+							fp = ssh.FingerprintSHA256(pk)
+						}
+						conn, err := newConnection(c)
+						if err != nil {
+							return err
+						}
+						defer conn.Close()
+						ks := types.NewKeyServiceClient(conn)
+						res, err := ks.CreateKey(context.Background(), &types.CreateKeyRequest{
+							Account:     c.String("account"),
+							Name:        c.String("name"),
+							Fingerprint: fp,
+						})
+						if err != nil {
+							return err
+						}
+						log.Println(res.Key)
 						return nil
 					},
 				},
