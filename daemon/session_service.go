@@ -49,7 +49,7 @@ func (d *Daemon) ListSessions(c context.Context, req *types.ListSessionsRequest)
 	}
 	var sessions []models.Session
 	var total int
-	if err = d.Transaction(false, func(db storm.Node) (err error) {
+	if err = d.Tx(false, func(db storm.Node) (err error) {
 		if total, err = db.Count(new(models.Session)); err != nil {
 			log.Println("1", err)
 			err = errFromStorm(err)

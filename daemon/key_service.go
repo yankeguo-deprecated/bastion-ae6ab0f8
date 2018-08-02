@@ -29,7 +29,7 @@ func (d *Daemon) CreateKey(c context.Context, req *types.CreateKeyRequest) (res 
 		return
 	}
 	k := models.Key{}
-	if err = d.Transaction(true, func(db storm.Node) (err error) {
+	if err = d.Tx(true, func(db storm.Node) (err error) {
 		if err = checkDuplicated(db, "Key", "fingerprint", req.Fingerprint); err != nil {
 			return
 		}

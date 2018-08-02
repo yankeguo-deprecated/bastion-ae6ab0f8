@@ -31,9 +31,6 @@ type DaemonOptions struct {
 
 	// Port port to bind for bastion rpc, default to 9777
 	Port int `yaml:"port"`
-
-	// Consul whether using consul nodes catalog
-	Consul bool `yaml:"consul"`
 }
 
 func (o DaemonOptions) String() string {

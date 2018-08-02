@@ -27,7 +27,7 @@ func withDaemon(t *testing.T, cb func(*testing.T, *Daemon, *grpc.ClientConn)) {
 		Port: 1997,
 	})
 	go d.Run()
-	defer d.Shutdown()
+	defer d.Stop()
 	time.Sleep(time.Second / 2)
 	var err error
 	var c *grpc.ClientConn

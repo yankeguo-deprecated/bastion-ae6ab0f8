@@ -49,6 +49,7 @@ func main() {
 func signalHandler(d *daemon.Daemon) {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT)
-	<-shutdown
-	d.Shutdown()
+	s := <-shutdown
+	log.Println("signal:", s)
+	d.Stop()
 }

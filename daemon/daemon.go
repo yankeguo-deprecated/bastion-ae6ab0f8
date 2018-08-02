@@ -7,21 +7,15 @@ import (
 	"path/filepath"
 
 	"github.com/asdine/storm"
-	"github.com/pkg/errors"
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
 	"google.golang.org/grpc"
 )
 
-var (
-	ErrDaemonAlreadyRunning = errors.New("daemon is already running")
-)
-
 // Daemon daemon instance
 type Daemon struct {
-	DB       *storm.DB
-	Listener net.Listener
-	Server   *grpc.Server
+	DB     *storm.DB
+	Server *grpc.Server
 
 	opts types.DaemonOptions
 }
@@ -30,7 +24,7 @@ func New(opts types.DaemonOptions) *Daemon {
 	return &Daemon{opts: opts}
 }
 
-func (d *Daemon) Transaction(writable bool, cb func(storm.Node) error) (err error) {
+func (d *Daemon) Tx(writable bool, cb func(storm.Node) error) (err error) {
 	var tx storm.Node
 	if tx, err = d.DB.Begin(writable); err != nil {
 		err = errFromStorm(err)
@@ -50,65 +44,65 @@ func (d *Daemon) Transaction(writable bool, cb func(storm.Node) error) (err erro
 }
 
 func (d *Daemon) Run() (err error) {
-	defer d.cleanup()
-	// ensure database directory
-	os.MkdirAll(filepath.Dir(d.opts.DB), 0640)
-	// open database
-	if d.DB != nil {
-		err = ErrDaemonAlreadyRunning
+	// open db
+	if d.DB, err = d.openDB(); err != nil {
 		return
 	}
-	if d.DB, err = storm.Open(d.opts.DB); err != nil {
+	defer d.DB.Close()
+
+	// create listener
+	var l net.Listener
+	if l, err = d.createListener(); err != nil {
+		return
+	}
+	defer l.Close()
+
+	// create server
+	d.Server = d.createGRPCServer()
+
+	// run server
+	if err = d.Server.Serve(l); err != nil {
+		if err == grpc.ErrServerStopped {
+			err = nil
+		}
+	}
+	return
+}
+
+func (d *Daemon) openDB() (db *storm.DB, err error) {
+	// ensure database directory
+	os.MkdirAll(filepath.Dir(d.opts.DB), 0640)
+	// open db
+	if db, err = storm.Open(d.opts.DB); err != nil {
 		return
 	}
 	// migrate database
 	for _, m := range models.AllModels {
-		if err = d.DB.Init(m); err != nil {
+		if err = db.Init(m); err != nil {
+			db.Close()
 			return
 		}
 	}
-	// create listener
-	if d.Listener != nil {
-		err = ErrDaemonAlreadyRunning
-		return
-	}
-	if d.Listener, err = net.Listen("tcp", fmt.Sprintf("%s:%d", d.opts.Host, d.opts.Port)); err != nil {
-		return
-	}
-	// create server
-	if d.Server != nil {
-		err = ErrDaemonAlreadyRunning
-		return
-	}
-	d.Server = grpc.NewServer()
-	types.RegisterUserServiceServer(d.Server, d)
-	types.RegisterNodeServiceServer(d.Server, d)
-	types.RegisterKeyServiceServer(d.Server, d)
-	types.RegisterGrantServiceServer(d.Server, d)
-	types.RegisterSessionServiceServer(d.Server, d)
-	// serve
-	return d.Server.Serve(d.Listener)
+	return
 }
 
-func (d *Daemon) cleanup() {
-	if d.Server != nil {
-		d.Server.GracefulStop()
-		d.Server = nil
-	}
-	if d.Listener != nil {
-		d.Listener.Close()
-		d.Listener = nil
-	}
-	if d.DB != nil {
-		d.DB.Close()
-		d.DB = nil
-	}
+func (d *Daemon) createListener() (l net.Listener, err error) {
+	return net.Listen("tcp", fmt.Sprintf("%s:%d", d.opts.Host, d.opts.Port))
 }
 
-func (d *Daemon) Shutdown() (err error) {
+func (d *Daemon) createGRPCServer() *grpc.Server {
+	s := grpc.NewServer()
+	types.RegisterUserServiceServer(s, d)
+	types.RegisterNodeServiceServer(s, d)
+	types.RegisterKeyServiceServer(s, d)
+	types.RegisterGrantServiceServer(s, d)
+	types.RegisterSessionServiceServer(s, d)
+	return s
+}
+
+func (d *Daemon) Stop() {
 	if d.Server != nil {
 		d.Server.GracefulStop()
-		d.Server = nil
 	}
 	return
 }
