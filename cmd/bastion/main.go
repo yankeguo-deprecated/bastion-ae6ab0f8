@@ -147,6 +147,28 @@ func main() {
 						return nil
 					},
 				},
+				{
+					Name:  "delete-key",
+					Usage: "delete a key",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "fingerprint", Usage: "fingerprint of the key"},
+					},
+					Action: func(c *cli.Context) error {
+						conn, err := newConnection(c)
+						if err != nil {
+							return err
+						}
+						defer conn.Close()
+						ks := types.NewKeyServiceClient(conn)
+						_, err = ks.DeleteKey(context.Background(), &types.DeleteKeyRequest{
+							Fingerprint: c.String("fingerprint"),
+						})
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
 			},
 		},
 		{
