@@ -19,8 +19,9 @@ func newConnection(c *cli.Context) (conn *grpc.ClientConn, err error) {
 }
 
 func main() {
-	// clear date time from log
+	// setup log
 	log.SetFlags(0)
+	log.SetOutput(os.Stdout)
 	// build the app
 	app := cli.NewApp()
 	app.Name = "bastion"
@@ -192,6 +193,31 @@ func main() {
 						for _, n := range res.Nodes {
 							log.Println(n)
 						}
+						return nil
+					},
+				},
+				{
+					Name:  "create",
+					Usage: "create a node manually",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "hostname", Usage: "hostname of node"},
+						cli.StringFlag{Name: "address", Usage: "address of the node, default port is 22"},
+						cli.StringFlag{Name: "user", Usage: "ssh user will be used in bastion", Value: types.NodeUserRoot},
+					},
+					Action: func(c *cli.Context) error {
+						conn, err := newConnection(c)
+						if err != nil {
+							return err
+						}
+						defer conn.Close()
+						ns := types.NewNodeServiceClient(conn)
+						res, err := ns.PutNode(context.Background(), &types.PutNodeRequest{
+							Hostname: c.String("hostname"),
+							Address:  c.String("address"),
+							User:     c.String("user"),
+							Source:   types.NodeSourceManual,
+						})
+						log.Println(res.Node)
 						return nil
 					},
 				},
