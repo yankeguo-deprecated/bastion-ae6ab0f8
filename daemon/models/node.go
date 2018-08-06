@@ -12,6 +12,7 @@ type Node struct {
 	Address   string
 	Source    string `storm:"index"`
 	CreatedAt int64
+	ViewedAt  int64
 }
 
 func (n Node) ToGRPCNode() *types.Node {

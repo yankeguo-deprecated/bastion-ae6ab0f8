@@ -6,7 +6,6 @@ import (
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/net/context"
-	"time"
 )
 
 func (d *Daemon) ListKeys(c context.Context, req *types.ListKeysRequest) (res *types.ListKeysResponse, err error) {
@@ -40,7 +39,7 @@ func (d *Daemon) CreateKey(c context.Context, req *types.CreateKeyRequest) (res 
 			return
 		}
 		copier.Copy(&k, req)
-		k.CreatedAt = time.Now().Unix()
+		k.CreatedAt = now()
 		if err = db.Save(&k); err != nil {
 			err = errFromStorm(err)
 			return
@@ -68,8 +67,32 @@ func (d *Daemon) GetKey(c context.Context, req *types.GetKeyRequest) (res *types
 	}
 	k := models.Key{}
 	if err = d.DB.One("Fingerprint", req.Fingerprint, &k); err != nil {
+		err = errFromStorm(err)
 		return
 	}
 	res = &types.GetKeyResponse{Key: k.ToGRPCKey()}
+	return
+}
+
+func (d *Daemon) TouchKey(c context.Context, req *types.TouchKeyRequest) (res *types.TouchKeyResponse, err error) {
+	if err = req.Validate(); err != nil {
+		return
+	}
+	k := models.Key{}
+	if err = d.Tx(true, func(db storm.Node) (err error) {
+		if err = db.One("Fingerprint", req.Fingerprint, &k); err != nil {
+			err = errFromStorm(err)
+			return
+		}
+		k.ViewedAt = now()
+		if err = db.Save(&k); err != nil {
+			err = errFromStorm(err)
+			return
+		}
+		return
+	}); err != nil {
+		return
+	}
+	res = &types.TouchKeyResponse{Key: k.ToGRPCKey()}
 	return
 }

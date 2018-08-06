@@ -91,6 +91,15 @@ func TestDaemon_TouchUser(t *testing.T) {
 			t.Fatal(err)
 		}
 		t.Log(res)
+		ov := res.User.ViewedAt
+		time.Sleep(time.Second * 2)
+		res, err = c.TouchUser(context.Background(), &types.TouchUserRequest{
+			Account: "testuser",
+		})
+		if ov == res.User.ViewedAt {
+			t.Fatal("failed 4")
+		}
+		t.Log(res)
 	})
 }
 
@@ -159,7 +168,7 @@ func TestDaemon_AuthenticateUser(t *testing.T) {
 		if err != nil {
 			t.Fatal("failed 3")
 		}
-		if res.User == nil || res.User.ViewedAt == 0 {
+		if res.User == nil {
 			t.Fatal("failed 4")
 		}
 		t.Log(res)

@@ -97,6 +97,7 @@ message Node {
     string address = 3;
     string source = 4;
     int64 created_at = 5;
+    int64 viewed_at = 6;
 }
 
 message ListNodesRequest {
@@ -132,6 +133,14 @@ message GetNodeResponse {
     Node node = 1;
 }
 
+message TouchNodeRequest {
+    string hostname = 1;
+}
+
+message TouchNodeResponse {
+    Node node = 1;
+}
+
 service NodeService {
     rpc ListNodes (ListNodesRequest) returns (ListNodesResponse) {
     }
@@ -144,6 +153,9 @@ service NodeService {
 
     rpc GetNode (GetNodeRequest) returns (GetNodeResponse) {
     }
+
+    rpc TouchNode (TouchNodeRequest) returns (TouchNodeResponse) {
+    }
 }
 
 message Key {
@@ -151,6 +163,7 @@ message Key {
     string account = 2;
     string name = 3;
     int64 created_at = 4;
+    int64 viewed_at = 5;
 }
 
 message ListKeysRequest {
@@ -186,6 +199,14 @@ message GetKeyResponse {
     Key key = 1;
 }
 
+message TouchKeyRequest {
+    string fingerprint = 1;
+}
+
+message TouchKeyResponse {
+    Key key = 1;
+}
+
 service KeyService {
     rpc ListKeys (ListKeysRequest) returns (ListKeysResponse) {
     }
@@ -197,6 +218,9 @@ service KeyService {
     }
 
     rpc GetKey (GetKeyRequest) returns (GetKeyResponse) {
+    }
+
+    rpc TouchKey (TouchKeyRequest) returns (TouchKeyResponse) {
     }
 }
 
@@ -328,4 +352,12 @@ service SessionService {
 
     rpc ListSessions (ListSessionsRequest) returns (ListSessionsResponse) {
     }
+}
+
+message Token {
+    string account = 1;
+    string token = 2;
+    string description = 3;
+    int64 created_at = 4;
+    int64 viewed_at = 5;
 }

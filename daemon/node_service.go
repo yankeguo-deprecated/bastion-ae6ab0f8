@@ -6,7 +6,7 @@ import (
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/net/context"
 	"strings"
-	"time"
+	"github.com/asdine/storm"
 )
 
 func (d *Daemon) ListNodes(c context.Context, req *types.ListNodesRequest) (res *types.ListNodesResponse, err error) {
@@ -32,7 +32,7 @@ func (d *Daemon) PutNode(c context.Context, req *types.PutNodeRequest) (res *typ
 	// create node
 	n := models.Node{}
 	copier.Copy(&n, req)
-	n.CreatedAt = time.Now().Unix()
+	n.CreatedAt = now()
 	if err = d.DB.Save(&n); err != nil {
 		err = errFromStorm(err)
 		return
@@ -59,5 +59,28 @@ func (d *Daemon) GetNode(c context.Context, req *types.GetNodeRequest) (res *typ
 		return
 	}
 	res = &types.GetNodeResponse{Node: n.ToGRPCNode()}
+	return
+}
+
+func (d *Daemon) TouchNode(c context.Context, req *types.TouchNodeRequest) (res *types.TouchNodeResponse, err error) {
+	if err = req.Validate(); err != nil {
+		return
+	}
+	n := models.Node{}
+	if err = d.Tx(true, func(db storm.Node) (err error) {
+		if err = db.One("Hostname", req.Hostname, &n); err != nil {
+			err = errFromStorm(err)
+			return
+		}
+		n.ViewedAt = now()
+		if err = db.Save(&n); err != nil {
+			err = errFromStorm(err)
+			return
+		}
+		return
+	}); err != nil {
+		return
+	}
+	res = &types.TouchNodeResponse{Node: n.ToGRPCNode()}
 	return
 }

@@ -63,5 +63,13 @@ func TestDaemon_ListPutDeleteNode(t *testing.T) {
 		if res.Nodes[0].Hostname != "localhost2" {
 			t.Fatal("failed 5")
 		}
+		res2, err := ns.TouchNode(context.Background(), &types.TouchNodeRequest{Hostname: "localhost2"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res2.Node.ViewedAt == 0 {
+			t.Fatal("failed 6")
+		}
+		t.Log(res2)
 	})
 }

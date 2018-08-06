@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/urfave/cli"
-	"os"
-	"log"
-	"google.golang.org/grpc"
-	"github.com/yankeguo/bastion/types"
 	"context"
-	"io/ioutil"
+	"github.com/urfave/cli"
+	"github.com/yankeguo/bastion/types"
 	"golang.org/x/crypto/ssh"
+	"google.golang.org/grpc"
+	"io/ioutil"
+	"log"
+	"os"
 )
 
 func newConnection(c *cli.Context) (conn *grpc.ClientConn, err error) {

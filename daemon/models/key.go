@@ -10,6 +10,7 @@ type Key struct {
 	Account     string `storm:"index"`
 	Name        string
 	CreatedAt   int64
+	ViewedAt    int64
 }
 
 func (k Key) ToGRPCKey() *types.Key {

@@ -109,5 +109,13 @@ func TestDaemon_CreateListDeleteKeys(t *testing.T) {
 			t.Fatal("failed 3")
 		}
 
+		res3, err := s.TouchKey(context.Background(), &types.TouchKeyRequest{Fingerprint: fp2})
+		if err != nil {
+			t.Fatal(err)
+		}
+		if res3.Key.ViewedAt == 0 {
+			t.Fatal("failed 4")
+		}
+		t.Log(res3)
 	})
 }

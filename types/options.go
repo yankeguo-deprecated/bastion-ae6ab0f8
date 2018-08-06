@@ -46,6 +46,9 @@ type WebOptions struct {
 	// Port port to listen for bastion web, default to 9778
 	Port int `yaml:"port"`
 
+	// Dev development mode, will not use BinFS
+	Dev bool `yaml:"dev"`
+
 	// DaemonEndpoint address of bastion daemon rpc service, default to "127.0.0.1:9777"
 	DaemonEndpoint string `yaml:"daemon_endpoint"`
 }

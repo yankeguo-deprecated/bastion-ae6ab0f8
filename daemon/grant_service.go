@@ -6,7 +6,6 @@ import (
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
 	"golang.org/x/net/context"
-	"time"
 )
 
 func (d *Daemon) PutGrant(c context.Context, req *types.PutGrantRequest) (res *types.PutGrantResponse, err error) {
@@ -16,7 +15,7 @@ func (d *Daemon) PutGrant(c context.Context, req *types.PutGrantRequest) (res *t
 	n := models.Grant{}
 	copier.Copy(&n, req)
 	n.ID = n.BuildID()
-	n.CreatedAt = time.Now().Unix()
+	n.CreatedAt = now()
 	if err = d.DB.Save(&n); err != nil {
 		err = errFromStorm(err)
 		return
@@ -38,7 +37,7 @@ func (d *Daemon) ListGrants(c context.Context, req *types.ListGrantsRequest) (re
 	for _, n := range rs {
 		ret = append(ret, n.ToGRPCGrant())
 	}
-	res = &types.ListGrantsResponse{Grants: ret, Now: time.Now().Unix()}
+	res = &types.ListGrantsResponse{Grants: ret, Now: now()}
 	return
 }
 
@@ -67,9 +66,8 @@ func (d *Daemon) CheckGrant(c context.Context, req *types.CheckGrantRequest) (re
 		return
 	}
 	var ok bool
-	now := time.Now().Unix()
 	for _, n := range rs {
-		if n.User == req.User && (n.ExpiredAt == 0 || n.ExpiredAt > now) {
+		if n.User == req.User && (n.ExpiredAt == 0 || n.ExpiredAt > now()) {
 			if utils.MatchAsterisk(n.HostnamePattern, req.Hostname) {
 				ok = true
 				break
@@ -94,11 +92,10 @@ func (d *Daemon) ListGrantItems(c context.Context, req *types.ListGrantItemsRequ
 		err = errFromStorm(err)
 		return
 	}
-	now := time.Now().Unix()
 	ret := make([]*types.GrantItem, 0)
 	for _, n := range ns {
 		for _, r := range rs {
-			if utils.MatchAsterisk(r.HostnamePattern, n.Hostname) && (r.ExpiredAt == 0 || r.ExpiredAt > now) {
+			if utils.MatchAsterisk(r.HostnamePattern, n.Hostname) && (r.ExpiredAt == 0 || r.ExpiredAt > now()) {
 				ret = append(ret, &types.GrantItem{
 					Hostname:  n.Hostname,
 					User:      r.User,

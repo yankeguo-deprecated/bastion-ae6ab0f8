@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "webpack-dev-server --inline --hot --env.dev",
-    "build": "rimraf dist && webpack -p --progress --hide-modules"
+    "build": "rimraf ../public && webpack -p --progress --hide-modules"
   },
   "dependencies": {
     "element-ui": "^2.3.4",

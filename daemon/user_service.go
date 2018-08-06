@@ -1,8 +1,6 @@
 package daemon
 
 import (
-	"time"
-
 	"github.com/asdine/storm"
 	"github.com/jinzhu/copier"
 	"github.com/yankeguo/bastion/daemon/models"
@@ -52,7 +50,7 @@ func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (re
 			return
 		}
 		// assign created_at / updated_at and save
-		u.CreatedAt = time.Now().Unix()
+		u.CreatedAt = now()
 		u.UpdatedAt = u.CreatedAt
 		if err = db.Save(&u); err != nil {
 			err = errFromStorm(err)
@@ -70,17 +68,25 @@ func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (re
 }
 
 func (d *Daemon) TouchUser(c context.Context, req *types.TouchUserRequest) (res *types.TouchUserResponse, err error) {
-	u := models.User{}
-	// find by account
-	if err = d.DB.One("Account", req.Account, &u); err != nil {
-		err = errFromStorm(err)
+	if err = req.Validate(); err != nil {
 		return
 	}
-	// update viewed_at
-	u.ViewedAt = time.Now().Unix()
-	// save
-	if err = d.DB.UpdateField(&u, "ViewedAt", u.ViewedAt); err != nil {
-		err = errFromStorm(err)
+	u := models.User{}
+	if err = d.Tx(true, func(db storm.Node) (err error) {
+		// find by account
+		if err = db.One("Account", req.Account, &u); err != nil {
+			err = errFromStorm(err)
+			return
+		}
+		// update viewed_at
+		u.ViewedAt = now()
+		// save
+		if err = db.Save(&u); err != nil {
+			err = errFromStorm(err)
+			return
+		}
+		return
+	}); err != nil {
 		return
 	}
 	// build response
@@ -116,7 +122,7 @@ func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (re
 		}
 	}
 	// update updated_at
-	u.UpdatedAt = time.Now().Unix()
+	u.UpdatedAt = now()
 	// save
 	if err = d.DB.Update(&u); err != nil {
 		err = errFromStorm(err)
@@ -142,12 +148,6 @@ func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUser
 	// validate password
 	if !utils.BcryptValidate(u.PasswordDigest, req.Password) {
 		err = errInvalidAuthentication
-		return
-	}
-	// update viewed_at
-	u.ViewedAt = time.Now().Unix()
-	if err = d.DB.UpdateField(&u, "ViewedAt", u.ViewedAt); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	// build response
