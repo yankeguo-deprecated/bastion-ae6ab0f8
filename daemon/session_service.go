@@ -16,7 +16,6 @@ func (d *Daemon) CreateSession(c context.Context, req *types.CreateSessionReques
 	copier.Copy(&s, req)
 	s.CreatedAt = now()
 	if err = d.DB.Save(&s); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	res = &types.CreateSessionResponse{Session: s.ToGRPCSession()}
@@ -29,12 +28,10 @@ func (d *Daemon) FinishSession(c context.Context, req *types.FinishSessionReques
 	}
 	s := models.Session{}
 	if err = d.DB.One("Id", req.Id, &s); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	s.FinishedAt = now()
 	if err = d.DB.Save(&s); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	res = &types.FinishSessionResponse{Session: s.ToGRPCSession()}
@@ -47,13 +44,11 @@ func (d *Daemon) ListSessions(c context.Context, req *types.ListSessionsRequest)
 	}
 	var sessions []models.Session
 	var total int
-	if err = d.Tx(false, func(db storm.Node) (err error) {
+	if err = d.DB.Tx(false, func(db *Node) (err error) {
 		if total, err = db.Count(new(models.Session)); err != nil {
-			err = errFromStorm(err)
 			return
 		}
 		if err = db.All(&sessions, storm.Reverse(), storm.Skip(int(req.Skip)), storm.Limit(int(req.Limit))); err != nil {
-			err = errFromStorm(err)
 			return
 		}
 		return

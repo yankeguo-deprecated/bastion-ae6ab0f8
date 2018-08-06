@@ -361,3 +361,60 @@ message Token {
     int64 created_at = 4;
     int64 viewed_at = 5;
 }
+
+message CreateTokenRequest {
+    string account = 1;
+    string description = 2;
+}
+
+message CreateTokenResponse {
+    Token token = 1;
+}
+
+message GetTokenRequest {
+    string token = 1;
+}
+
+message GetTokenResponse {
+    Token token = 1;
+}
+
+message TouchTokenRequest {
+    string token = 1;
+}
+
+message TouchTokenResponse {
+    Token token = 1;
+}
+
+message ListTokensRequest {
+    string account = 1;
+}
+
+message ListTokensResponse {
+    repeated Token tokens = 1;
+}
+
+message DeleteTokenRequest {
+    string token = 1;
+}
+
+message DeleteTokenResponse {
+}
+
+service TokenService {
+    rpc CreateToken (CreateTokenRequest) returns (CreateTokenResponse) {
+    }
+
+    rpc GetToken (GetTokenRequest) returns (GetTokenResponse) {
+    }
+
+    rpc TouchToken (TouchTokenRequest) returns (TouchTokenResponse) {
+    }
+
+    rpc ListTokens (ListTokensRequest) returns (ListTokensResponse) {
+    }
+
+    rpc DeleteToken (DeleteTokenRequest) returns (DeleteTokenResponse) {
+    }
+}

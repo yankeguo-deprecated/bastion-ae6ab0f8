@@ -1,7 +1,6 @@
 package daemon
 
 import (
-	"github.com/asdine/storm"
 	"github.com/jinzhu/copier"
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
@@ -18,7 +17,6 @@ var (
 func (d *Daemon) ListUsers(c context.Context, req *types.ListUsersRequest) (res *types.ListUsersResponse, err error) {
 	var users []models.User
 	if err = d.DB.All(&users); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	ret := make([]*types.User, 0, len(users))
@@ -37,9 +35,9 @@ func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (re
 
 	// inside a transaction
 	u := models.User{}
-	err = d.Tx(true, func(db storm.Node) (err error) {
+	err = d.DB.Tx(true, func(db *Node) (err error) {
 		// find existing
-		if err = checkDuplicated(db, "User", "account", req.Account); err != nil {
+		if err = db.CheckDuplicated("User", "account", req.Account); err != nil {
 			return
 		}
 		// assign values
@@ -53,7 +51,6 @@ func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (re
 		u.CreatedAt = now()
 		u.UpdatedAt = u.CreatedAt
 		if err = db.Save(&u); err != nil {
-			err = errFromStorm(err)
 			return
 		}
 		return
@@ -72,17 +69,15 @@ func (d *Daemon) TouchUser(c context.Context, req *types.TouchUserRequest) (res 
 		return
 	}
 	u := models.User{}
-	if err = d.Tx(true, func(db storm.Node) (err error) {
+	if err = d.DB.Tx(true, func(db *Node) (err error) {
 		// find by account
 		if err = db.One("Account", req.Account, &u); err != nil {
-			err = errFromStorm(err)
 			return
 		}
 		// update viewed_at
 		u.ViewedAt = now()
 		// save
 		if err = db.Save(&u); err != nil {
-			err = errFromStorm(err)
 			return
 		}
 		return
@@ -102,7 +97,6 @@ func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (re
 	// find user by account
 	u := models.User{}
 	if err = d.DB.One("Account", req.Account, &u); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	// update user
@@ -124,8 +118,7 @@ func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (re
 	// update updated_at
 	u.UpdatedAt = now()
 	// save
-	if err = d.DB.Update(&u); err != nil {
-		err = errFromStorm(err)
+	if err = d.DB.Save(&u); err != nil {
 		return
 	}
 	// build response
@@ -137,12 +130,6 @@ func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUser
 	u := models.User{}
 	// find by account
 	if err = d.DB.One("Account", req.Account, &u); err != nil {
-		// hide not found error
-		if err == storm.ErrNotFound {
-			err = errInvalidAuthentication
-		} else {
-			err = errDatabase
-		}
 		return
 	}
 	// validate password
@@ -161,7 +148,6 @@ func (d *Daemon) GetUser(c context.Context, req *types.GetUserRequest) (res *typ
 	}
 	u := models.User{}
 	if err = d.DB.One("Account", req.Account, &u); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	res = &types.GetUserResponse{User: u.ToGRPCUser()}

@@ -102,6 +102,7 @@ func TestDaemon_CreateListDeleteKeys(t *testing.T) {
 		}
 
 		if len(res1.Keys) != 1 {
+			t.Log(res1)
 			t.Fatal("failed 2")
 		}
 

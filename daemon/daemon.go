@@ -14,7 +14,7 @@ import (
 
 // Daemon daemon instance
 type Daemon struct {
-	DB     *storm.DB
+	DB     *DB
 	Server *grpc.Server
 
 	opts types.DaemonOptions
@@ -22,25 +22,6 @@ type Daemon struct {
 
 func New(opts types.DaemonOptions) *Daemon {
 	return &Daemon{opts: opts}
-}
-
-func (d *Daemon) Tx(writable bool, cb func(storm.Node) error) (err error) {
-	var tx storm.Node
-	if tx, err = d.DB.Begin(writable); err != nil {
-		err = errFromStorm(err)
-		return
-	}
-	defer tx.Rollback()
-	if err = cb(tx); err != nil {
-		return
-	}
-	if writable {
-		if err = tx.Commit(); err != nil {
-			err = errFromStorm(err)
-			return
-		}
-	}
-	return
 }
 
 func (d *Daemon) Run() (err error) {
@@ -69,20 +50,22 @@ func (d *Daemon) Run() (err error) {
 	return
 }
 
-func (d *Daemon) openDB() (db *storm.DB, err error) {
+func (d *Daemon) openDB() (db *DB, err error) {
 	// ensure database directory
 	os.MkdirAll(filepath.Dir(d.opts.DB), 0640)
 	// open db
-	if db, err = storm.Open(d.opts.DB); err != nil {
+	var stormDB *storm.DB
+	if stormDB, err = storm.Open(d.opts.DB); err != nil {
 		return
 	}
 	// migrate database
 	for _, m := range models.AllModels {
-		if err = db.Init(m); err != nil {
-			db.Close()
+		if err = stormDB.Init(m); err != nil {
+			stormDB.Close()
 			return
 		}
 	}
+	db = &DB{db: stormDB}
 	return
 }
 
@@ -97,6 +80,7 @@ func (d *Daemon) createGRPCServer() *grpc.Server {
 	types.RegisterKeyServiceServer(s, d)
 	types.RegisterGrantServiceServer(s, d)
 	types.RegisterSessionServiceServer(s, d)
+	types.RegisterTokenServiceServer(s, d)
 	return s
 }
 

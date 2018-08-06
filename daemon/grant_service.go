@@ -17,7 +17,6 @@ func (d *Daemon) PutGrant(c context.Context, req *types.PutGrantRequest) (res *t
 	n.ID = n.BuildID()
 	n.CreatedAt = now()
 	if err = d.DB.Save(&n); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	res = &types.PutGrantResponse{Grant: n.ToGRPCGrant()}
@@ -30,7 +29,6 @@ func (d *Daemon) ListGrants(c context.Context, req *types.ListGrantsRequest) (re
 	}
 	var rs []models.Grant
 	if err = d.DB.Find("Account", req.Account, &rs); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	ret := make([]*types.Grant, 0, len(rs))
@@ -49,7 +47,6 @@ func (d *Daemon) DeleteGrant(c context.Context, req *types.DeleteGrantRequest) (
 	copier.Copy(&n, req)
 	n.ID = n.BuildID()
 	if err = d.DB.DeleteStruct(&n); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	res = &types.DeleteGrantResponse{}
@@ -62,7 +59,6 @@ func (d *Daemon) CheckGrant(c context.Context, req *types.CheckGrantRequest) (re
 	}
 	var rs []models.Grant
 	if err = d.DB.Find("Account", req.Account, &rs); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	var ok bool
@@ -84,12 +80,10 @@ func (d *Daemon) ListGrantItems(c context.Context, req *types.ListGrantItemsRequ
 	}
 	var rs []models.Grant
 	if err = d.DB.Find("Account", req.Account, &rs); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	var ns []models.Node
 	if err = d.DB.All(&ns); err != nil {
-		err = errFromStorm(err)
 		return
 	}
 	ret := make([]*types.GrantItem, 0)

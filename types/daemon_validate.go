@@ -108,7 +108,6 @@ func (m *TouchUserRequest) Validate() (err error) {
 	return
 }
 
-
 func (m *PutNodeRequest) Validate() (err error) {
 	trimSpace(&m.Hostname)
 	if !NodeHostnamePattern.MatchString(m.Hostname) {
@@ -316,5 +315,40 @@ func (m *ListSessionsRequest) Validate() (err error) {
 		err = errInvalidField("limit", "positive")
 		return
 	}
+	return
+}
+
+func (m *CreateTokenRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if !UserAccountPattern.MatchString(m.Account) {
+		err = errInvalidField("account", "valid user account")
+		return
+	}
+	trimSpace(&m.Description)
+	return
+}
+
+func (m *ListTokensRequest) Validate() (err error) {
+	trimSpace(&m.Account)
+	if len(m.Account) == 0 {
+		err = errMissingField("account")
+		return
+	}
+	return
+}
+
+
+func (m *GetTokenRequest) Validate() (err error) {
+	trimSpace(&m.Token)
+	return
+}
+
+func (m *TouchTokenRequest) Validate() (err error) {
+	trimSpace(&m.Token)
+	return
+}
+
+func (m *DeleteTokenRequest) Validate() (err error) {
+	trimSpace(&m.Token)
 	return
 }
