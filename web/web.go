@@ -11,6 +11,15 @@ import (
 
 func NewServer(opts types.WebOptions) *http.Server {
 	n := nova.New()
+	if opts.Dev {
+		n.Env = nova.Development
+	} else {
+		n.Env = nova.Production
+	}
+	n.Error(func(c *nova.Context, err error) {
+		// just render any error as 500 and expose the message
+		http.Error(c.Res, err.Error(), http.StatusInternalServerError)
+	})
 	// mount static module
 	n.Use(static.Handler(static.Options{
 		Directory: "public",
@@ -23,8 +32,11 @@ func NewServer(opts types.WebOptions) *http.Server {
 	}))
 	// mount rpc module
 	n.Use(rpcModule(opts))
+	// mount auth module
+	n.Use(authModule())
 	// mount all routes
 	mountRoutes(n)
+	// build the http.Server
 	return &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", opts.Host, opts.Port),
 		Handler: n,
