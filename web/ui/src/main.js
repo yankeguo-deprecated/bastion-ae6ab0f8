@@ -1,11 +1,27 @@
 import Vue from 'vue'
-import ElementUI from 'element-ui'
-import 'element-ui/lib/theme-chalk/index.css'
-import App from './App.vue'
 
-Vue.use(ElementUI)
+// install BootstrapVue
+import BootstrapVue from 'bootstrap-vue'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
 
+import router from '@/router'
+import store from '@/store'
+import App from '@/App'
+import '@/api'
+
+import Notifications from 'vue-notification'
+
+Vue.use(BootstrapVue)
+Vue.use(Notifications)
+
+Vue.config.productionTip = false
+
+/* eslint-disable no-new */
 new Vue({
   el: '#app',
-  render: h => h(App)
+  router,
+  store,
+  components: {App},
+  template: '<App/>'
 })

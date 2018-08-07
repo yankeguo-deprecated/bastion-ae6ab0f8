@@ -4,9 +4,9 @@ import (
 	"github.com/novakit/nova"
 	"github.com/yankeguo/bastion/types"
 	"google.golang.org/grpc"
-	"context"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/codes"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -62,11 +62,15 @@ type Auth struct {
 }
 
 func (a Auth) IsLoggedIn() bool {
-	return a.Token != nil && a.User != nil && !a.User.IsBlocked
+	return a.Token != nil && a.User != nil
 }
 
 func (a Auth) IsBlocked() bool {
-	return a.User != nil && a.User.IsBlocked
+	return a.IsLoggedIn() && a.User.IsBlocked
+}
+
+func (a Auth) IsLoggedInAsAdmin() bool {
+	return a.IsLoggedIn() && a.User.IsAdmin
 }
 
 func markClearTokenIfNeeded(c *nova.Context, err error) {
@@ -88,22 +92,42 @@ func authModule() nova.HandlerFunc {
 		token := c.Req.Header.Get(headerKeyToken)
 		if len(token) != 0 {
 			// get token
-			var res *types.GetTokenResponse
-			if res, err = ts.GetToken(context.Background(), &types.GetTokenRequest{Token: token}); err != nil {
+			var res1 *types.GetTokenResponse
+			if res1, err = ts.GetToken(c.Req.Context(), &types.GetTokenRequest{Token: token}); err != nil {
 				markClearTokenIfNeeded(c, err)
 				return
 			}
-			a.Token = res.Token
+			a.Token = res1.Token
 			// get user
 			var res2 *types.GetUserResponse
-			if res2, err = us.GetUser(context.Background(), &types.GetUserRequest{Account: a.Token.Account}); err != nil {
+			if res2, err = us.GetUser(c.Req.Context(), &types.GetUserRequest{Account: a.Token.Account}); err != nil {
 				markClearTokenIfNeeded(c, err)
 				return
 			}
 			a.User = res2.User
+			// touch token/user
+			ts.TouchToken(c.Req.Context(), &types.TouchTokenRequest{Token: res1.Token.Token})
+			us.TouchUser(c.Req.Context(), &types.TouchUserRequest{Account: res2.User.Account})
 		}
 		c.Values[contextKeyAuth] = a
 		c.Next()
+		return
+	}
+}
+
+func requiresLoggedIn(admin bool) nova.HandlerFunc {
+	return func(c *nova.Context) (err error) {
+		a := authResult(c)
+		if !a.IsLoggedIn() {
+			err = errors.New("not logged in")
+			return
+		}
+		if admin {
+			if !a.IsLoggedInAsAdmin() {
+				err = errors.New("not admin")
+				return
+			}
+		}
 		return
 	}
 }

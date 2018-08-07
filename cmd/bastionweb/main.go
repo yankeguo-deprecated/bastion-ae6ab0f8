@@ -27,13 +27,12 @@ func main() {
 		log.Println("failed to load config file", err)
 		os.Exit(1)
 		return
-	} else {
-		log.Println(options.Daemon)
 	}
 
 	if dev {
 		options.Web.Dev = true
 	}
+	log.Println(options.Web)
 
 	s := web.NewServer(options.Web)
 	log.Fatal(s.ListenAndServe())

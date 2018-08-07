@@ -1,0 +1,10 @@
+import Vue from 'vue'
+import VueResource from 'vue-resource'
+
+import store from '@/store'
+
+Vue.use(VueResource)
+
+if (store.state.currentToken) {
+  Vue.http.headers.common['X-Bastion-Token'] = store.state.currentToken.token
+}

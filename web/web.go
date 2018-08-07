@@ -7,6 +7,7 @@ import (
 	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
 	"net/http"
+	"google.golang.org/grpc/status"
 )
 
 func NewServer(opts types.WebOptions) *http.Server {
@@ -17,8 +18,13 @@ func NewServer(opts types.WebOptions) *http.Server {
 		n.Env = nova.Production
 	}
 	n.Error(func(c *nova.Context, err error) {
-		// just render any error as 500 and expose the message
-		http.Error(c.Res, err.Error(), http.StatusInternalServerError)
+		if s, ok := status.FromError(err); ok {
+			// if it's a grpc status error, extract description
+			http.Error(c.Res, s.Message(), http.StatusInternalServerError)
+		} else {
+			// just render any error as 500 and expose the message
+			http.Error(c.Res, err.Error(), http.StatusInternalServerError)
+		}
 	})
 	// mount static module
 	n.Use(static.Handler(static.Options{
