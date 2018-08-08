@@ -6,7 +6,8 @@ import (
 )
 
 type Token struct {
-	Token       string `storm:"id"`
+	Id          int64  `storm:"id,increment"`
+	Token       string `storm:"unique"`
 	Account     string `storm:"index"`
 	Description string
 	CreatedAt   int64

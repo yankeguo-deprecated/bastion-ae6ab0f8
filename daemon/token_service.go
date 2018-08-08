@@ -36,8 +36,14 @@ func (d *Daemon) GetToken(c context.Context, req *types.GetTokenRequest) (res *t
 		return
 	}
 	t := models.Token{}
-	if err = d.DB.One("Token", req.Token, &t); err != nil {
-		return
+	if len(req.Token) > 0 {
+		if err = d.DB.One("Token", req.Token, &t); err != nil {
+			return
+		}
+	} else {
+		if err = d.DB.One("Id", req.Id, &t); err != nil {
+			return
+		}
 	}
 	res = &types.GetTokenResponse{Token: t.ToGRPCToken()}
 	return
@@ -76,7 +82,10 @@ func (d *Daemon) ListTokens(c context.Context, req *types.ListTokensRequest) (re
 	}
 	ret := make([]*types.Token, 0, len(ts))
 	for _, t := range ts {
-		ret = append(ret, t.ToGRPCToken())
+		// hide the actual token
+		nt := t.ToGRPCToken()
+		nt.Token = ""
+		ret = append(ret, nt)
 	}
 	res = &types.ListTokensResponse{Tokens: ret}
 	return
@@ -86,7 +95,7 @@ func (d *Daemon) DeleteToken(c context.Context, req *types.DeleteTokenRequest) (
 	if err = req.Validate(); err != nil {
 		return
 	}
-	if err = d.DB.DeleteStruct(&models.Token{Token: req.Token}); err != nil {
+	if err = d.DB.DeleteStruct(&models.Token{Id: req.Id}); err != nil {
 		return
 	}
 	res = &types.DeleteTokenResponse{}

@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/codes"
+	"strconv"
 )
 
 func hideAuthenticationError(err *error) {
@@ -49,14 +50,31 @@ func routeCreateToken(c *nova.Context) (err error) {
 	return
 }
 
+func routeListTokens(c *nova.Context) (err error) {
+	a, ts, v := authResult(c), tokenService(c), view.Extract(c)
+	var res1 *types.ListTokensResponse
+	if res1, err = ts.ListTokens(c.Req.Context(), &types.ListTokensRequest{
+		Account: a.User.Account,
+	}); err != nil {
+		return
+	}
+	v.Data["tokens"] = res1.Tokens
+	v.DataAsJSON()
+	return
+}
+
 func routeDestroyToken(c *nova.Context) (err error) {
 	ts, v, a := tokenService(c), view.Extract(c), authResult(c)
 	if err = c.Req.ParseForm(); err != nil {
 		return
 	}
+	var id int64
+	if id, err = strconv.ParseInt(c.Req.FormValue("id"), 10, 64); err != nil {
+		return
+	}
 	var res1 *types.GetTokenResponse
 	if res1, err = ts.GetToken(c.Req.Context(), &types.GetTokenRequest{
-		Token: c.Req.FormValue("token"),
+		Id: id,
 	}); err != nil {
 		return
 	}
@@ -69,7 +87,7 @@ func routeDestroyToken(c *nova.Context) (err error) {
 		c.Res.Header().Set(headerKeyAction, headerValueClearToken)
 	}
 	if _, err = ts.DeleteToken(c.Req.Context(), &types.DeleteTokenRequest{
-		Token: res1.Token.Token,
+		Id: id,
 	}); err != nil {
 		return
 	}

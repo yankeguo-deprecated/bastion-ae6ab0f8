@@ -355,11 +355,12 @@ service SessionService {
 }
 
 message Token {
-    string account = 1;
-    string token = 2;
-    string description = 3;
-    int64 created_at = 4;
-    int64 viewed_at = 5;
+    int64 id = 1;
+    string account = 2;
+    string token = 3;
+    string description = 4;
+    int64 created_at = 5;
+    int64 viewed_at = 6;
 }
 
 message CreateTokenRequest {
@@ -372,7 +373,8 @@ message CreateTokenResponse {
 }
 
 message GetTokenRequest {
-    string token = 1;
+    int64 id = 1;
+    string token = 2;
 }
 
 message GetTokenResponse {
@@ -396,7 +398,7 @@ message ListTokensResponse {
 }
 
 message DeleteTokenRequest {
-    string token = 1;
+    int64 id = 1;
 }
 
 message DeleteTokenResponse {

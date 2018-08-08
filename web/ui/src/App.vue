@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <notifications position="top center"/>
-    <b-navbar fixed :sticky="true" toggleable="md" type="dark" variant="info">
+    <b-navbar fixed :sticky="true" toggleable="md" type="dark" variant="primary">
 
       <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
@@ -12,9 +12,12 @@
         <b-navbar-nav>
           <b-nav-item v-if="isLoggedIn" to="/dashboard">工作台</b-nav-item>
           <b-nav-item v-if="isLoggedInAsAdmin" to="/servers">服务器列表</b-nav-item>
+          <b-nav-item v-if="isLoggedInAsAdmin" to="/users">用户列表</b-nav-item>
+          <b-nav-item v-if="isLoggedInAsAdmin" to="/sessions">操作记录</b-nav-item>
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
+          <b-nav-item v-if="isLoggedIn" to="/profile">{{currentUser.nickname}}({{currentUser.account}})</b-nav-item>
         </b-navbar-nav>
 
       </b-collapse>
@@ -48,5 +51,9 @@ export default {
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  a.destroy-link {
+    color: #ff4757;
   }
 </style>

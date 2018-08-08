@@ -4,7 +4,11 @@
 
 <script>
 export default {
-  name: 'Dashboard'
+  name: 'Dashboard',
+  mounted () {
+    this.$apiGetCurrentUser()
+    this.$apiGetCurrentUserGrantItems()
+  }
 }
 </script>
 

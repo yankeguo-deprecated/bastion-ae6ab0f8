@@ -128,6 +128,7 @@ func requiresLoggedIn(admin bool) nova.HandlerFunc {
 				return
 			}
 		}
+		c.Next()
 		return
 	}
 }

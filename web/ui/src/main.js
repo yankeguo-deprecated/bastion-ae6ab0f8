@@ -1,4 +1,6 @@
 import Vue from 'vue'
+import moment from 'moment'
+import UAParser from 'ua-parser-js'
 
 // install BootstrapVue
 import BootstrapVue from 'bootstrap-vue'
@@ -16,6 +18,15 @@ Vue.use(BootstrapVue)
 Vue.use(Notifications)
 
 Vue.config.productionTip = false
+
+Vue.filter('formatUnixEpoch', function (value) {
+  return moment(value * 1000).format('YYYY-MM-DD HH:mm:ss')
+})
+
+Vue.filter('formatUserAgent', function (ua) {
+  let {browser, os} = UAParser(ua)
+  return `${browser.name} ${browser.version} (${os.name} ${os.version})`
+})
 
 /* eslint-disable no-new */
 new Vue({

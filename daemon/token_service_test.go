@@ -32,6 +32,7 @@ func TestDaemon_CreateGetTouchListDeleteToken(t *testing.T) {
 		t.Log(res)
 
 		token := res.Token.Token
+		id := res.Token.Id
 
 		res2, err := ts.GetToken(context.Background(), &types.GetTokenRequest{Token: token})
 		if err != nil {
@@ -69,7 +70,7 @@ func TestDaemon_CreateGetTouchListDeleteToken(t *testing.T) {
 
 		t.Log(res4)
 
-		_, err = ts.DeleteToken(context.Background(), &types.DeleteTokenRequest{Token: token})
+		_, err = ts.DeleteToken(context.Background(), &types.DeleteTokenRequest{Id: id})
 
 		if err != nil {
 			t.Fatal(err)

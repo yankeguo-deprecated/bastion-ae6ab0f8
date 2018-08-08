@@ -18,11 +18,17 @@ export default new Vuex.Store({
     isLoggedInAsAdmin: state => (!!state.currentToken) && (!!state.currentUser) && state.currentUser.is_admin
   },
   mutations: {
-    updateCurrentToken (state, token) {
+    setCurrentToken (state, token) {
       state.currentToken = token
     },
-    updateCurrentUser (state, user) {
+    setCurrentUser (state, user) {
       state.currentUser = user
+    },
+    setGrantItems (state, gis) {
+      state.grantItems = gis || []
+    },
+    setTokens (state, tokens) {
+      state.tokens = tokens || []
     }
   },
   plugins: [createPersistedState()]

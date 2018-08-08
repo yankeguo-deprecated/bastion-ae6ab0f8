@@ -17,8 +17,6 @@
 </template>
 
 <script>
-import store from '@/store'
-
 export default {
   name: 'Login',
   data () {
@@ -33,18 +31,11 @@ export default {
   methods: {
     onSubmit () {
       this.busy = true
-      this.$http.post('/api/tokens/create', this.form, {emulateJSON: true}).then((res) => {
-        store.commit('updateCurrentToken', res.body.token)
-        store.commit('updateCurrentUser', res.body.user)
-        this.$router.push('/dashboard')
-      }, (res) => {
+      this.$apiLogin(this.form).then(() => {
         this.busy = false
-        this.$notify({
-          type: 'error',
-          title: 'API Error',
-          text: res.bodyText,
-          duration: 2000
-        })
+        this.$router.push('/dashboard')
+      }, () => {
+        this.busy = false
       })
     }
   }

@@ -337,9 +337,12 @@ func (m *ListTokensRequest) Validate() (err error) {
 	return
 }
 
-
 func (m *GetTokenRequest) Validate() (err error) {
 	trimSpace(&m.Token)
+	if len(m.Token) == 0 && m.Id == 0 {
+		err = errMissingField("id")
+		return
+	}
 	return
 }
 
@@ -349,6 +352,5 @@ func (m *TouchTokenRequest) Validate() (err error) {
 }
 
 func (m *DeleteTokenRequest) Validate() (err error) {
-	trimSpace(&m.Token)
 	return
 }
