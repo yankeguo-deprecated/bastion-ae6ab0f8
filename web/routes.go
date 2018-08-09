@@ -45,6 +45,18 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(false),
 		routeDestroyKey,
 	)
+	router.Route(n).Get("/api/nodes").Use(
+		requiresLoggedIn(true),
+		routeListNodes,
+	)
+	router.Route(n).Post("/api/nodes/create").Use(
+		requiresLoggedIn(true),
+		routeCreateNode,
+	)
+	router.Route(n).Post("/api/nodes/destroy").Use(
+		requiresLoggedIn(true),
+		routeDestroyNode,
+	)
 }
 
 func routeCheck(c *nova.Context) error {

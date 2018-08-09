@@ -3,16 +3,16 @@
     <b-col md="6" lg="4">
       <b-card>
         <b-form @submit="onSubmit">
-          <b-form-group label="旧密码" horizontal>
-            <b-form-input v-model="form.oldPassword" type="password"></b-form-input>
+          <b-form-group label="旧密码:" label-class="text-right" description="输入旧密码" horizontal>
+            <b-form-input v-model="form.oldPassword" placeholder="输入旧密码" type="password"></b-form-input>
           </b-form-group>
-          <b-form-group label="新密码" horizontal>
-            <b-form-input v-model="form.newPassword" type="password"></b-form-input>
+          <b-form-group label="新密码:" label-class="text-right" description="长度不能小于6" horizontal>
+            <b-form-input v-model="form.newPassword" placeholder="输入新密码" type="password"></b-form-input>
           </b-form-group>
-          <b-form-group label="重复密码" horizontal>
-            <b-form-input v-model="form.repPassword" type="password"></b-form-input>
+          <b-form-group label="重复密码:" label-class="text-right" horizontal>
+            <b-form-input v-model="form.repPassword" placeholder="重复输入新密码" type="password"></b-form-input>
           </b-form-group>
-          <b-button type="submit" class="btn-block" variant="primary">修改密码</b-button>
+          <b-button type="submit" class="btn-block" :disabled="busy" variant="primary">修改密码</b-button>
         </b-form>
       </b-card>
     </b-col>
@@ -28,7 +28,8 @@ export default {
         oldPassword: '',
         newPassword: '',
         repPassword: ''
-      }
+      },
+      busy: false
     }
   },
   methods: {
@@ -50,10 +51,14 @@ export default {
         })
         return
       }
+      this.busy = true
       this.$apiUpdatePassword(this.form).then(() => {
+        this.busy = false
         this.form.oldPassword = ''
         this.form.newPassword = ''
         this.form.repPassword = ''
+      }, () => {
+        this.busy = false
       })
     }
   }

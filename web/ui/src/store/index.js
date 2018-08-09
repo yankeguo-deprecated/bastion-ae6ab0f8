@@ -47,6 +47,9 @@ export default new Vuex.Store({
     },
     setKeys (state, keys) {
       state.keys = keys || []
+    },
+    setNodes (state, nodes) {
+      state.nodes = nodes || []
     }
   },
   plugins: [createPersistedState()]

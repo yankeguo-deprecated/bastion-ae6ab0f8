@@ -26,9 +26,6 @@ func hideAuthenticationError(err *error) {
 
 func routeCreateToken(c *nova.Context) (err error) {
 	ts, us, v := tokenService(c), userService(c), view.Extract(c)
-	if err = c.Req.ParseForm(); err != nil {
-		return
-	}
 	var res1 *types.AuthenticateUserResponse
 	if res1, err = us.AuthenticateUser(c.Req.Context(), &types.AuthenticateUserRequest{
 		Account:  c.Req.FormValue("account"),
@@ -65,9 +62,6 @@ func routeListTokens(c *nova.Context) (err error) {
 
 func routeDestroyToken(c *nova.Context) (err error) {
 	ts, v, a := tokenService(c), view.Extract(c), authResult(c)
-	if err = c.Req.ParseForm(); err != nil {
-		return
-	}
 	var id int64
 	if id, err = strconv.ParseInt(c.Req.FormValue("id"), 10, 64); err != nil {
 		return

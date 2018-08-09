@@ -24,13 +24,10 @@ func routeListKeys(c *nova.Context) (err error) {
 
 func routeCreateKey(c *nova.Context) (err error) {
 	a, ks, v := authResult(c), keyService(c), view.Extract(c)
-	if err = c.Req.ParseForm(); err != nil {
-		return
-	}
-	name := strings.TrimSpace(c.Req.Form.Get("name"))
+	name := strings.TrimSpace(c.Req.FormValue("name"))
 	var out ssh.PublicKey
 	var cmt string
-	if out, cmt, _, _, err = ssh.ParseAuthorizedKey([]byte(c.Req.Form.Get("publicKey"))); err != nil {
+	if out, cmt, _, _, err = ssh.ParseAuthorizedKey([]byte(c.Req.FormValue("publicKey"))); err != nil {
 		return
 	}
 	if len(name) == 0 {
@@ -55,10 +52,7 @@ func routeCreateKey(c *nova.Context) (err error) {
 
 func routeDestroyKey(c *nova.Context) (err error) {
 	a, ks, v := authResult(c), keyService(c), view.Extract(c)
-	if err = c.Req.ParseForm(); err != nil {
-		return
-	}
-	fingerprint := strings.TrimSpace(c.Req.Form.Get("fingerprint"))
+	fingerprint := strings.TrimSpace(c.Req.FormValue("fingerprint"))
 	var res1 *types.GetKeyResponse
 	if res1, err = ks.GetKey(c.Req.Context(), &types.GetKeyRequest{
 		Fingerprint: fingerprint,

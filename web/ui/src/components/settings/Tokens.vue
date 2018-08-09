@@ -1,5 +1,5 @@
 <template>
-  <b-table :items="tokens" :fields="fields">
+  <b-table striped :items="tokens" :fields="fields">
     <template slot="created_at" slot-scope="data">
       {{data.item.created_at | formatUnixEpoch}}
     </template>
@@ -10,10 +10,13 @@
       {{data.item.description | formatUserAgent}}
     </template>
     <template slot="action" slot-scope="data">
-      <b-link href="#" class="destroy-link" v-if="data.item.id != currentToken.id"
+      <b-link href="#" class="destroy-link" v-if="data.item.id != currentToken.id && data.item.id != tokenToDelete"
               @click="onDeleteClick(data.item.id)">删除
       </b-link>
-      <span class="text-muted" v-if="data.item.id == currentToken.id">(当前令牌)</span>
+      <b-link href="#" class="destroy-link" v-if="data.item.id != currentToken.id && data.item.id == tokenToDelete"
+              @click="onDeleteConfirmClick(data.item.id)">确认删除
+      </b-link>
+      <span class="text-muted" v-if="data.item.id == currentToken.id">(当前)</span>
     </template>
   </b-table>
 </template>
@@ -29,12 +32,12 @@ export default {
   data () {
     return {
       fields: [
-        {key: 'id', label: 'ID', sortable: true},
-        {key: 'description', label: '详情'},
-        {key: 'created_at', label: '创建时间', sortable: true},
-        {key: 'viewed_at', label: '最后使用时间', sortable: true},
-        {key: 'action', label: '操作'}
-      ]
+        {key: 'description', label: '详情', thClass: 'text-center'},
+        {key: 'created_at', label: '创建时间', sortable: true, thClass: 'text-center', tdClass: 'text-center'},
+        {key: 'viewed_at', label: '最后使用时间', sortable: true, thClass: 'text-center', tdClass: 'text-center'},
+        {key: 'action', label: '    ', thClass: 'text-center', tdClass: 'action-cell'}
+      ],
+      tokenToDelete: 0
     }
   },
   computed: {
@@ -42,12 +45,13 @@ export default {
   },
   methods: {
     onDeleteClick (id) {
+      this.tokenToDelete = id
+    },
+    onDeleteConfirmClick (id) {
       this.$apiDeleteToken(id)
     }
   }
 }
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

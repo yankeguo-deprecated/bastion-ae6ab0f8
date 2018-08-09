@@ -22,7 +22,7 @@
               <em>当前用户: {{currentUser.nickname}} ({{currentUser.account}})</em>
             </template>
             <b-dropdown-item to="/settings/profile">个人设置</b-dropdown-item>
-            <b-dropdown-item-divider></b-dropdown-item-divider>
+            <b-dropdown-divider></b-dropdown-divider>
             <b-dropdown-item @click="onLogoutClick">退出登录</b-dropdown-item>
           </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -64,5 +64,9 @@ export default {
 
   a.destroy-link {
     color: #ff4757;
+  }
+  td.action-cell {
+    width: 8rem;
+    text-align: center;
   }
 </style>

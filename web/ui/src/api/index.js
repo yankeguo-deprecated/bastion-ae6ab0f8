@@ -125,6 +125,34 @@ let API = {
         return res
       }, this.$apiErrorCallback())
     }
+    Vue.prototype.$apiListNodes = function () {
+      return this.$http.get('/api/nodes').then((res) => {
+        store.commit('setNodes', res.body.nodes)
+        return res
+      }, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiCreateNode = function ({hostname, address}) {
+      return this.$http.post('/api/nodes/create', {hostname, address}, {emulateJSON: true}).then((res) => {
+        this.$apiListNodes()
+        this.$notify({
+          type: 'success',
+          title: '操作成功',
+          text: '服务器已添加/更新'
+        })
+        return res
+      }, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiDestroyNode = function (hostname) {
+      return this.$http.post('/api/nodes/destroy', {hostname}, {emulateJSON: true}).then((res) => {
+        this.$apiListNodes()
+        this.$notify({
+          type: 'success',
+          title: '操作成功',
+          text: '服务器已移除'
+        })
+        return res
+      }, this.$apiErrorCallback())
+    }
   }
 }
 

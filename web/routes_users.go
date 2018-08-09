@@ -28,14 +28,11 @@ func routeGetCurrentUserGrantItems(c *nova.Context) (err error) {
 
 func routeUpdateCurrentUserNickname(c *nova.Context) (err error) {
 	a, us, v := authResult(c), userService(c), view.Extract(c)
-	if err = c.Req.ParseForm(); err != nil {
-		return
-	}
 	var res1 *types.UpdateUserResponse
 	if res1, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
 		Account:        a.User.Account,
 		UpdateNickname: true,
-		Nickname:       c.Req.Form.Get("nickname"),
+		Nickname:       c.Req.FormValue("nickname"),
 	}); err != nil {
 		return
 	}
@@ -46,12 +43,9 @@ func routeUpdateCurrentUserNickname(c *nova.Context) (err error) {
 
 func routeUpdateCurrentUserPassword(c *nova.Context) (err error) {
 	a, us, v := authResult(c), userService(c), view.Extract(c)
-	if err = c.Req.ParseForm(); err != nil {
-		return
-	}
 	if _, err = us.AuthenticateUser(c.Req.Context(), &types.AuthenticateUserRequest{
 		Account:  a.User.Account,
-		Password: c.Req.Form.Get("oldPassword"),
+		Password: c.Req.FormValue("oldPassword"),
 	}); err != nil {
 		return
 	}
@@ -59,7 +53,7 @@ func routeUpdateCurrentUserPassword(c *nova.Context) (err error) {
 	if res2, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
 		Account:        a.User.Account,
 		UpdatePassword: true,
-		Password:       c.Req.Form.Get("newPassword"),
+		Password:       c.Req.FormValue("newPassword"),
 	}); err != nil {
 		return
 	}
