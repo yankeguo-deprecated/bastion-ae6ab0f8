@@ -31,6 +31,21 @@ Vue.filter('formatUserAgent', function (ua) {
   return `${browser.name} ${browser.version} (${os.name} ${os.version})`
 })
 
+Vue.filter('formatUserStatus', function (u) {
+  if (!u) {
+    return ''
+  } else {
+    let types = []
+    if (u.is_admin) {
+      types.push('管理员')
+    }
+    if (u.is_blocked) {
+      types.push('已封禁')
+    }
+    return types.join(', ')
+  }
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

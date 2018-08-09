@@ -7,7 +7,7 @@
             <b-form-input :value="currentUser.account" readonly plaintext></b-form-input>
           </b-form-group>
           <b-form-group label="账户类型:" label-class="text-right" horizontal>
-            <b-form-input :value="userType" readonly plaintext></b-form-input>
+            <b-form-input :value="currentUser | formatUserStatus" readonly plaintext></b-form-input>
           </b-form-group>
           <b-form-group label="昵称:" label-class="text-right" description="昵称不能大于5个中文字符，不能为空" horizontal>
             <b-form-input v-model="nickname" placeholder="请输入昵称" type="text"></b-form-input>
@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from 'vuex'
+import {mapState} from 'vuex'
 
 export default {
   name: 'Profile',
@@ -34,8 +34,7 @@ export default {
     }
   },
   computed: {
-    ...mapState(['currentUser']),
-    ...mapGetters(['userType'])
+    ...mapState(['currentUser'])
   },
   mounted () {
     this.nickname = this.currentUser.nickname
