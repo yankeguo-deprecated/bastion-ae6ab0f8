@@ -21,7 +21,7 @@ export default {
 </script>
 
 <style scoped>
-  #main-row {
-    margin-top: 2rem;
-  }
+#main-row {
+  margin-top: 2rem;
+}
 </style>

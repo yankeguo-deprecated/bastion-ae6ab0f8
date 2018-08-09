@@ -95,9 +95,15 @@ let router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-  if ((to.meta.requiresLoggedIn || to.meta.requiresLoggedInAsAdmin) && !store.getters.isLoggedIn) {
+  if (
+    (to.meta.requiresLoggedIn || to.meta.requiresLoggedInAsAdmin) &&
+    !store.getters.isLoggedIn
+  ) {
     next('/login')
-  } else if (to.meta.requiresLoggedInAsAdmin && !store.getters.isLoggedInAsAdmin) {
+  } else if (
+    to.meta.requiresLoggedInAsAdmin &&
+    !store.getters.isLoggedInAsAdmin
+  ) {
     next('/dashboard')
   } else {
     next(true)

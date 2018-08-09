@@ -15,8 +15,9 @@ export default new Vuex.Store({
     keys: []
   },
   getters: {
-    isLoggedIn: state => (!!state.currentToken) && (!!state.currentUser),
-    isLoggedInAsAdmin: state => (!!state.currentToken) && (!!state.currentUser) && state.currentUser.is_admin
+    isLoggedIn: state => !!state.currentToken && !!state.currentUser,
+    isLoggedInAsAdmin: state =>
+      !!state.currentToken && !!state.currentUser && state.currentUser.is_admin
   },
   mutations: {
     setCurrentToken (state, token) {
@@ -36,6 +37,9 @@ export default new Vuex.Store({
     },
     setNodes (state, nodes) {
       state.nodes = nodes || []
+    },
+    setUsers (state, users) {
+      state.users = users || []
     }
   },
   plugins: [createPersistedState()]

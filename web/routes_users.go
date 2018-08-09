@@ -4,7 +4,34 @@ import (
 	"github.com/novakit/nova"
 	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
+	"strings"
 )
+
+func routeListUsers(c *nova.Context) (err error) {
+	us, v := userService(c), view.Extract(c)
+	var res1 *types.ListUsersResponse
+	if res1, err = us.ListUsers(c.Req.Context(), &types.ListUsersRequest{}); err != nil {
+		return
+	}
+	v.Data["users"] = res1.Users
+	v.DataAsJSON()
+	return
+}
+
+func routeCreateUser(c *nova.Context) (err error) {
+	us, v := userService(c), view.Extract(c)
+	var res1 *types.CreateUserResponse
+	if res1, err = us.CreateUser(c.Req.Context(), &types.CreateUserRequest{
+		Account:  c.Req.FormValue("account"),
+		Nickname: c.Req.FormValue("nickname"),
+		Password: c.Req.FormValue("password"),
+	}); err != nil {
+		return
+	}
+	v.Data["user"] = res1.User
+	v.DataAsJSON()
+	return
+}
 
 func routeGetCurrentUser(c *nova.Context) (err error) {
 	a, v := authResult(c), view.Extract(c)
@@ -58,6 +85,36 @@ func routeUpdateCurrentUserPassword(c *nova.Context) (err error) {
 		return
 	}
 	v.Data["user"] = res2.User
+	v.DataAsJSON()
+	return
+}
+
+func routeUpdateUserIsAdmin(c *nova.Context) (err error) {
+	us, v := userService(c), view.Extract(c)
+	var res1 *types.UpdateUserResponse
+	if res1, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
+		Account:       c.Req.FormValue("account"),
+		UpdateIsAdmin: true,
+		IsAdmin:       strings.HasPrefix(strings.ToLower(strings.TrimSpace(c.Req.FormValue("is_admin"))), "t"),
+	}); err != nil {
+		return
+	}
+	v.Data["user"] = res1.User
+	v.DataAsJSON()
+	return
+}
+
+func routeUpdateUserIsBlocked(c *nova.Context) (err error) {
+	us, v := userService(c), view.Extract(c)
+	var res1 *types.UpdateUserResponse
+	if res1, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
+		Account:       c.Req.FormValue("account"),
+		UpdateIsBlocked: true,
+		IsBlocked:       strings.HasPrefix(strings.ToLower(strings.TrimSpace(c.Req.FormValue("is_blocked"))), "t"),
+	}); err != nil {
+		return
+	}
+	v.Data["user"] = res1.User
 	v.DataAsJSON()
 	return
 }

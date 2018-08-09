@@ -31,19 +31,22 @@ export default {
   methods: {
     onSubmit () {
       this.busy = true
-      this.$apiLogin(this.form).then(() => {
-        this.busy = false
-        this.$router.push('/dashboard')
-      }, () => {
-        this.busy = false
-      })
+      this.$apiLogin(this.form).then(
+        () => {
+          this.busy = false
+          this.$router.push('/dashboard')
+        },
+        () => {
+          this.busy = false
+        }
+      )
     }
   }
 }
 </script>
 
 <style scoped>
-  #main-row {
-    margin-top: 2rem;
-  }
+#main-row {
+  margin-top: 2rem;
+}
 </style>

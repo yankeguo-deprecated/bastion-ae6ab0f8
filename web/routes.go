@@ -9,7 +9,7 @@ import (
 func mountRoutes(n *nova.Nova) {
 	router.Route(n).Get("/api/check").Use(routeCheck)
 	router.Route(n).Post("/api/tokens/create").Use(routeCreateToken)
-	router.Route(n).Get("/api/tokens/list").Use(
+	router.Route(n).Get("/api/tokens").Use(
 		requiresLoggedIn(false),
 		routeListTokens,
 	)
@@ -56,6 +56,22 @@ func mountRoutes(n *nova.Nova) {
 	router.Route(n).Post("/api/nodes/destroy").Use(
 		requiresLoggedIn(true),
 		routeDestroyNode,
+	)
+	router.Route(n).Get("/api/users").Use(
+		requiresLoggedIn(true),
+		routeListUsers,
+	)
+	router.Route(n).Post("/api/users/create").Use(
+		requiresLoggedIn(true),
+		routeCreateUser,
+	)
+	router.Route(n).Post("/api/users/update_is_admin").Use(
+		requiresLoggedIn(true),
+		routeUpdateUserIsAdmin,
+	)
+	router.Route(n).Post("/api/users/update_is_blocked").Use(
+		requiresLoggedIn(true),
+		routeUpdateUserIsBlocked,
 	)
 }
 

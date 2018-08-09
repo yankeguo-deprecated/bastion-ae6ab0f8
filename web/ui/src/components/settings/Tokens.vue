@@ -10,11 +10,11 @@
       {{data.item.description | formatUserAgent}}
     </template>
     <template slot="action" slot-scope="data">
-      <b-link href="#" class="destroy-link" v-if="data.item.id != currentToken.id && data.item.id != tokenToDelete"
-              @click="onDeleteClick(data.item.id)">删除
+      <b-link href="#" class="text-danger" v-if="data.item.id != currentToken.id && data.item.id != tokenToDelete"
+              @click="onDeleteClick(data.item.id)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
       </b-link>
-      <b-link href="#" class="destroy-link" v-if="data.item.id != currentToken.id && data.item.id == tokenToDelete"
-              @click="onDeleteConfirmClick(data.item.id)">确认删除
+      <b-link href="#" class="text-danger" v-if="data.item.id != currentToken.id && data.item.id == tokenToDelete"
+              @click="onDeleteConfirmClick(data.item.id)"><i class="fa fa-trash" aria-hidden="true"></i> 确认删除
       </b-link>
       <span class="text-muted" v-if="data.item.id == currentToken.id">(当前)</span>
     </template>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import {mapGetters, mapState} from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'Tokens',
@@ -32,10 +32,27 @@ export default {
   data () {
     return {
       fields: [
-        {key: 'description', label: '详情', thClass: 'text-center'},
-        {key: 'created_at', label: '创建时间', sortable: true, thClass: 'text-center', tdClass: 'text-center'},
-        {key: 'viewed_at', label: '最后使用时间', sortable: true, thClass: 'text-center', tdClass: 'text-center'},
-        {key: 'action', label: '    ', thClass: 'text-center', tdClass: 'action-cell'}
+        { key: 'description', label: '详情', thClass: 'text-center' },
+        {
+          key: 'created_at',
+          label: '创建时间',
+          sortable: true,
+          thClass: 'text-center',
+          tdClass: 'text-center'
+        },
+        {
+          key: 'viewed_at',
+          label: '最后使用时间',
+          sortable: true,
+          thClass: 'text-center',
+          tdClass: 'text-center'
+        },
+        {
+          key: 'action',
+          label: '    ',
+          thClass: 'text-center',
+          tdClass: 'action-cell'
+        }
       ],
       tokenToDelete: 0
     }
@@ -54,4 +71,5 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+</style>
