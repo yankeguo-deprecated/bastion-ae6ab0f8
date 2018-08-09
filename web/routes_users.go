@@ -46,8 +46,24 @@ func routeUpdateCurrentUserNickname(c *nova.Context) (err error) {
 
 func routeUpdateCurrentUserPassword(c *nova.Context) (err error) {
 	a, us, v := authResult(c), userService(c), view.Extract(c)
-	_ = a
-	_ = us
+	if err = c.Req.ParseForm(); err != nil {
+		return
+	}
+	if _, err = us.AuthenticateUser(c.Req.Context(), &types.AuthenticateUserRequest{
+		Account:  a.User.Account,
+		Password: c.Req.Form.Get("oldPassword"),
+	}); err != nil {
+		return
+	}
+	var res2 *types.UpdateUserResponse
+	if res2, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
+		Account:        a.User.Account,
+		UpdatePassword: true,
+		Password:       c.Req.Form.Get("newPassword"),
+	}); err != nil {
+		return
+	}
+	v.Data["user"] = res2.User
 	v.DataAsJSON()
 	return
 }

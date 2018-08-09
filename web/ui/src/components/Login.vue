@@ -1,6 +1,6 @@
 <template>
   <b-row id="main-row">
-    <b-col md="4" offset-md="4">
+    <b-col md="4" offset-md="4" lg="2" offset-lg="5">
       <b-card title="登录">
         <b-form @submit="onSubmit">
           <b-form-group label="用户名">

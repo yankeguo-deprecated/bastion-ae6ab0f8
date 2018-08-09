@@ -17,12 +17,18 @@
         </b-navbar-nav>
 
         <b-navbar-nav class="ml-auto">
-          <b-nav-item v-if="isLoggedIn" to="/profile">{{currentUser.nickname}}({{currentUser.account}})</b-nav-item>
+          <b-nav-item-dropdown right v-if="isLoggedIn">
+            <template slot="button-content">
+              <em>当前用户: {{currentUser.nickname}} ({{currentUser.account}})</em>
+            </template>
+            <b-dropdown-item to="/settings/profile">个人设置</b-dropdown-item>
+            <b-dropdown-item-divider></b-dropdown-item-divider>
+            <b-dropdown-item @click="onLogoutClick">退出登录</b-dropdown-item>
+          </b-nav-item-dropdown>
         </b-navbar-nav>
-
       </b-collapse>
     </b-navbar>
-    <b-container>
+    <b-container fluid>
       <router-view/>
     </b-container>
   </div>
@@ -42,6 +48,9 @@ export default {
     ...mapGetters(['isLoggedIn', 'isLoggedInAsAdmin'])
   },
   methods: {
+    onLogoutClick () {
+      this.$apiLogout()
+    }
   }
 }
 </script>

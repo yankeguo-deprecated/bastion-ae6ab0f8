@@ -25,6 +25,10 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(false),
 		routeUpdateCurrentUserNickname,
 	)
+	router.Route(n).Post("/api/users/current/update_password").Use(
+		requiresLoggedIn(false),
+		routeUpdateCurrentUserPassword,
+	)
 	router.Route(n).Get("/api/users/current/grant_items").Use(
 		requiresLoggedIn(false),
 		routeGetCurrentUserGrantItems,

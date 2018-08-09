@@ -17,7 +17,7 @@ const (
 
 var (
 	UserAccountPattern    = regexp.MustCompile(`^[a-zA-Z][0-9a-zA-Z_.-]{3,24}$`)
-	UserNicknameMaxLength = 10
+	UserNicknameMaxLength = 16
 	UserPasswordMinLength = 6
 
 	NodeHostnamePattern = regexp.MustCompile(`[0-9a-zA-Z_.-]{4,64}`)

@@ -7,7 +7,13 @@ import Dashboard from '@/components/Dashboard'
 import Servers from '@/components/Servers'
 import Users from '@/components/Users'
 import Sessions from '@/components/Sessions'
-import Profile from '@/components/Profile'
+import Settings from '@/components/Settings'
+
+// children of settings
+import Profile from '@/components/settings/Profile'
+import ChangePassword from '@/components/settings/ChangePassword'
+import Keys from '@/components/settings/Keys'
+import Tokens from '@/components/settings/Tokens'
 
 Vue.use(Router)
 
@@ -56,12 +62,34 @@ let router = new Router({
       }
     },
     {
-      path: '/profile',
-      name: 'Profile',
-      component: Profile,
+      path: '/settings',
+      name: 'Settings',
+      component: Settings,
       meta: {
         requiresLoggedInAsAdmin: true
-      }
+      },
+      children: [
+        {
+          path: 'profile',
+          name: 'Profile',
+          component: Profile
+        },
+        {
+          path: 'change-password',
+          name: 'ChangePassword',
+          component: ChangePassword
+        },
+        {
+          path: 'keys',
+          name: 'Keys',
+          component: Keys
+        },
+        {
+          path: 'tokens',
+          name: 'Tokens',
+          component: Tokens
+        }
+      ]
     }
   ]
 })
