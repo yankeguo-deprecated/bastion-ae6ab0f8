@@ -162,8 +162,9 @@ message Key {
     string fingerprint = 1;
     string account = 2;
     string name = 3;
-    int64 created_at = 4;
-    int64 viewed_at = 5;
+    string source = 4;
+    int64 created_at = 5;
+    int64 viewed_at = 6;
 }
 
 message ListKeysRequest {
@@ -178,6 +179,7 @@ message CreateKeyRequest {
     string fingerprint = 1;
     string account = 2;
     string name = 3;
+    string source = 4;
 }
 
 message CreateKeyResponse {

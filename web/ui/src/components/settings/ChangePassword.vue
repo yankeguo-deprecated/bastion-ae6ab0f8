@@ -1,18 +1,20 @@
 <template>
   <b-row>
-    <b-col md="4" lg="3">
-      <b-form @submit="onSubmit">
-        <b-form-group label="旧密码" horizontal>
-          <b-form-input v-model="form.oldPassword" type="password"></b-form-input>
-        </b-form-group>
-        <b-form-group label="新密码" horizontal>
-          <b-form-input v-model="form.newPassword" type="password"></b-form-input>
-        </b-form-group>
-        <b-form-group label="重复密码" horizontal>
-          <b-form-input v-model="form.repPassword" type="password"></b-form-input>
-        </b-form-group>
-        <b-button type="submit" class="btn-block" variant="primary">修改密码</b-button>
-      </b-form>
+    <b-col md="6" lg="4">
+      <b-card>
+        <b-form @submit="onSubmit">
+          <b-form-group label="旧密码" horizontal>
+            <b-form-input v-model="form.oldPassword" type="password"></b-form-input>
+          </b-form-group>
+          <b-form-group label="新密码" horizontal>
+            <b-form-input v-model="form.newPassword" type="password"></b-form-input>
+          </b-form-group>
+          <b-form-group label="重复密码" horizontal>
+            <b-form-input v-model="form.repPassword" type="password"></b-form-input>
+          </b-form-group>
+          <b-button type="submit" class="btn-block" variant="primary">修改密码</b-button>
+        </b-form>
+      </b-card>
     </b-col>
   </b-row>
 </template>

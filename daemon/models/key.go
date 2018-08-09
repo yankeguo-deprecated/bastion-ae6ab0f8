@@ -8,6 +8,7 @@ import (
 type Key struct {
 	Fingerprint string `storm:"id"`
 	Account     string `storm:"index"`
+	Source      string `storm:"index"`
 	Name        string
 	CreatedAt   int64
 	ViewedAt    int64

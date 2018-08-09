@@ -12,6 +12,9 @@ const (
 	NodeSourceManual = "manual"
 	NodeSourceConsul = "consul"
 
+	KeySourceManual = "manual"
+	KeySourceSandbox = "sandbox"
+
 	NodeUserRoot = "root"
 )
 
@@ -170,6 +173,14 @@ func (m *CreateKeyRequest) Validate() (err error) {
 	trimSpace(&m.Name)
 	if len(m.Name) == 0 {
 		m.Name = "no name"
+	}
+	trimSpace(&m.Source)
+	if len(m.Source) == 0 {
+		m.Source = KeySourceManual
+	}
+	if m.Source != KeySourceManual && m.Source != KeySourceSandbox {
+		err = errInvalidField("source", "one of 'manual' or 'sandbox'")
+		return
 	}
 	return
 }

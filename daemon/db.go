@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/codes"
 	"github.com/asdine/storm/index"
+	"github.com/asdine/storm/q"
 )
 
 var (
@@ -34,6 +35,10 @@ type DB struct {
 
 type Node struct {
 	node storm.Node
+}
+
+type Query struct {
+	query storm.Query
 }
 
 func (d *DB) Close() error {
@@ -168,6 +173,24 @@ func (d *Node) CheckDuplicated(bucket string, keyName string, keyVal interface{}
 
 func (d *Node) Count(data interface{}) (c int, err error) {
 	c, err = d.node.Count(data)
+	transformStormError(&err)
+	return
+}
+
+func (d *Node) Select(matchers ...q.Matcher) *Query {
+	return &Query{
+		query: d.node.Select(matchers...),
+	}
+}
+
+func (q *Query) Count(data interface{}) (i int, err error) {
+	i, err = q.query.Count(data)
+	transformStormError(&err)
+	return
+}
+
+func (q *Query) Delete(data interface{}) (err error) {
+	err = q.query.Delete(data)
 	transformStormError(&err)
 	return
 }

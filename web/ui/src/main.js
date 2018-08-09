@@ -20,6 +20,9 @@ Vue.use(Notifications)
 Vue.config.productionTip = false
 
 Vue.filter('formatUnixEpoch', function (value) {
+  if (!value) {
+    return '-'
+  }
   return moment(value * 1000).format('YYYY-MM-DD HH:mm:ss')
 })
 

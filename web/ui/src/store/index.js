@@ -11,7 +11,8 @@ export default new Vuex.Store({
     tokens: [],
     users: [],
     grantItems: [],
-    nodes: []
+    nodes: [],
+    keys: []
   },
   getters: {
     isLoggedIn: state => (!!state.currentToken) && (!!state.currentUser),
@@ -43,6 +44,9 @@ export default new Vuex.Store({
     },
     setTokens (state, tokens) {
       state.tokens = tokens || []
+    },
+    setKeys (state, keys) {
+      state.keys = keys || []
     }
   },
   plugins: [createPersistedState()]

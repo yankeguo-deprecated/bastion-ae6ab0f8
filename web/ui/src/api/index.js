@@ -69,7 +69,7 @@ let API = {
         return res
       }, this.$apiErrorCallback())
     }
-    Vue.prototype.$apiUpdatePassword = function({oldPassword, newPassword}) {
+    Vue.prototype.$apiUpdatePassword = function ({oldPassword, newPassword}) {
       return this.$http.post('/api/users/current/update_password', {oldPassword, newPassword}, {emulateJSON: true}).then((res) => {
         store.commit('setCurrentUser', res.body.user)
         this.$notify({
@@ -93,6 +93,34 @@ let API = {
           type: 'success',
           title: '操作成功',
           text: '访问令牌已删除'
+        })
+        return res
+      }, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiListKeys = function () {
+      return this.$http.get('/api/users/current/keys').then((res) => {
+        store.commit('setKeys', res.body.keys)
+        return res
+      }, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiCreateKey = function ({name, publicKey}) {
+      return this.$http.post('/api/users/current/keys/create', {name, publicKey}, {emulateJSON: true}).then((res) => {
+        this.$apiListKeys()
+        this.$notify({
+          type: 'success',
+          title: '操作成功',
+          text: 'SSH 公钥已添加'
+        })
+        return res
+      }, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiDestroyKey = function (fingerprint) {
+      return this.$http.post('/api/keys/destroy', {fingerprint}, {emulateJSON: true}).then((res) => {
+        this.$apiListKeys()
+        this.$notify({
+          type: 'success',
+          title: '操作成功',
+          text: 'SSH 公钥已移除'
         })
         return res
       }, this.$apiErrorCallback())

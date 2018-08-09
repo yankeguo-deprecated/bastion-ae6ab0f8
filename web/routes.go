@@ -33,6 +33,18 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(false),
 		routeGetCurrentUserGrantItems,
 	)
+	router.Route(n).Get("/api/users/current/keys").Use(
+		requiresLoggedIn(false),
+		routeListKeys,
+	)
+	router.Route(n).Post("/api/users/current/keys/create").Use(
+		requiresLoggedIn(false),
+		routeCreateKey,
+	)
+	router.Route(n).Post("/api/keys/destroy").Use(
+		requiresLoggedIn(false),
+		routeDestroyKey,
+	)
 }
 
 func routeCheck(c *nova.Context) error {
