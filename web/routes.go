@@ -73,6 +73,22 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(true),
 		routeUpdateUserIsBlocked,
 	)
+	router.Route(n).Get("/api/users/:account").Use(
+		requiresLoggedIn(true),
+		routeGetUser,
+	)
+	router.Route(n).Get("/api/users/:account/grants").Use(
+		requiresLoggedIn(true),
+		routeGetGrants,
+	)
+	router.Route(n).Post("/api/users/:account/grants/create").Use(
+		requiresLoggedIn(true),
+		routeCreateGrant,
+	)
+	router.Route(n).Post("/api/users/:account/grants/destroy").Use(
+		requiresLoggedIn(true),
+		routeDestroyGrant,
+	)
 }
 
 func routeCheck(c *nova.Context) error {

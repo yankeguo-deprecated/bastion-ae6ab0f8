@@ -245,6 +245,57 @@ let API = {
           return res
         }, this.$apiErrorCallback())
     }
+    Vue.prototype.$apiGetUser = function (account) {
+      return this.$http
+        .get(`/api/users/${account}`)
+        .then(null, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiGetUserGrants = function (account) {
+      return this.$http
+        .get(`/api/users/${account}/grants`)
+        .then(null, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiCreateGrant = function ({
+      account,
+      hostname_pattern,
+      user,
+      expires_in
+    }) {
+      return this.$http
+        .post(
+          `/api/users/${account}/grants/create`,
+          { hostname_pattern, user, expires_in },
+          { emulateJSON: true }
+        )
+        .then(res => {
+          this.$notify({
+            type: 'success',
+            title: '操作成功',
+            text: '授权已添加/更新'
+          })
+          return res
+        }, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiDestroyGrant = function ({
+      account,
+      hostname_pattern,
+      user
+    }) {
+      return this.$http
+        .post(
+          `/api/users/${account}/grants/destroy`,
+          { hostname_pattern, user },
+          { emulateJSON: true }
+        )
+        .then(res => {
+          this.$notify({
+            type: 'success',
+            title: '操作成功',
+            text: '授权已移除'
+          })
+          return res
+        }, this.$apiErrorCallback())
+    }
   }
 }
 

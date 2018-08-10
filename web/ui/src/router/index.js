@@ -15,6 +15,9 @@ import ChangePassword from '@/components/settings/ChangePassword'
 import Keys from '@/components/settings/Keys'
 import Tokens from '@/components/settings/Tokens'
 
+// children of users
+import UserDetail from '@/components/UserDetail'
+
 Vue.use(Router)
 
 let router = new Router({
@@ -49,6 +52,14 @@ let router = new Router({
       path: '/users',
       name: 'Users',
       component: Users,
+      meta: {
+        requiresLoggedInAsAdmin: true
+      }
+    },
+    {
+      path: '/users/:account',
+      name: 'UserDetail',
+      component: UserDetail,
       meta: {
         requiresLoggedInAsAdmin: true
       }

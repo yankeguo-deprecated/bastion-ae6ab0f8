@@ -5,6 +5,7 @@ import (
 	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
 	"strings"
+	"github.com/novakit/router"
 )
 
 func routeListUsers(c *nova.Context) (err error) {
@@ -108,9 +109,22 @@ func routeUpdateUserIsBlocked(c *nova.Context) (err error) {
 	us, v := userService(c), view.Extract(c)
 	var res1 *types.UpdateUserResponse
 	if res1, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
-		Account:       c.Req.FormValue("account"),
+		Account:         c.Req.FormValue("account"),
 		UpdateIsBlocked: true,
 		IsBlocked:       strings.HasPrefix(strings.ToLower(strings.TrimSpace(c.Req.FormValue("is_blocked"))), "t"),
+	}); err != nil {
+		return
+	}
+	v.Data["user"] = res1.User
+	v.DataAsJSON()
+	return
+}
+
+func routeGetUser(c *nova.Context) (err error) {
+	rp, us, v := router.PathParams(c), userService(c), view.Extract(c)
+	var res1 *types.GetUserResponse
+	if res1, err = us.GetUser(c.Req.Context(), &types.GetUserRequest{
+		Account: rp.Get("account"),
 	}); err != nil {
 		return
 	}

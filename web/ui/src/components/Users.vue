@@ -34,6 +34,9 @@
       <b-row class="mt-4">
         <b-col>
           <b-table striped :items="filteredUsers" :fields="fields">
+            <template slot="account" slot-scope="data">
+              <b-link :to="{name: 'UserDetail', params: {account: data.item.account}}">{{data.item.account}}</b-link>
+            </template>
            <template slot="created_at" slot-scope="data">
               {{data.item.created_at | formatUnixEpoch}}
             </template>
