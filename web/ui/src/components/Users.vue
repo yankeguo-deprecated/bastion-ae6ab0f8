@@ -165,6 +165,12 @@ export default {
     }
   },
   methods: {
+    clearActionStates () {
+      this.accountToBlock = ''
+      this.accountToUnblock = ''
+      this.accountToUpgrade = ''
+      this.accountToDowngrade = ''
+    },
     onReset () {
       this.search = ''
     },
@@ -179,39 +185,35 @@ export default {
       this.$apiCreateUser(this.form)
     },
     onBlockClick (account) {
+      this.clearActionStates()
       this.accountToBlock = account
-      this.accountToUnblock = ''
-      this.accountToUpgrade = ''
-      this.accountToDowngrade = ''
     },
     onBlockConfirmClick (account) {
+      this.clearActionStates()
       this.$apiUpdateUserIsBlocked({ account, is_blocked: true })
     },
     onUnblockClick (account) {
-      this.accountToBlock = ''
+      this.clearActionStates()
       this.accountToUnblock = account
-      this.accountToUpgrade = ''
-      this.accountToDowngrade = ''
     },
     onUnblockConfirmClick (account) {
+      this.clearActionStates()
       this.$apiUpdateUserIsBlocked({ account, is_blocked: false })
     },
     onUpgradeClick (account) {
-      this.accountToBlock = ''
-      this.accountToUnblock = ''
+      this.clearActionStates()
       this.accountToUpgrade = account
-      this.accountToDowngrade = ''
     },
     onUpgradeConfirmClick (account) {
+      this.clearActionStates()
       this.$apiUpdateUserIsAdmin({ account, is_admin: true })
     },
     onDowngradeClick (account) {
-      this.accountToBlock = ''
-      this.accountToUnblock = ''
-      this.accountToUpgrade = ''
+      this.clearActionStates()
       this.accountToDowngrade = account
     },
     onDowngradeConfirmClick (account) {
+      this.clearActionStates()
       this.$apiUpdateUserIsAdmin({ account, is_admin: false })
     }
   }

@@ -100,6 +100,7 @@ export default {
       this.fingerprintToDelete = fingerprint
     },
     onDeleteConfirmClick (fingerprint) {
+      this.fingerprintToDelete = ''
       this.$apiDestroyKey(fingerprint)
     }
   }

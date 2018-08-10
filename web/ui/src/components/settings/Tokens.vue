@@ -65,6 +65,7 @@ export default {
       this.tokenToDelete = id
     },
     onDeleteConfirmClick (id) {
+      this.tokenToDelete = 0
       this.$apiDeleteToken(id)
     }
   }
