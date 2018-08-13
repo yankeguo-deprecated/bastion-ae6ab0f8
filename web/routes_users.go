@@ -42,7 +42,7 @@ func routeGetCurrentUser(c *nova.Context) (err error) {
 }
 
 func routeGetCurrentUserGrantItems(c *nova.Context) (err error) {
-	a, gs, v := authResult(c), grantService(c), view.Extract(c)
+	a, gs, v, opts := authResult(c), grantService(c), view.Extract(c), webOptions(c)
 	var res1 *types.ListGrantItemsResponse
 	if res1, err = gs.ListGrantItems(c.Req.Context(), &types.ListGrantItemsRequest{
 		Account: a.User.Account,
@@ -50,6 +50,7 @@ func routeGetCurrentUserGrantItems(c *nova.Context) (err error) {
 		return
 	}
 	v.Data["grant_items"] = res1.GrantItems
+	v.Data["ssh_domain"] = opts.SSHDomain
 	v.DataAsJSON()
 	return
 }

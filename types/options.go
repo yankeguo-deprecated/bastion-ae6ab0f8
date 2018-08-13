@@ -40,6 +40,9 @@ func (o DaemonOptions) String() string {
 
 // WebOptions web options for bastion
 type WebOptions struct {
+	// SSHDomain ssh target for display
+	SSHDomain string `yaml:"ssh_domain"`
+
 	// Host host to bind for bastion web, default to "127.0.0.1"
 	Host string `yaml:"host"`
 

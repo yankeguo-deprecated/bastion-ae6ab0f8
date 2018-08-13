@@ -36,6 +36,8 @@ func NewServer(opts types.WebOptions) *http.Server {
 		Directory: "views",
 		BinFS:     !opts.Dev,
 	}))
+	// mount opts module
+	n.Use(optsModule(opts))
 	// mount rpc module
 	n.Use(rpcModule(opts))
 	// mount auth module

@@ -10,13 +10,27 @@ import (
 )
 
 const (
-	contextKeyGRPCConn = "_rpc_conn"
-	contextKeyAuth     = "_auth"
+	contextKeyGRPCConn   = "_rpc_conn"
+	contextKeyAuth       = "_auth"
+	contextKeyWebOptions = "_web_options"
 
 	headerKeyToken        = "X-Bastion-Token"
 	headerKeyAction       = "X-Bastion-Action"
 	headerValueClearToken = "clear-token"
 )
+
+func optsModule(opts types.WebOptions) nova.HandlerFunc {
+	return func(c *nova.Context) error {
+		c.Values[contextKeyWebOptions] = opts
+		c.Next()
+		return nil
+	}
+}
+
+func webOptions(c *nova.Context) (opts types.WebOptions) {
+	opts, _ = c.Values[contextKeyWebOptions].(types.WebOptions)
+	return
+}
 
 func rpcModule(opts types.WebOptions) nova.HandlerFunc {
 	return func(c *nova.Context) (err error) {

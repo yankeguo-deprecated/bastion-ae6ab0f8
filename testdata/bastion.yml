@@ -1,5 +1,7 @@
 daemon:
   db: testdata/database.bolt
+web:
+  ssh_domain: localhost
 sshd:
   client_key:
     - testdata/client_rsa

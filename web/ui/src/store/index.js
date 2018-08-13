@@ -12,7 +12,8 @@ export default new Vuex.Store({
     users: [],
     grantItems: [],
     nodes: [],
-    keys: []
+    keys: [],
+    ssh_domain: ''
   },
   getters: {
     isLoggedIn: state => !!state.currentToken && !!state.currentUser,
@@ -40,6 +41,9 @@ export default new Vuex.Store({
     },
     setUsers (state, users) {
       state.users = users || []
+    },
+    setSSHDomain (state, domain) {
+      state.ssh_domain = domain
     }
   },
   plugins: [createPersistedState()]
