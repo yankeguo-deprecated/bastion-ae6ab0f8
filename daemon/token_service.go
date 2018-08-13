@@ -1,9 +1,9 @@
 package daemon
 
 import (
+	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/net/context"
-	"github.com/yankeguo/bastion/daemon/models"
 )
 
 func (d *Daemon) CreateToken(c context.Context, req *types.CreateTokenRequest) (res *types.CreateTokenResponse, err error) {

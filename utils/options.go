@@ -37,6 +37,7 @@ func LoadOptions(f string) (opt types.Options, err error) {
 	defaultStr(&opt.Daemon.DB, "/var/lib/bastion/database.bolt")
 	defaultStr(&opt.Daemon.Host, "127.0.0.1")
 	defaultInt(&opt.Daemon.Port, 9777)
+	defaultStr(&opt.Daemon.ReplayDir, "/var/lib/bastion/replays")
 	defaultStr(&opt.Web.Host, "127.0.0.1")
 	defaultInt(&opt.Web.Port, 9778)
 	defaultStr(&opt.Web.DaemonEndpoint, "127.0.0.1:9777")

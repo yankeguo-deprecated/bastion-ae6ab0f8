@@ -422,3 +422,25 @@ service TokenService {
     rpc DeleteToken (DeleteTokenRequest) returns (DeleteTokenResponse) {
     }
 }
+
+message ReplayFrame {
+    int64 session_id = 1;
+    uint32 timestamp = 2;
+    uint32 type = 3;
+    bytes payload = 4;
+}
+
+message WriteReplayResponse {
+}
+
+message ReadReplayRequest {
+    int64 session_id = 1;
+}
+
+service ReplayService {
+    rpc WriteReplay (stream ReplayFrame) returns (WriteReplayResponse) {
+    }
+
+    rpc ReadReplay (ReadReplayRequest) returns (stream ReplayFrame) {
+    }
+}

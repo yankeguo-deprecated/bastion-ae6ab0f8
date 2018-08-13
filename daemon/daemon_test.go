@@ -20,11 +20,18 @@ func temporaryFile() string {
 	return filepath.Join(os.TempDir(), "bnktestdb"+hex.EncodeToString(buf)+".bolt")
 }
 
+func temporaryDir() string {
+	buf := make([]byte, 8, 8)
+	rand.Read(buf)
+	return filepath.Join(os.TempDir(), "bnktestreplays"+hex.EncodeToString(buf))
+}
+
 func withDaemon(t *testing.T, cb func(*testing.T, *Daemon, *grpc.ClientConn)) {
 	d = New(types.DaemonOptions{
-		DB:   temporaryFile(),
-		Host: "127.0.0.1",
-		Port: 1997,
+		DB:        temporaryFile(),
+		Host:      "127.0.0.1",
+		Port:      1997,
+		ReplayDir: temporaryDir(),
 	})
 	go d.Run()
 	defer d.Stop()

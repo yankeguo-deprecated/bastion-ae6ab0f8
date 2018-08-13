@@ -2,10 +2,10 @@ package web
 
 import (
 	"github.com/novakit/nova"
+	"github.com/novakit/router"
 	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
 	"strings"
-	"github.com/novakit/router"
 )
 
 func routeListUsers(c *nova.Context) (err error) {

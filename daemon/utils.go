@@ -1,9 +1,9 @@
 package daemon
 
 import (
-	"time"
 	"crypto/rand"
 	"encoding/hex"
+	"time"
 )
 
 func now() int64 {

@@ -2,10 +2,10 @@ package daemon
 
 import (
 	"github.com/asdine/storm"
-	"google.golang.org/grpc/status"
-	"google.golang.org/grpc/codes"
 	"github.com/asdine/storm/index"
 	"github.com/asdine/storm/q"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 var (

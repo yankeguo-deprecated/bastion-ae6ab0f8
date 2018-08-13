@@ -2,9 +2,9 @@ package web
 
 import (
 	"github.com/novakit/nova"
+	"github.com/novakit/router"
 	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
-	"github.com/novakit/router"
 	"strconv"
 	"time"
 )

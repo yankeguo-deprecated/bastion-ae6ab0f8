@@ -6,8 +6,8 @@ import (
 	"github.com/novakit/static"
 	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
-	"net/http"
 	"google.golang.org/grpc/status"
+	"net/http"
 )
 
 func NewServer(opts types.WebOptions) *http.Server {

@@ -1,8 +1,8 @@
 package models
 
 import (
-	"github.com/yankeguo/bastion/types"
 	"github.com/jinzhu/copier"
+	"github.com/yankeguo/bastion/types"
 )
 
 type Token struct {

@@ -3,10 +3,10 @@ package web
 import (
 	"github.com/novakit/nova"
 	"github.com/novakit/view"
+	"github.com/pkg/errors"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/crypto/ssh"
 	"strings"
-	"github.com/pkg/errors"
 )
 
 func routeListKeys(c *nova.Context) (err error) {

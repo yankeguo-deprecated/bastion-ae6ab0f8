@@ -1,11 +1,11 @@
 package daemon
 
 import (
+	"github.com/asdine/storm/q"
 	"github.com/jinzhu/copier"
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/net/context"
-	"github.com/asdine/storm/q"
 )
 
 func (d *Daemon) ListKeys(c context.Context, req *types.ListKeysRequest) (res *types.ListKeysResponse, err error) {

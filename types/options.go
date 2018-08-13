@@ -31,6 +31,9 @@ type DaemonOptions struct {
 
 	// Port port to bind for bastion rpc, default to 9777
 	Port int `yaml:"port"`
+
+	// ReplayDir directory of replay files
+	ReplayDir string `yaml:"replay_dir"`
 }
 
 func (o DaemonOptions) String() string {
@@ -86,9 +89,6 @@ type SSHDOptions struct {
 
 	// SandboxDir storage dir for sandboxes, default to "/var/lib/bastion/sandboxes"
 	SandboxDir string `yaml:"sandbox_dir"`
-
-	// ReplayDir directory of replay files
-	ReplayDir string `yaml:"replay_dir"`
 
 	// SandboxEndpoint accessible bastion IP from sandbox, basically the IP of docker0 virtual network adapter
 	// default to "172.17.0.1"

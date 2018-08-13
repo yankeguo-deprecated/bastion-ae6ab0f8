@@ -2,11 +2,11 @@ package web
 
 import (
 	"github.com/novakit/nova"
+	"github.com/pkg/errors"
 	"github.com/yankeguo/bastion/types"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/codes"
-	"github.com/pkg/errors"
+	"google.golang.org/grpc/status"
 )
 
 const (

@@ -12,7 +12,7 @@ const (
 	NodeSourceManual = "manual"
 	NodeSourceConsul = "consul"
 
-	KeySourceManual = "manual"
+	KeySourceManual  = "manual"
 	KeySourceSandbox = "sandbox"
 
 	NodeUserRoot = "root"
