@@ -109,10 +109,12 @@ func (d *Daemon) ReadReplay(req *types.ReadReplayRequest, s types.ReplayService_
 	if r, err = os.Open(filename); err != nil {
 		return
 	}
+	defer r.Close()
 	var zr *gzip.Reader
 	if zr, err = gzip.NewReader(r); err != nil {
 		return
 	}
+	defer zr.Close()
 	for {
 		var f types.ReplayFrame
 		if err = readReplayFrame(&f, zr); err != nil {
@@ -125,12 +127,6 @@ func (d *Daemon) ReadReplay(req *types.ReadReplayRequest, s types.ReplayService_
 		if err = s.Send(&f); err != nil {
 			break
 		}
-	}
-	if zr != nil {
-		zr.Close()
-	}
-	if r != nil {
-		r.Close()
 	}
 	return
 }
