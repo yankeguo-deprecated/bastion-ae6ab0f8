@@ -9,7 +9,7 @@
       </b-row>
       <b-row>
         <b-col>
-          <b-table :items="items" :fields="fields">
+          <b-table striped :items="items" :fields="fields">
             <template slot="account" slot-scope="data">
               <b-link :to="{name: 'UserDetail', params: {account: data.item.account}}">{{data.item.account}}</b-link>
             </template>

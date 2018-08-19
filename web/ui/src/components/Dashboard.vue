@@ -9,11 +9,16 @@
     <b-col md="8" lg="9">
       <b-card title="2. 从沙箱环境连接服务器" title-tag="h5">
         <p>当前有权限连接的服务器:</p>
-        <b-table :items="grantItems" :fields="fields">
+        <b-table v-if="grantItems.length > 0" :items="grantItems" :fields="fields">
           <template slot="command" slot-scope="data">
             <code>ssh {{data.item.hostname}}-{{data.item.user}}</code>
           </template>
         </b-table>
+        <div v-if="grantItems.length === 0" class="text-center">
+          <hr/>
+          <span class="text-muted">无</span>
+          <hr/>
+        </div>
       </b-card>
     </b-col>
   </b-row>
