@@ -34,7 +34,7 @@ let API = {
     }
     Vue.prototype.$apiLogin = function (data) {
       return this.$http
-        .post('/api/tokens/create', data, { emulateJSON: true })
+        .post('/api/tokens/create', data, {emulateJSON: true})
         .then(res => {
           store.commit('setCurrentUser', res.body.user)
           store.commit('setCurrentToken', res.body.token)
@@ -45,8 +45,8 @@ let API = {
       return this.$http
         .post(
           '/api/tokens/destroy',
-          { id: store.state.currentToken.id },
-          { emulateJSON: true }
+          {id: store.state.currentToken.id},
+          {emulateJSON: true}
         )
         .then(res => {
           store.commit('setCurrentUser', null)
@@ -72,8 +72,8 @@ let API = {
       return this.$http
         .post(
           '/api/users/current/update_nickname',
-          { nickname },
-          { emulateJSON: true }
+          {nickname},
+          {emulateJSON: true}
         )
         .then(res => {
           store.commit('setCurrentUser', res.body.user)
@@ -85,12 +85,12 @@ let API = {
           return res
         }, this.$apiErrorCallback())
     }
-    Vue.prototype.$apiUpdatePassword = function ({ oldPassword, newPassword }) {
+    Vue.prototype.$apiUpdatePassword = function ({oldPassword, newPassword}) {
       return this.$http
         .post(
           '/api/users/current/update_password',
-          { oldPassword, newPassword },
-          { emulateJSON: true }
+          {oldPassword, newPassword},
+          {emulateJSON: true}
         )
         .then(res => {
           store.commit('setCurrentUser', res.body.user)
@@ -110,7 +110,7 @@ let API = {
     }
     Vue.prototype.$apiDeleteToken = function (id) {
       return this.$http
-        .post('/api/tokens/destroy', { id }, { emulateJSON: true })
+        .post('/api/tokens/destroy', {id}, {emulateJSON: true})
         .then(res => {
           this.$apiListTokens()
           this.$notify({
@@ -127,12 +127,12 @@ let API = {
         return res
       }, this.$apiErrorCallback())
     }
-    Vue.prototype.$apiCreateKey = function ({ name, publicKey }) {
+    Vue.prototype.$apiCreateKey = function ({name, publicKey}) {
       return this.$http
         .post(
           '/api/users/current/keys/create',
-          { name, publicKey },
-          { emulateJSON: true }
+          {name, publicKey},
+          {emulateJSON: true}
         )
         .then(res => {
           this.$apiListKeys()
@@ -146,7 +146,7 @@ let API = {
     }
     Vue.prototype.$apiDestroyKey = function (fingerprint) {
       return this.$http
-        .post('/api/keys/destroy', { fingerprint }, { emulateJSON: true })
+        .post('/api/keys/destroy', {fingerprint}, {emulateJSON: true})
         .then(res => {
           this.$apiListKeys()
           this.$notify({
@@ -163,9 +163,9 @@ let API = {
         return res
       }, this.$apiErrorCallback())
     }
-    Vue.prototype.$apiCreateNode = function ({ hostname, address }) {
+    Vue.prototype.$apiCreateNode = function ({hostname, address}) {
       return this.$http
-        .post('/api/nodes/create', { hostname, address }, { emulateJSON: true })
+        .post('/api/nodes/create', {hostname, address}, {emulateJSON: true})
         .then(res => {
           this.$apiListNodes()
           this.$notify({
@@ -178,7 +178,7 @@ let API = {
     }
     Vue.prototype.$apiDestroyNode = function (hostname) {
       return this.$http
-        .post('/api/nodes/destroy', { hostname }, { emulateJSON: true })
+        .post('/api/nodes/destroy', {hostname}, {emulateJSON: true})
         .then(res => {
           this.$apiListNodes()
           this.$notify({
@@ -195,12 +195,12 @@ let API = {
         return res
       }, this.$apiErrorCallback())
     }
-    Vue.prototype.$apiCreateUser = function ({ account, nickname, password }) {
+    Vue.prototype.$apiCreateUser = function ({account, nickname, password}) {
       return this.$http
         .post(
           '/api/users/create',
-          { account, nickname, password },
-          { emulateJSON: true }
+          {account, nickname, password},
+          {emulateJSON: true}
         )
         .then(res => {
           this.$apiListUsers()
@@ -212,12 +212,12 @@ let API = {
           return res
         }, this.$apiErrorCallback())
     }
-    Vue.prototype.$apiUpdateUserIsAdmin = function ({ account, is_admin }) {
+    Vue.prototype.$apiUpdateUserIsAdmin = function ({account, is_admin}) {
       return this.$http
         .post(
           '/api/users/update_is_admin',
-          { account, is_admin },
-          { emulateJSON: true }
+          {account, is_admin},
+          {emulateJSON: true}
         )
         .then(res => {
           this.$apiListUsers()
@@ -229,12 +229,12 @@ let API = {
           return res
         }, this.$apiErrorCallback())
     }
-    Vue.prototype.$apiUpdateUserIsBlocked = function ({ account, is_blocked }) {
+    Vue.prototype.$apiUpdateUserIsBlocked = function ({account, is_blocked}) {
       return this.$http
         .post(
           '/api/users/update_is_blocked',
-          { account, is_blocked },
-          { emulateJSON: true }
+          {account, is_blocked},
+          {emulateJSON: true}
         )
         .then(res => {
           this.$apiListUsers()
@@ -265,8 +265,8 @@ let API = {
       return this.$http
         .post(
           `/api/users/${account}/grants/create`,
-          { hostname_pattern, user, expires_in },
-          { emulateJSON: true }
+          {hostname_pattern, user, expires_in},
+          {emulateJSON: true}
         )
         .then(res => {
           this.$notify({
@@ -285,8 +285,8 @@ let API = {
       return this.$http
         .post(
           `/api/users/${account}/grants/destroy`,
-          { hostname_pattern, user },
-          { emulateJSON: true }
+          {hostname_pattern, user},
+          {emulateJSON: true}
         )
         .then(res => {
           this.$notify({
@@ -296,6 +296,9 @@ let API = {
           })
           return res
         }, this.$apiErrorCallback())
+    }
+    Vue.prototype.$apiListSessions = function ({skip, limit}) {
+      return this.$http.get('/api/sessions', {params: {skip, limit}}).then(null, this.$apiErrorCallback())
     }
   }
 }

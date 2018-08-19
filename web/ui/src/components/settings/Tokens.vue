@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 
 export default {
   name: 'Tokens',
@@ -32,7 +32,7 @@ export default {
   data () {
     return {
       fields: [
-        { key: 'description', label: '详情', thClass: 'text-center' },
+        {key: 'description', label: '详情', thClass: 'text-center'},
         {
           key: 'created_at',
           label: '创建时间',

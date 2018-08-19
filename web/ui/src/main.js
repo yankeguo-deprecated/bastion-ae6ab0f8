@@ -39,7 +39,7 @@ Vue.filter('formatUnixEpochExpired', function (value) {
 })
 
 Vue.filter('formatUserAgent', function (ua) {
-  let { browser, os } = UAParser(ua)
+  let {browser, os} = UAParser(ua)
   return `${browser.name} ${browser.version} (${os.name} ${os.version})`
 })
 
@@ -65,6 +65,6 @@ new Vue({
   el: '#app',
   router,
   store,
-  components: { App },
+  components: {App},
   template: '<App/>'
 })

@@ -15,7 +15,9 @@
           <b-form-group label="创建时间:" label-class="text-right" horizontal>
             <b-form-input :value="currentUser.created_at | formatUnixEpoch" readonly plaintext></b-form-input>
           </b-form-group>
-          <b-button type="submit" :disabled="busy" class="btn-block" variant="primary"><i class="fa fa-upload" aria-hidden="true"></i> 更新</b-button>
+          <b-button type="submit" :disabled="busy" class="btn-block" variant="primary"><i class="fa fa-upload"
+                                                                                          aria-hidden="true"></i> 更新
+          </b-button>
         </b-form>
       </b-card>
     </b-col>
@@ -23,7 +25,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 
 export default {
   name: 'Profile',

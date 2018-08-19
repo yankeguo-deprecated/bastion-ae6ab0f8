@@ -305,7 +305,6 @@ func (m *CreateSessionRequest) Validate() (err error) {
 		return
 	}
 	trimSpace(&m.Command)
-	trimSpace(&m.ReplayFile)
 	return
 }
 

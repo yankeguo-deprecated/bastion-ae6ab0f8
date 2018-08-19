@@ -15,7 +15,9 @@
           <b-form-input v-model="form.repPassword" placeholder="重复密码" type="password"></b-form-input>
         </b-form-group>
         <div class="text-right">
-          <b-button type="submit" :disabled="busy" variant="success"><i class="fa fa-plus-circle" aria-hidden="true"></i> 添加</b-button>
+          <b-button type="submit" :disabled="busy" variant="success"><i class="fa fa-plus-circle"
+                                                                        aria-hidden="true"></i> 添加
+          </b-button>
         </div>
       </b-form>
     </b-modal>
@@ -24,7 +26,9 @@
         <b-col md="4" lg="3">
           <b-form @reset="onReset" inline>
             <b-input v-model="search" class="mb-2 mr-sm-2 mb-sm-0" placeholder="搜索用户名或昵称"/>
-            <b-button type="reset" :disabled="search == ''" variant="outline-danger"><i class="fa fa-ban" aria-hidden="true"></i> 清除</b-button>
+            <b-button type="reset" :disabled="search == ''" variant="outline-danger"><i class="fa fa-ban"
+                                                                                        aria-hidden="true"></i> 清除
+            </b-button>
           </b-form>
         </b-col>
         <b-col md="8" lg="9" class="text-right">
@@ -37,37 +41,51 @@
             <template slot="account" slot-scope="data">
               <b-link :to="{name: 'UserDetail', params: {account: data.item.account}}">{{data.item.account}}</b-link>
             </template>
-           <template slot="created_at" slot-scope="data">
+            <template slot="created_at" slot-scope="data">
               {{data.item.created_at | formatUnixEpoch}}
             </template>
             <template slot="viewed_at" slot-scope="data">
               {{data.item.viewed_at | formatUnixEpoch}}
             </template>
             <template slot="action" slot-scope="data">
-              <b-link href="#" class="text-danger" v-if="data.item.account != currentUser.account && data.item.is_admin && data.item.account != accountToDowngrade"
-                      @click="onDowngradeClick(data.item.account)"><i class="fa fa-level-down" aria-hidden="true"></i> 降级管理员
+              <b-link href="#" class="text-danger"
+                      v-if="data.item.account != currentUser.account && data.item.is_admin && data.item.account != accountToDowngrade"
+                      @click="onDowngradeClick(data.item.account)"><i class="fa fa-level-down" aria-hidden="true"></i>
+                降级管理员
               </b-link>
-              <b-link href="#" class="text-danger" v-if="data.item.account != currentUser.account && data.item.is_admin && data.item.account == accountToDowngrade"
-                      @click="onDowngradeConfirmClick(data.item.account)"><i class="fa fa-level-down" aria-hidden="true"></i> 确认降级管理员
+              <b-link href="#" class="text-danger"
+                      v-if="data.item.account != currentUser.account && data.item.is_admin && data.item.account == accountToDowngrade"
+                      @click="onDowngradeConfirmClick(data.item.account)"><i class="fa fa-level-down"
+                                                                             aria-hidden="true"></i> 确认降级管理员
               </b-link>
-              <b-link href="#" class="text-success" v-if="data.item.account != currentUser.account && !data.item.is_admin && data.item.account != accountToUpgrade"
+              <b-link href="#" class="text-success"
+                      v-if="data.item.account != currentUser.account && !data.item.is_admin && data.item.account != accountToUpgrade"
                       @click="onUpgradeClick(data.item.account)"><i class="fa fa-level-up" aria-hidden="true"></i> 升级管理员
               </b-link>
-              <b-link href="#" class="text-success" v-if="data.item.account != currentUser.account && !data.item.is_admin && data.item.account == accountToUpgrade"
-                      @click="onUpgradeConfirmClick(data.item.account)"><i class="fa fa-level-up" aria-hidden="true"></i> 确认升级管理员
+              <b-link href="#" class="text-success"
+                      v-if="data.item.account != currentUser.account && !data.item.is_admin && data.item.account == accountToUpgrade"
+                      @click="onUpgradeConfirmClick(data.item.account)"><i class="fa fa-level-up"
+                                                                           aria-hidden="true"></i> 确认升级管理员
               </b-link>
               <span class="text-muted" v-if="data.item.account != currentUser.account">&nbsp;|&nbsp;</span>
-              <b-link href="#" class="text-success" v-if="data.item.account != currentUser.account && data.item.is_blocked && data.item.account != accountToUnblock"
-                      @click="onUnblockClick(data.item.account)"><i class="fa fa-check-circle-o" aria-hidden="true"></i> 解封用户
+              <b-link href="#" class="text-success"
+                      v-if="data.item.account != currentUser.account && data.item.is_blocked && data.item.account != accountToUnblock"
+                      @click="onUnblockClick(data.item.account)"><i class="fa fa-check-circle-o" aria-hidden="true"></i>
+                解封用户
               </b-link>
-              <b-link href="#" class="text-success" v-if="data.item.account != currentUser.account && data.item.is_blocked && data.item.account == accountToUnblock"
-                      @click="onUnblockConfirmClick(data.item.account)"><i class="fa fa-check-circle-o" aria-hidden="true"></i> 确认解封用户
+              <b-link href="#" class="text-success"
+                      v-if="data.item.account != currentUser.account && data.item.is_blocked && data.item.account == accountToUnblock"
+                      @click="onUnblockConfirmClick(data.item.account)"><i class="fa fa-check-circle-o"
+                                                                           aria-hidden="true"></i> 确认解封用户
               </b-link>
-              <b-link href="#" class="text-danger" v-if="data.item.account != currentUser.account && !data.item.is_blocked && data.item.account != accountToBlock"
+              <b-link href="#" class="text-danger"
+                      v-if="data.item.account != currentUser.account && !data.item.is_blocked && data.item.account != accountToBlock"
                       @click="onBlockClick(data.item.account)"><i class="fa fa-ban" aria-hidden="true"></i> 封禁用户
               </b-link>
-              <b-link href="#" class="text-danger" v-if="data.item.account != currentUser.account && !data.item.is_blocked && data.item.account == accountToBlock"
-                      @click="onBlockConfirmClick(data.item.account)"><i class="fa fa-ban" aria-hidden="true"></i> 确认封禁用户
+              <b-link href="#" class="text-danger"
+                      v-if="data.item.account != currentUser.account && !data.item.is_blocked && data.item.account == accountToBlock"
+                      @click="onBlockConfirmClick(data.item.account)"><i class="fa fa-ban" aria-hidden="true"></i>
+                确认封禁用户
               </b-link>
 
               <span class="text-muted" v-if="data.item.account == currentUser.account">(当前用户)</span>
@@ -85,7 +103,7 @@
 <script>
 /* eslint-disable standard/object-curly-even-spacing */
 
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 
 export default {
   name: 'Users',
@@ -190,7 +208,7 @@ export default {
     },
     onBlockConfirmClick (account) {
       this.clearActionStates()
-      this.$apiUpdateUserIsBlocked({ account, is_blocked: true })
+      this.$apiUpdateUserIsBlocked({account, is_blocked: true})
     },
     onUnblockClick (account) {
       this.clearActionStates()
@@ -198,7 +216,7 @@ export default {
     },
     onUnblockConfirmClick (account) {
       this.clearActionStates()
-      this.$apiUpdateUserIsBlocked({ account, is_blocked: false })
+      this.$apiUpdateUserIsBlocked({account, is_blocked: false})
     },
     onUpgradeClick (account) {
       this.clearActionStates()
@@ -206,7 +224,7 @@ export default {
     },
     onUpgradeConfirmClick (account) {
       this.clearActionStates()
-      this.$apiUpdateUserIsAdmin({ account, is_admin: true })
+      this.$apiUpdateUserIsAdmin({account, is_admin: true})
     },
     onDowngradeClick (account) {
       this.clearActionStates()
@@ -214,7 +232,7 @@ export default {
     },
     onDowngradeConfirmClick (account) {
       this.clearActionStates()
-      this.$apiUpdateUserIsAdmin({ account, is_admin: false })
+      this.$apiUpdateUserIsAdmin({account, is_admin: false})
     }
   }
 }

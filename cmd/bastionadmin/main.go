@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"github.com/pkg/errors"
 )
 
 func newConnection(c *cli.Context) (conn *grpc.ClientConn, err error) {
@@ -218,6 +219,47 @@ func main() {
 							Source:   types.NodeSourceManual,
 						})
 						log.Println(res.Node)
+						return nil
+					},
+				},
+			},
+		},
+		{
+			Name:  "sessions",
+			Usage: "session related commands",
+			Subcommands: []cli.Command{
+				{
+					Name:  "seed",
+					Usage: "create 111 dummy sessions for testing purpose",
+					Action: func(c *cli.Context) error {
+						conn, err := newConnection(c)
+						if err != nil {
+							return err
+						}
+						defer conn.Close()
+						us := types.NewUserServiceClient(conn)
+						res1, err := us.ListUsers(context.Background(), &types.ListUsersRequest{})
+						if err != nil {
+							return err
+						}
+						if len(res1.Users) == 0 {
+							return errors.New("no users")
+						}
+						ss := types.NewSessionServiceClient(conn)
+						for i := 0; i < 111; i ++ {
+							u := res1.Users[i%len(res1.Users)]
+							res2, err := ss.CreateSession(context.Background(), &types.CreateSessionRequest{
+								Account:    u.Account,
+								Command:    "dummy_command",
+								IsRecorded: i%2 == 0,
+							})
+							if err != nil {
+								return err
+							}
+							ss.FinishSession(context.Background(), &types.FinishSessionRequest{
+								Id: res2.Session.Id,
+							})
+						}
 						return nil
 					},
 				},

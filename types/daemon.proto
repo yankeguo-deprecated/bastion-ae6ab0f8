@@ -311,14 +311,12 @@ message Session {
     int64 created_at = 4;
     int64 finished_at = 5;
     bool is_recorded = 6;
-    string replay_file = 7;
 }
 
 message CreateSessionRequest {
     string account = 1;
     string command = 2;
     bool is_recorded = 3;
-    string replay_file = 4;
 }
 
 message CreateSessionResponse {

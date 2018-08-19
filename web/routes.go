@@ -89,6 +89,10 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(true),
 		routeDestroyGrant,
 	)
+	router.Route(n).Get("/api/sessions").Use(
+		requiresLoggedIn(true),
+		routeListSessions,
+	)
 }
 
 func routeCheck(c *nova.Context) error {

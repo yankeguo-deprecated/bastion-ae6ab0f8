@@ -12,7 +12,6 @@ type Session struct {
 	CreatedAt  int64
 	FinishedAt int64
 	IsRecorded bool
-	ReplayFile string
 }
 
 func (s Session) ToGRPCSession() *types.Session {

@@ -32,11 +32,16 @@
                 <b-form inline @submit="onSubmit">
                   <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.user" placeholder="Linux 用户名"/>
                   <i class="fa fa-at" aria-hidden="true"></i>
-                  <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.hostname_pattern" placeholder="主机名，允许通配符 *"/>
+                  <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.hostname_pattern"
+                           placeholder="主机名，允许通配符 *"/>
                   ，
-                  <b-input v-if="form.expires_mode != 'n'" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.expires_in" type="number"/>
-                  <b-form-select v-model="form.expires_mode" :options="expire_modes" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
-                  <b-button type="submit" variant="success"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> 添加/更新</b-button>
+                  <b-input v-if="form.expires_mode != 'n'" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"
+                           v-model="form.expires_in" type="number"/>
+                  <b-form-select v-model="form.expires_mode" :options="expire_modes"
+                                 class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
+                  <b-button type="submit" variant="success"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                    添加/更新
+                  </b-button>
                 </b-form>
                 <b-table :items="grants" :fields="fields" class="mt-3">
                   <template slot="created_at" slot-scope="data">
@@ -47,12 +52,16 @@
                   </template>
 
                   <template slot="action" slot-scope="data">
-                    <b-link href="#" class="text-primary" @click="onEditClick(data.item)"><i class="fa fa-edit" aria-hidden="true"></i> 编辑</b-link>
+                    <b-link href="#" class="text-primary" @click="onEditClick(data.item)"><i class="fa fa-edit"
+                                                                                             aria-hidden="true"></i> 编辑
+                    </b-link>
                     <span class="text-muted">&nbsp;|&nbsp;</span>
-                    <b-link href="#" class="text-danger" v-if="data.item.user != grantToDelete.user || data.item.hostname_pattern != grantToDelete.hostname_pattern"
+                    <b-link href="#" class="text-danger"
+                            v-if="data.item.user != grantToDelete.user || data.item.hostname_pattern != grantToDelete.hostname_pattern"
                             @click="onDeleteClick(data.item)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
                     </b-link>
-                    <b-link href="#" class="text-danger" v-if="data.item.user == grantToDelete.user && data.item.hostname_pattern == grantToDelete.hostname_pattern"
+                    <b-link href="#" class="text-danger"
+                            v-if="data.item.user == grantToDelete.user && data.item.hostname_pattern == grantToDelete.hostname_pattern"
                             @click="onDeleteConfirmClick(data.item)"><i class="fa fa-trash" aria-hidden="true"></i> 确认删除
                     </b-link>
                   </template>

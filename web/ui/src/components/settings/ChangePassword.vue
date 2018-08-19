@@ -12,7 +12,9 @@
           <b-form-group label="重复密码:" label-class="text-right" horizontal>
             <b-form-input v-model="form.repPassword" placeholder="重复输入新密码" type="password"></b-form-input>
           </b-form-group>
-          <b-button type="submit" class="btn-block" :disabled="busy" variant="primary"><i class="fa fa-upload" aria-hidden="true"></i> 修改密码</b-button>
+          <b-button type="submit" class="btn-block" :disabled="busy" variant="primary"><i class="fa fa-upload"
+                                                                                          aria-hidden="true"></i> 修改密码
+          </b-button>
         </b-form>
       </b-card>
     </b-col>
@@ -36,7 +38,7 @@ export default {
     onSubmit () {
       if (
         this.form.oldPassword.length === 0 ||
-        this.form.newPassword.length === 0
+          this.form.newPassword.length === 0
       ) {
         this.$notify({
           type: 'warn',

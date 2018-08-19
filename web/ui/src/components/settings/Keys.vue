@@ -9,7 +9,9 @@
           <b-form-group label="SSH 公钥:" label-class="text-right" horizontal>
             <b-form-textarea v-model="form.publicKey" :rows="3" placeholder="ssh-rsa AAAAB3N24d..."></b-form-textarea>
           </b-form-group>
-          <b-button type="submit" class="btn-block" :disabled="busy" variant="primary"><i class="fa fa-plus-circle" aria-hidden="true"></i> 添加</b-button>
+          <b-button type="submit" class="btn-block" :disabled="busy" variant="primary"><i class="fa fa-plus-circle"
+                                                                                          aria-hidden="true"></i> 添加
+          </b-button>
         </b-form>
       </b-card>
     </b-col>
@@ -25,11 +27,14 @@
           <code>{{data.item.fingerprint}}</code>
         </template>
         <template slot="action" slot-scope="data">
-          <b-link href="#" class="text-danger" v-if="data.item.source != 'sandbox' && data.item.fingerprint != fingerprintToDelete"
+          <b-link href="#" class="text-danger"
+                  v-if="data.item.source != 'sandbox' && data.item.fingerprint != fingerprintToDelete"
                   @click="onDeleteClick(data.item.fingerprint)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
           </b-link>
-          <b-link href="#" class="text-danger" v-if="data.item.source != 'sandbox' && data.item.fingerprint == fingerprintToDelete"
-                  @click="onDeleteConfirmClick(data.item.fingerprint)"><i class="fa fa-trash" aria-hidden="true"></i> 确认删除
+          <b-link href="#" class="text-danger"
+                  v-if="data.item.source != 'sandbox' && data.item.fingerprint == fingerprintToDelete"
+                  @click="onDeleteConfirmClick(data.item.fingerprint)"><i class="fa fa-trash" aria-hidden="true"></i>
+            确认删除
           </b-link>
           <span class="text-muted" v-if="data.item.source == 'sandbox'">(沙箱 SSH 公钥)</span>
         </template>
@@ -41,14 +46,15 @@
 <script>
 /* eslint-disable standard/object-curly-even-spacing,no-unused-vars */
 
-import { mapGetters, mapState } from 'vuex'
+import {mapGetters, mapState} from 'vuex'
+
 export default {
   name: 'Keys',
   data () {
     return {
       fields: [
-        { key: 'name', label: '名称', thClass: 'text-center' },
-        { key: 'fingerprint', label: '指纹', thClass: 'text-center' },
+        {key: 'name', label: '名称', thClass: 'text-center'},
+        {key: 'fingerprint', label: '指纹', thClass: 'text-center'},
         {
           key: 'created_at',
           label: '添加时间',

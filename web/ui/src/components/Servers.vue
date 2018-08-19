@@ -5,11 +5,14 @@
         <b-form-group label="主机名:" label-class="text-right" description="输入符合 Linux 规则的主机名" horizontal>
           <b-form-input v-model="form.hostname" placeholder="请输入主机名" type="text"></b-form-input>
         </b-form-group>
-        <b-form-group label="地址:" label-class="text-right" description="输入服务器的 IP 地址，如果 SSHD 运行在非 22 端口，需要额外注明" horizontal>
+        <b-form-group label="地址:" label-class="text-right" description="输入服务器的 IP 地址，如果 SSHD 运行在非 22 端口，需要额外注明"
+                      horizontal>
           <b-form-input v-model="form.address" placeholder="请输入地址" type="text"></b-form-input>
         </b-form-group>
         <div class="text-right">
-          <b-button type="submit" :disabled="busy" variant="success"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> 添加/更新</b-button>
+          <b-button type="submit" :disabled="busy" variant="success"><i class="fa fa-pencil-square-o"
+                                                                        aria-hidden="true"></i> 添加/更新
+          </b-button>
         </div>
       </b-form>
     </b-modal>
@@ -18,13 +21,16 @@
         <b-col md="4" lg="3">
           <b-form @reset="onReset" inline>
             <b-input v-model="search" class="mb-2 mr-sm-2 mb-sm-0" placeholder="搜索主机名或地址"/>
-            <b-button type="reset" :disabled="search == ''" variant="outline-danger"><i class="fa fa-ban" aria-hidden="true"></i> 清除</b-button>
+            <b-button type="reset" :disabled="search == ''" variant="outline-danger"><i class="fa fa-ban"
+                                                                                        aria-hidden="true"></i> 清除
+            </b-button>
           </b-form>
         </b-col>
         <b-col md="8" lg="9" class="text-right">
-          <b-btn variant="success" v-b-modal.modal1><i class="fa fa-pencil-square-o" aria-hidden="true"></i> 添加/更新</b-btn>
+          <b-btn variant="success" v-b-modal.modal1><i class="fa fa-pencil-square-o" aria-hidden="true"></i> 添加/更新
+          </b-btn>
         </b-col>
-     </b-row>
+      </b-row>
       <b-row class="mt-4">
         <b-col>
           <b-table striped :items="filteredNodes" :fields="fields">
@@ -54,7 +60,7 @@
 <script>
 /* eslint-disable standard/object-curly-even-spacing */
 
-import { mapState } from 'vuex'
+import {mapState} from 'vuex'
 
 export default {
   name: 'Servers',
