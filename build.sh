@@ -9,8 +9,6 @@ protoc -I ${SRC_ROOT}/types --go_out=plugins=grpc:${SRC_ROOT}/types ${SRC_ROOT}/
 
 # build vue project
 cd ${SRC_ROOT}/web/ui && yarn build
-# remove *.map files
-cd ${SRC_ROOT}/web/public && rm -rf **/*.map
 # generate binfs package
 cd ${SRC_ROOT}/web && PKG=web binfs public > public.bfs.go
 
