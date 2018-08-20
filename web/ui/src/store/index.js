@@ -13,7 +13,8 @@ export default new Vuex.Store({
     grantItems: [],
     nodes: [],
     keys: [],
-    ssh_domain: ''
+    ssh_domain: '',
+    number_of_session_pages: 9999999
   },
   getters: {
     isLoggedIn: state => !!state.currentToken && !!state.currentUser,
@@ -44,6 +45,9 @@ export default new Vuex.Store({
     },
     setSSHDomain (state, domain) {
       state.ssh_domain = domain
+    },
+    setNumberOfSessionPages (state, num) {
+      state.number_of_session_pages = num || 99999999
     }
   },
   plugins: [createPersistedState()]

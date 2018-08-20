@@ -3,8 +3,8 @@
     <b-col>
       <b-row>
         <b-col>
-          <b-pagination size="md" :total-rows="total" v-model="currentPage" :per-page="limit" @change="onPageChanged"
-                        align="center"></b-pagination>
+          <b-pagination-nav size="md" base-url="#/sessions?page=" :number-of-pages="number_of_session_pages"
+                            v-model="currentPage" align="center"></b-pagination-nav>
         </b-col>
       </b-row>
       <b-row>
@@ -32,8 +32,8 @@
       </b-row>
       <b-row>
         <b-col>
-          <b-pagination size="md" :total-rows="total" v-model="currentPage" :per-page="limit" @change="onPageChanged"
-                        align="center"></b-pagination>
+          <b-pagination-nav size="md" base-url="#/sessions?page=" :number-of-pages="number_of_session_pages"
+                            v-model="currentPage" align="center"></b-pagination-nav>
         </b-col>
       </b-row>
     </b-col>
@@ -41,55 +41,68 @@
 </template>
 
 <script>
+import {mapState} from 'vuex'
+
 export default {
   name: 'Sessions',
   data () {
     return {
-      limit: 100,
-      total: 0,
       currentPage: 1,
+      numberOfPages: 9999999999,
       items: [],
       fields: [
         {
           key: 'id',
-          label: '编号'
+          label: '编号',
+          thClass: 'text-center',
+          tdClass: 'text-center'
         },
         {
           key: 'account',
-          label: '用户'
+          label: '用户',
+          thClass: 'text-center',
+          tdClass: 'text-center'
         },
         {
           key: 'command',
-          label: '命令'
+          label: '命令',
+          thClass: 'text-center'
         },
         {
           key: 'created_at',
-          label: '开始时间'
+          label: '开始时间',
+          thClass: 'text-center',
+          tdClass: 'text-center'
         },
         {
           key: 'finished_at',
-          label: '结束时间'
+          label: '结束时间',
+          thClass: 'text-center',
+          tdClass: 'text-center'
         },
         {
           key: 'action',
-          label: '    '
+          label: '    ',
+          thClass: 'text-center',
+          tdClass: 'text-center'
         }
       ]
     }
   },
+  computed: {
+    ...mapState(['number_of_session_pages'])
+  },
   mounted () {
+    this.currentPage = Number.parseInt(this.$route.query.page) || 1
     this.listSessions(this.currentPage)
   },
   methods: {
     listSessions (page) {
       this.items = []
-      this.$apiListSessions({skip: (page - 1) * this.limit, limit: this.limit}).then((res) => {
-        this.total = res.body.total
+      this.$apiListSessions({skip: (page - 1) * 100, limit: 100}).then((res) => {
+        this.$store.commit('setNumberOfSessionPages', Math.ceil(res.body.total / 100))
         this.items = res.body.sessions || []
       })
-    },
-    onPageChanged (page) {
-      this.listSessions(page)
     },
     onViewReplayClicked (id) {
       alert(id)

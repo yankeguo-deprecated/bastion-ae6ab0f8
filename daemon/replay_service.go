@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/yankeguo/bastion/types"
+	"github.com/yankeguo/bastion/utils"
 )
 
 func filenameForSessionID(id int64, dir string) string {
@@ -22,42 +23,6 @@ func filenameForSessionID(id int64, dir string) string {
 	ret = append(ret, name[8:12])
 	ret = append(ret, name)
 	return filepath.Join(ret...)
-}
-
-func writeReplayFrame(f *types.ReplayFrame, w io.Writer) (err error) {
-	// TIMESTAMP (4 bytes) + TYPE (1 byte) + PAYLOAD_LEN (4 bytes) + PAYLOAD
-	l := 4 + 1 + 4 + len(f.Payload)
-	buf := make([]byte, l, l)
-	binary.BigEndian.PutUint32(buf, f.Timestamp)
-	buf[4] = byte(f.Type)
-	binary.BigEndian.PutUint32(buf[5:], uint32(len(f.Payload)))
-	copy(buf[9:], f.Payload)
-	_, err = w.Write(buf)
-	return
-}
-
-func readReplayFrame(f *types.ReplayFrame, r io.Reader) (err error) {
-	// TIMESTAMP (4 bytes) + TYPE (1 byte) + PAYLOAD_LEN (4 bytes)
-	h := make([]byte, 4+1+4, 4+1+4)
-	if _, err = r.Read(h); err != nil {
-		return
-	}
-	f.SessionId = 0
-	f.Timestamp = binary.BigEndian.Uint32(h)
-	f.Type = uint32(h[4])
-	l := binary.BigEndian.Uint32(h[5:])
-	if l > 0 {
-		f.Payload = make([]byte, l, l)
-		var i int
-		if i, err = r.Read(f.Payload); err != nil {
-			if i == int(l) && err == io.EOF {
-				err = nil
-			}
-		}
-	} else {
-		f.Payload = make([]byte, 0, 0)
-	}
-	return
 }
 
 func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error) {
@@ -88,7 +53,7 @@ func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error
 			zw = gzip.NewWriter(w)
 		}
 		// write the frame
-		if err = writeReplayFrame(f, zw); err != nil {
+		if err = utils.WriteReplayFrame(f, zw); err != nil {
 			break
 		}
 	}
@@ -117,7 +82,7 @@ func (d *Daemon) ReadReplay(req *types.ReadReplayRequest, s types.ReplayService_
 	defer zr.Close()
 	for {
 		var f types.ReplayFrame
-		if err = readReplayFrame(&f, zr); err != nil {
+		if err = utils.ReadReplayFrame(&f, zr); err != nil {
 			if err == io.EOF {
 				err = nil
 			}

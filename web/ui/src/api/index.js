@@ -300,6 +300,9 @@ let API = {
     Vue.prototype.$apiListSessions = function ({skip, limit}) {
       return this.$http.get('/api/sessions', {params: {skip, limit}}).then(null, this.$apiErrorCallback())
     }
+    Vue.prototype.$apiDownloadReplay = function (id) {
+      return this.$http.get(`/api/replays/${id}/download`).then(null, this.$apiErrorCallback())
+    }
   }
 }
 

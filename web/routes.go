@@ -93,6 +93,10 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(true),
 		routeListSessions,
 	)
+	router.Route(n).Get("/api/replays/:id/download").Use(
+		requiresLoggedIn(true),
+		routeDownloadReplay,
+	)
 }
 
 func routeCheck(c *nova.Context) error {

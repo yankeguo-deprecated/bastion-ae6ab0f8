@@ -1,0 +1,22 @@
+{
+  "name": "bastion-assets",
+  "version": "1.0.0-alpha",
+  "description": "assets for bastion",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yankeguo/bastion.git"
+  },
+  "keywords": [
+    "bastion"
+  ],
+  "author": "Yanke Guo <guoyk.cn@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yankeguo/bastion/issues"
+  },
+  "homepage": "https://github.com/yankeguo/bastion#readme"
+}

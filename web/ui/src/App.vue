@@ -36,7 +36,7 @@
       </b-collapse>
     </b-navbar>
     <b-container fluid>
-      <router-view/>
+      <router-view :key="$route.fullPath"/>
     </b-container>
   </div>
 </template>
