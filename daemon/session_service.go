@@ -67,3 +67,13 @@ func (d *Daemon) ListSessions(c context.Context, req *types.ListSessionsRequest)
 	}
 	return
 }
+
+
+func (d *Daemon) GetSession(c context.Context, req *types.GetSessionRequest) (res *types.GetSessionResponse, err error) {
+	s := models.Session{}
+	if err = d.DB.One("Id", req.Id, &s); err != nil {
+		return
+	}
+	res = &types.GetSessionResponse{Session: s.ToGRPCSession()}
+	return
+}

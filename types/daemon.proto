@@ -343,6 +343,14 @@ message ListSessionsResponse {
     repeated Session sessions = 4;
 }
 
+message GetSessionRequest {
+    int64 id = 1;
+}
+
+message GetSessionResponse {
+    Session session = 1;
+}
+
 service SessionService {
     rpc CreateSession (CreateSessionRequest) returns (CreateSessionResponse) {
     }
@@ -351,6 +359,9 @@ service SessionService {
     }
 
     rpc ListSessions (ListSessionsRequest) returns (ListSessionsResponse) {
+    }
+
+    rpc GetSession (GetSessionRequest) returns (GetSessionResponse) {
     }
 }
 

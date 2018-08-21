@@ -23,8 +23,8 @@
               {{data.item.finished_at | formatUnixEpoch}}
             </template>
             <template slot="action" slot-scope="data">
-              <b-link href="#" class="text-success" v-if="data.item.is_recorded"
-                      @click="onViewReplayClicked(data.item.id)"><i class="fa fa-search" aria-hidden="true"></i> 查看录像
+              <b-link @click="onReplayClick(data.item.id)" class="text-success" v-if="data.item.is_recorded"><i
+                class="fa fa-search" aria-hidden="true"></i> 查看录像
               </b-link>
             </template>
           </b-table>
@@ -104,8 +104,9 @@ export default {
         this.items = res.body.sessions || []
       })
     },
-    onViewReplayClicked (id) {
-      alert(id)
+    onReplayClick (id) {
+      let r = this.$router.resolve({name: 'Replay', params: {id}})
+      window.open(r.href, '_blank')
     }
   }
 }
