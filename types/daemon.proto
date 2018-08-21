@@ -394,6 +394,7 @@ message GetTokenResponse {
 
 message TouchTokenRequest {
     string token = 1;
+    int64 id = 2;
 }
 
 message TouchTokenResponse {

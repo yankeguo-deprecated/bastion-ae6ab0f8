@@ -1,9 +1,9 @@
 package utils
 
 import (
+	"encoding/binary"
 	"github.com/yankeguo/bastion/types"
 	"io"
-	"encoding/binary"
 )
 
 func WriteReplayFrame(f *types.ReplayFrame, w io.Writer) (err error) {

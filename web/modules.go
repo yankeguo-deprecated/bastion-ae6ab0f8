@@ -109,7 +109,7 @@ func authModule() nova.HandlerFunc {
 		a := Auth{}
 		token := c.Req.Header.Get(headerKeyToken)
 		if len(token) != 0 {
-			// get token
+			// get token by token value
 			var res1 *types.GetTokenResponse
 			if res1, err = ts.GetToken(c.Req.Context(), &types.GetTokenRequest{Token: token}); err != nil {
 				markClearTokenIfNeeded(c, err)
@@ -123,8 +123,8 @@ func authModule() nova.HandlerFunc {
 				return
 			}
 			a.User = res2.User
-			// touch token/user
-			ts.TouchToken(c.Req.Context(), &types.TouchTokenRequest{Token: res1.Token.Token})
+			// touch token by token id, touch user by user account
+			ts.TouchToken(c.Req.Context(), &types.TouchTokenRequest{Id: res1.Token.Id})
 			us.TouchUser(c.Req.Context(), &types.TouchUserRequest{Account: res2.User.Account})
 		}
 		c.Values[contextKeyAuth] = a

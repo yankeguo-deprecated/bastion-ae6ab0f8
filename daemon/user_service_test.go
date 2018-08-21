@@ -83,7 +83,7 @@ func TestDaemon_TouchUser(t *testing.T) {
 			IsBlocked: true,
 		}
 		u.PasswordDigest, _ = utils.BcryptGenerate("qwerty")
-		daemon.DB.Save(&u)
+		daemon.db.Save(&u)
 		res, err := c.TouchUser(context.Background(), &types.TouchUserRequest{
 			Account: "testuser",
 		})
@@ -153,7 +153,7 @@ func TestDaemon_AuthenticateUser(t *testing.T) {
 			IsBlocked: true,
 		}
 		u.PasswordDigest, _ = utils.BcryptGenerate("qwerty")
-		daemon.DB.Save(&u)
+		daemon.db.Save(&u)
 		_, err = c.AuthenticateUser(context.Background(), &types.AuthenticateUserRequest{
 			Account:  "testuser",
 			Password: "abcdef",

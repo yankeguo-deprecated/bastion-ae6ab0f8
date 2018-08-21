@@ -10,7 +10,7 @@ import (
 
 func (d *Daemon) ListNodes(c context.Context, req *types.ListNodesRequest) (res *types.ListNodesResponse, err error) {
 	var ns []models.Node
-	if err = d.DB.All(&ns); err != nil {
+	if err = d.db.All(&ns); err != nil {
 		return
 	}
 	ret := make([]*types.Node, 0, len(ns))
@@ -31,7 +31,7 @@ func (d *Daemon) PutNode(c context.Context, req *types.PutNodeRequest) (res *typ
 	n := models.Node{}
 	copier.Copy(&n, req)
 	n.CreatedAt = now()
-	if err = d.DB.Save(&n); err != nil {
+	if err = d.db.Save(&n); err != nil {
 		return
 	}
 	// build response
@@ -42,7 +42,7 @@ func (d *Daemon) PutNode(c context.Context, req *types.PutNodeRequest) (res *typ
 func (d *Daemon) DeleteNode(c context.Context, req *types.DeleteNodeRequest) (res *types.DeleteNodeResponse, err error) {
 	req.Hostname = strings.TrimSpace(req.Hostname)
 	res = &types.DeleteNodeResponse{}
-	err = d.DB.DeleteStruct(&models.Node{Hostname: req.Hostname})
+	err = d.db.DeleteStruct(&models.Node{Hostname: req.Hostname})
 	return
 }
 
@@ -51,7 +51,7 @@ func (d *Daemon) GetNode(c context.Context, req *types.GetNodeRequest) (res *typ
 		return
 	}
 	n := models.Node{}
-	if err = d.DB.One("Hostname", req.Hostname, &n); err != nil {
+	if err = d.db.One("Hostname", req.Hostname, &n); err != nil {
 		return
 	}
 	res = &types.GetNodeResponse{Node: n.ToGRPCNode()}
@@ -63,7 +63,7 @@ func (d *Daemon) TouchNode(c context.Context, req *types.TouchNodeRequest) (res 
 		return
 	}
 	n := models.Node{}
-	if err = d.DB.Tx(true, func(db *Node) (err error) {
+	if err = d.db.Tx(true, func(db *Node) (err error) {
 		if err = db.One("Hostname", req.Hostname, &n); err != nil {
 			return
 		}

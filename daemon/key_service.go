@@ -13,7 +13,7 @@ func (d *Daemon) ListKeys(c context.Context, req *types.ListKeysRequest) (res *t
 		return
 	}
 	var keys []models.Key
-	if err = d.DB.Find("Account", req.Account, &keys); err != nil {
+	if err = d.db.Find("Account", req.Account, &keys); err != nil {
 		return
 	}
 	ret := make([]*types.Key, 0, len(keys))
@@ -29,7 +29,7 @@ func (d *Daemon) CreateKey(c context.Context, req *types.CreateKeyRequest) (res 
 		return
 	}
 	k := models.Key{}
-	if err = d.DB.Tx(true, func(db *Node) (err error) {
+	if err = d.db.Tx(true, func(db *Node) (err error) {
 		// check duplicated
 		if err = db.CheckDuplicated("Key", "fingerprint", req.Fingerprint); err != nil {
 			return
@@ -58,7 +58,7 @@ func (d *Daemon) DeleteKey(c context.Context, req *types.DeleteKeyRequest) (res 
 	if err = req.Validate(); err != nil {
 		return
 	}
-	err = d.DB.DeleteStruct(&models.Key{Fingerprint: req.Fingerprint})
+	err = d.db.DeleteStruct(&models.Key{Fingerprint: req.Fingerprint})
 	res = &types.DeleteKeyResponse{}
 	return
 }
@@ -68,7 +68,7 @@ func (d *Daemon) GetKey(c context.Context, req *types.GetKeyRequest) (res *types
 		return
 	}
 	k := models.Key{}
-	if err = d.DB.One("Fingerprint", req.Fingerprint, &k); err != nil {
+	if err = d.db.One("Fingerprint", req.Fingerprint, &k); err != nil {
 		return
 	}
 	res = &types.GetKeyResponse{Key: k.ToGRPCKey()}
@@ -80,7 +80,7 @@ func (d *Daemon) TouchKey(c context.Context, req *types.TouchKeyRequest) (res *t
 		return
 	}
 	k := models.Key{}
-	if err = d.DB.Tx(true, func(db *Node) (err error) {
+	if err = d.db.Tx(true, func(db *Node) (err error) {
 		if err = db.One("Fingerprint", req.Fingerprint, &k); err != nil {
 			return
 		}

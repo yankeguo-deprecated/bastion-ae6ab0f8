@@ -77,7 +77,7 @@ func routeDestroyToken(c *nova.Context) (err error) {
 		return
 	}
 	// if it's current token, mark to clean current token
-	if res1.Token.Token == a.Token.Token {
+	if res1.Token.Id == a.Token.Id {
 		c.Res.Header().Set(headerKeyAction, headerValueClearToken)
 	}
 	if _, err = ts.DeleteToken(c.Req.Context(), &types.DeleteTokenRequest{

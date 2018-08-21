@@ -64,7 +64,7 @@ func TestDaemon_CreateGetTouchListDeleteToken(t *testing.T) {
 		if len(res4.Tokens) != 1 {
 			t.Fatal("failed 5")
 		}
-		if res4.Tokens[0].Token != token || res4.Tokens[0].Account != "test" {
+		if res4.Tokens[0].Token != "" || res4.Tokens[0].Account != "test" {
 			t.Fatal("failed 6")
 		}
 

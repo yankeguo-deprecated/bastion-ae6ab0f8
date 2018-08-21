@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/crypto/ssh"
@@ -9,7 +10,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"github.com/pkg/errors"
 )
 
 func newConnection(c *cli.Context) (conn *grpc.ClientConn, err error) {
@@ -246,7 +246,7 @@ func main() {
 							return errors.New("no users")
 						}
 						ss := types.NewSessionServiceClient(conn)
-						for i := 0; i < 111; i ++ {
+						for i := 0; i < 111; i++ {
 							u := res1.Users[i%len(res1.Users)]
 							res2, err := ss.CreateSession(context.Background(), &types.CreateSessionRequest{
 								Account:    u.Account,

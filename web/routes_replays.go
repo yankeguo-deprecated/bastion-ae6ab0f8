@@ -3,18 +3,18 @@ package web
 import (
 	"github.com/novakit/nova"
 	"github.com/novakit/router"
-	"strconv"
 	"github.com/yankeguo/bastion/types"
-	"io"
 	"github.com/yankeguo/bastion/utils"
+	"io"
 	"net/http"
+	"strconv"
 )
 
 func routeDownloadReplay(c *nova.Context) (err error) {
 	rs, qp := replayService(c), router.PathParams(c)
 	id, _ := strconv.ParseInt(qp.Get("id"), 10, 8)
 	var sess types.ReplayService_ReadReplayClient
-	if sess, err = rs.ReadReplay(c.Req.Context(), &types.ReadReplayRequest{SessionId: id,}); err != nil {
+	if sess, err = rs.ReadReplay(c.Req.Context(), &types.ReadReplayRequest{SessionId: id}); err != nil {
 		return
 	}
 	c.Res.Header().Set("Content-Type", "application/octet-stream")

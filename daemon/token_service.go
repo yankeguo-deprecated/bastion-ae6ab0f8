@@ -11,7 +11,7 @@ func (d *Daemon) CreateToken(c context.Context, req *types.CreateTokenRequest) (
 		return
 	}
 	t := models.Token{}
-	if err = d.DB.Tx(true, func(db *Node) (err error) {
+	if err = d.db.Tx(true, func(db *Node) (err error) {
 		var u models.User
 		if err = db.One("Account", req.Account, &u); err != nil {
 			return
@@ -37,15 +37,15 @@ func (d *Daemon) GetToken(c context.Context, req *types.GetTokenRequest) (res *t
 	}
 	t := models.Token{}
 	if len(req.Token) > 0 {
-		if err = d.DB.One("Token", req.Token, &t); err != nil {
+		if err = d.db.One("Token", req.Token, &t); err != nil {
 			return
 		}
 	} else {
-		if err = d.DB.One("Id", req.Id, &t); err != nil {
+		if err = d.db.One("Id", req.Id, &t); err != nil {
 			return
 		}
 	}
-	res = &types.GetTokenResponse{Token: t.ToGRPCToken()}
+	res = &types.GetTokenResponse{Token: t.ToGRPCTokenSecure()}
 	return
 }
 
@@ -55,9 +55,15 @@ func (d *Daemon) TouchToken(c context.Context, req *types.TouchTokenRequest) (re
 	}
 
 	t := models.Token{}
-	if err = d.DB.Tx(true, func(db *Node) (err error) {
-		if err = db.One("Token", req.Token, &t); err != nil {
-			return
+	if err = d.db.Tx(true, func(db *Node) (err error) {
+		if len(req.Token) > 0 {
+			if err = db.One("Token", req.Token, &t); err != nil {
+				return
+			}
+		} else {
+			if err = d.db.One("Id", req.Id, &t); err != nil {
+				return
+			}
 		}
 		t.ViewedAt = now()
 		if err = db.Save(&t); err != nil {
@@ -68,7 +74,7 @@ func (d *Daemon) TouchToken(c context.Context, req *types.TouchTokenRequest) (re
 		return
 	}
 
-	res = &types.TouchTokenResponse{Token: t.ToGRPCToken()}
+	res = &types.TouchTokenResponse{Token: t.ToGRPCTokenSecure()}
 	return
 }
 
@@ -77,15 +83,13 @@ func (d *Daemon) ListTokens(c context.Context, req *types.ListTokensRequest) (re
 		return
 	}
 	var ts []models.Token
-	if err = d.DB.Find("Account", req.Account, &ts); err != nil {
+	if err = d.db.Find("Account", req.Account, &ts); err != nil {
 		return
 	}
 	ret := make([]*types.Token, 0, len(ts))
 	for _, t := range ts {
 		// hide the actual token
-		nt := t.ToGRPCToken()
-		nt.Token = ""
-		ret = append(ret, nt)
+		ret = append(ret, t.ToGRPCTokenSecure())
 	}
 	res = &types.ListTokensResponse{Tokens: ret}
 	return
@@ -95,7 +99,7 @@ func (d *Daemon) DeleteToken(c context.Context, req *types.DeleteTokenRequest) (
 	if err = req.Validate(); err != nil {
 		return
 	}
-	if err = d.DB.DeleteStruct(&models.Token{Id: req.Id}); err != nil {
+	if err = d.db.DeleteStruct(&models.Token{Id: req.Id}); err != nil {
 		return
 	}
 	res = &types.DeleteTokenResponse{}

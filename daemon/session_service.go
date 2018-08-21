@@ -15,7 +15,7 @@ func (d *Daemon) CreateSession(c context.Context, req *types.CreateSessionReques
 	s := models.Session{}
 	copier.Copy(&s, req)
 	s.CreatedAt = now()
-	if err = d.DB.Save(&s); err != nil {
+	if err = d.db.Save(&s); err != nil {
 		return
 	}
 	res = &types.CreateSessionResponse{Session: s.ToGRPCSession()}
@@ -27,11 +27,11 @@ func (d *Daemon) FinishSession(c context.Context, req *types.FinishSessionReques
 		return
 	}
 	s := models.Session{}
-	if err = d.DB.One("Id", req.Id, &s); err != nil {
+	if err = d.db.One("Id", req.Id, &s); err != nil {
 		return
 	}
 	s.FinishedAt = now()
-	if err = d.DB.Save(&s); err != nil {
+	if err = d.db.Save(&s); err != nil {
 		return
 	}
 	res = &types.FinishSessionResponse{Session: s.ToGRPCSession()}
@@ -44,7 +44,7 @@ func (d *Daemon) ListSessions(c context.Context, req *types.ListSessionsRequest)
 	}
 	var sessions []models.Session
 	var total int
-	if err = d.DB.Tx(false, func(db *Node) (err error) {
+	if err = d.db.Tx(false, func(db *Node) (err error) {
 		if total, err = db.Count(new(models.Session)); err != nil {
 			return
 		}
@@ -68,10 +68,9 @@ func (d *Daemon) ListSessions(c context.Context, req *types.ListSessionsRequest)
 	return
 }
 
-
 func (d *Daemon) GetSession(c context.Context, req *types.GetSessionRequest) (res *types.GetSessionResponse, err error) {
 	s := models.Session{}
-	if err = d.DB.One("Id", req.Id, &s); err != nil {
+	if err = d.db.One("Id", req.Id, &s); err != nil {
 		return
 	}
 	res = &types.GetSessionResponse{Session: s.ToGRPCSession()}

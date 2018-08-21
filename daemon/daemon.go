@@ -14,43 +14,16 @@ import (
 
 // Daemon daemon instance
 type Daemon struct {
-	DB     *DB
-	Server *grpc.Server
-
-	opts types.DaemonOptions
+	opts   types.DaemonOptions
+	db     *DB
+	server *grpc.Server
 }
 
 func New(opts types.DaemonOptions) *Daemon {
 	return &Daemon{opts: opts}
 }
 
-func (d *Daemon) Run() (err error) {
-	// open db
-	if d.DB, err = d.openDB(); err != nil {
-		return
-	}
-	defer d.DB.Close()
-
-	// create listener
-	var l net.Listener
-	if l, err = d.createListener(); err != nil {
-		return
-	}
-	defer l.Close()
-
-	// create server
-	d.Server = d.createGRPCServer()
-
-	// run server
-	if err = d.Server.Serve(l); err != nil {
-		if err == grpc.ErrServerStopped {
-			err = nil
-		}
-	}
-	return
-}
-
-func (d *Daemon) openDB() (db *DB, err error) {
+func (d *Daemon) initDB() (err error) {
 	// ensure database directory
 	os.MkdirAll(filepath.Dir(d.opts.DB), 0640)
 	// open db
@@ -65,7 +38,7 @@ func (d *Daemon) openDB() (db *DB, err error) {
 			return
 		}
 	}
-	db = &DB{db: stormDB}
+	d.db = &DB{db: stormDB}
 	return
 }
 
@@ -85,9 +58,35 @@ func (d *Daemon) createGRPCServer() *grpc.Server {
 	return s
 }
 
+func (d *Daemon) Run() (err error) {
+	// open db
+	if err = d.initDB(); err != nil {
+		return
+	}
+	defer d.db.Close()
+
+	// create listener
+	var l net.Listener
+	if l, err = d.createListener(); err != nil {
+		return
+	}
+	defer l.Close()
+
+	// create server
+	d.server = d.createGRPCServer()
+
+	// run server
+	if err = d.server.Serve(l); err != nil {
+		if err == grpc.ErrServerStopped {
+			err = nil
+		}
+	}
+	return
+}
+
 func (d *Daemon) Stop() {
-	if d.Server != nil {
-		d.Server.GracefulStop()
+	if d.server != nil {
+		d.server.GracefulStop()
 	}
 	return
 }

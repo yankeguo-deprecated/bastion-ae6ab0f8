@@ -19,3 +19,9 @@ func (n Token) ToGRPCToken() *types.Token {
 	copier.Copy(&o, &n)
 	return &o
 }
+
+func (n Token) ToGRPCTokenSecure() *types.Token {
+	o := n.ToGRPCToken()
+	o.Token = ""
+	return o
+}

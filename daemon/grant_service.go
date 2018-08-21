@@ -16,7 +16,7 @@ func (d *Daemon) PutGrant(c context.Context, req *types.PutGrantRequest) (res *t
 	copier.Copy(&n, req)
 	n.ID = n.BuildID()
 	n.CreatedAt = now()
-	if err = d.DB.Save(&n); err != nil {
+	if err = d.db.Save(&n); err != nil {
 		return
 	}
 	res = &types.PutGrantResponse{Grant: n.ToGRPCGrant()}
@@ -28,7 +28,7 @@ func (d *Daemon) ListGrants(c context.Context, req *types.ListGrantsRequest) (re
 		return
 	}
 	var rs []models.Grant
-	if err = d.DB.Find("Account", req.Account, &rs); err != nil {
+	if err = d.db.Find("Account", req.Account, &rs); err != nil {
 		return
 	}
 	ret := make([]*types.Grant, 0, len(rs))
@@ -46,7 +46,7 @@ func (d *Daemon) DeleteGrant(c context.Context, req *types.DeleteGrantRequest) (
 	n := models.Grant{}
 	copier.Copy(&n, req)
 	n.ID = n.BuildID()
-	if err = d.DB.DeleteStruct(&n); err != nil {
+	if err = d.db.DeleteStruct(&n); err != nil {
 		return
 	}
 	res = &types.DeleteGrantResponse{}
@@ -58,7 +58,7 @@ func (d *Daemon) CheckGrant(c context.Context, req *types.CheckGrantRequest) (re
 		return
 	}
 	var rs []models.Grant
-	if err = d.DB.Find("Account", req.Account, &rs); err != nil {
+	if err = d.db.Find("Account", req.Account, &rs); err != nil {
 		return
 	}
 	var ok bool
@@ -79,11 +79,11 @@ func (d *Daemon) ListGrantItems(c context.Context, req *types.ListGrantItemsRequ
 		return
 	}
 	var rs []models.Grant
-	if err = d.DB.Find("Account", req.Account, &rs); err != nil {
+	if err = d.db.Find("Account", req.Account, &rs); err != nil {
 		return
 	}
 	var ns []models.Node
-	if err = d.DB.All(&ns); err != nil {
+	if err = d.db.All(&ns); err != nil {
 		return
 	}
 	ret := make([]*types.GrantItem, 0)
