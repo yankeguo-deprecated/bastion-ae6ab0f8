@@ -30,11 +30,13 @@
             <b-col>
               <b-card>
                 <b-form inline @submit="onSubmit">
-                  <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.user" placeholder="Linux 用户名"/>
-                  <i class="fa fa-at" aria-hidden="true"></i>
+                  <b-form-select v-model="form.user_mode" :options="user_modes"
+                                 class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
+                  <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-if="form.user_mode == 'console'" v-model="form.user" placeholder="Linux 用户"/>
+                  <i v-if="form.user_mode == 'console'" class="fa fa-at" aria-hidden="true"></i>
                   <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.hostname_pattern"
                            placeholder="主机名，允许通配符 *"/>
-                  ，
+                  <span>,</span>
                   <b-input v-if="form.expires_mode != 'n'" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"
                            v-model="form.expires_in" type="number"/>
                   <b-form-select v-model="form.expires_mode" :options="expire_modes"
@@ -44,6 +46,14 @@
                   </b-button>
                 </b-form>
                 <b-table :items="grants" :fields="fields" class="mt-3">
+                  <template slot="type" slot-scope="data">
+                    <span v-if="data.item.user === '__tunnel__'"><i class="fa fa-link" aria-hidden="true"></i> 建立隧道</span>
+                    <span v-if="data.item.user !== '__tunnel__'"><i class="fa fa-sign-in" aria-hidden="true"></i> 登录用户</span>
+                  </template>
+                  <template slot="user" slot-scope="data">
+                    <span v-if="data.item.user === '__tunnel__'">-</span>
+                    <span v-if="data.item.user !== '__tunnel__'">{{data.item.user}}</span>
+                  </template>
                   <template slot="created_at" slot-scope="data">
                     {{data.item.created_at | formatUnixEpoch}}
                   </template>
@@ -52,10 +62,12 @@
                   </template>
 
                   <template slot="action" slot-scope="data">
+                    <!--
                     <b-link href="#" class="text-primary" @click="onEditClick(data.item)"><i class="fa fa-edit"
                                                                                              aria-hidden="true"></i> 编辑
                     </b-link>
                     <span class="text-muted">&nbsp;|&nbsp;</span>
+                    -->
                     <b-link href="#" class="text-danger"
                             v-if="data.item.user != grantToDelete.user || data.item.hostname_pattern != grantToDelete.hostname_pattern"
                             @click="onDeleteClick(data.item)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
@@ -76,6 +88,8 @@
 </template>
 
 <script>
+/* eslint-disable camelcase */
+
 export default {
   name: 'UserDetail',
   data () {
@@ -91,6 +105,13 @@ export default {
         }
       ],
       fields: [
+        {
+          key: 'type',
+          label: '类型',
+          sortable: true,
+          thClass: 'text-center',
+          tdClass: 'text-center'
+        },
         {
           key: 'user',
           sortable: true,
@@ -136,11 +157,22 @@ export default {
       },
       grants: [],
       form: {
+        user_mode: 'console',
         user: 'root',
         hostname_pattern: '',
         expires_in: 1,
         expires_mode: 'h'
       },
+      user_modes: [
+        {
+          value: 'tunnel',
+          text: '建立隧道'
+        },
+        {
+          value: 'console',
+          text: '登录用户'
+        }
+      ],
       expire_modes: [
         {
           value: 'h',
@@ -174,29 +206,33 @@ export default {
       })
     },
     onSubmit () {
-      let expiresIn = this.form.expires_in
+      let expires_in = this.form.expires_in
       switch (this.form.expires_mode) {
         case 'h': {
-          expiresIn *= 3600
+          expires_in *= 3600
           break
         }
         case 'd': {
-          expiresIn *= 3600 * 24
+          expires_in *= 3600 * 24
           break
         }
         case 'n': {
-          expiresIn = 0
+          expires_in = 0
           break
         }
         default: {
           throw Error('not possible value')
         }
       }
+      let user = this.form.user
+      if (this.form.user_mode === 'tunnel') {
+        user = '__tunnel__'
+      }
       this.$apiCreateGrant({
         account: this.$route.params.account,
         hostname_pattern: this.form.hostname_pattern,
-        user: this.form.user,
-        expires_in: expiresIn
+        user,
+        expires_in
       }).then(res => {
         this.fetchUserGrants()
       })
@@ -208,11 +244,14 @@ export default {
       this.$apiDestroyGrant(this.grantToDelete).then(() => {
         this.fetchUserGrants()
       })
-    },
+    }
+    /*
+    ,
     onEditClick (grant) {
       this.form.user = grant.user
       this.form.hostname_pattern = grant.hostname_pattern
     }
+    */
   }
 }
 </script>

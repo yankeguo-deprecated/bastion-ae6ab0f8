@@ -16,10 +16,12 @@ const (
 	KeySourceSandbox = "sandbox"
 
 	NodeUserRoot = "root"
+
+	GrantUserTunnel = "__tunnel__" // special linux user for TCP tunnel permission
 )
 
 var (
-	UserAccountPattern    = regexp.MustCompile(`^[a-zA-Z][0-9a-zA-Z_.-]{3,24}$`)
+	UserAccountPattern    = regexp.MustCompile(`^[a-zA-Z_][0-9a-zA-Z_.-]{3,24}$`)
 	UserNicknameMaxLength = 16
 	UserPasswordMinLength = 6
 
