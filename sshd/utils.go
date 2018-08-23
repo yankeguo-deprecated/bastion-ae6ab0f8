@@ -3,10 +3,17 @@ package sshd
 import (
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
-	"strings"
 	"net"
 	"os"
+	"strings"
 )
+
+func fixSSHAddress(address string) string {
+	if len(strings.Split(address, ":")) < 2 {
+		return address + ":22"
+	}
+	return address
+}
 
 func loadSSHPrivateKeyFile(filename string) (s ssh.Signer, err error) {
 	var buf []byte

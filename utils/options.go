@@ -4,8 +4,8 @@ import (
 	"github.com/yankeguo/bastion/types"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"path"
 	"os"
+	"path"
 )
 
 func defaultStr(s *string, d string) {

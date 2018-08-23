@@ -1,15 +1,16 @@
 package sshd
 
 import (
-	"github.com/yankeguo/bastion/types"
-	"golang.org/x/crypto/ssh"
-	"github.com/pkg/errors"
-	"google.golang.org/grpc"
 	"context"
-	"net"
 	"fmt"
-	"log"
+	"github.com/pkg/errors"
 	"github.com/yankeguo/bastion/sshd/sandbox"
+	"github.com/yankeguo/bastion/types"
+	"github.com/yankeguo/bastion/utils"
+	"golang.org/x/crypto/ssh"
+	"google.golang.org/grpc"
+	"log"
+	"net"
 )
 
 const (
@@ -36,7 +37,9 @@ type SSHD struct {
 }
 
 func New(opts types.SSHDOptions) *SSHD {
-	return &SSHD{opts: opts}
+	return &SSHD{
+		opts: opts,
+	}
 }
 
 func (s *SSHD) initSandboxManager() (err error) {
@@ -192,18 +195,13 @@ func (s *SSHD) Run() (err error) {
 
 func (s *SSHD) handleConnection(c net.Conn) {
 	var err error
-	defer func() {
-		if err != nil {
-			log.Println(err)
-		}
-	}()
 	// variables
 	var sconn *ssh.ServerConn
 	var nchan <-chan ssh.NewChannel
 	var rchan <-chan *ssh.Request
 	// upgrade connection to ssh connection
 	if sconn, nchan, rchan, err = ssh.NewServerConn(c, s.sshServerConfig); err != nil {
-		log.Println("bunkersshd: failed to upgrade ssh connection:", err)
+		log.Println("failed to handshake:", err)
 		return
 	}
 	defer sconn.Close()
@@ -211,6 +209,9 @@ func (s *SSHD) handleConnection(c net.Conn) {
 		err = s.handleLv1Connection(sconn, nchan, rchan)
 	} else {
 		err = s.handleLv2Connection(sconn, nchan, rchan)
+	}
+	if err != nil {
+		log.Println("failed to handle connection:", err)
 	}
 	return
 }
@@ -260,47 +261,29 @@ func (s *SSHD) updateSandboxSSHConfig(sb sandbox.Sandbox, account string) (err e
 
 func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
 	account := sconn.Permissions.Extensions[keyAccount]
-	log.Println("new account:", account)
-	go func() {
-		for req := range grchan {
-			log.Println("Global Request:", req.Type)
-			if req.WantReply {
-				req.Reply(false, nil)
-			}
-		}
-	}()
-	// find or create the sandbox
-	var sb sandbox.Sandbox
-	if sb, err = s.sandboxManager.FindOrCreate(account); err != nil {
-		return
-	}
-	// update public from sandbox /root/.ssh/id_rsa
-	if err = s.updateSandboxPublicKey(sb, account); err != nil {
-		return
-	}
-	// update sandbox /root/.ssh/config
-	if err = s.updateSandboxSSHConfig(sb, account); err != nil {
-		return
-	}
+	log.Println("new connection:", account)
+	// discard global requests
+	go ssh.DiscardRequests(grchan)
+	// pre-create a connection-local tunnel pool for failure isolation
+	tp := NewTunnelPool(s.clientSigners)
+	defer tp.Close()
 	// handle new channels
 	for nc := range ncchan {
-		log.Println("New Channel:", nc.ChannelType())
-		log.Println("Extra Data:", nc.ExtraData())
-
-		// if channel type is 'direct-tcpip'
 		if nc.ChannelType() == channelTypeDirectTCPIP {
-			// extract target hostname and target port
-			var pl DirectTCPIPExtraData
-			if pl, err = decodeDirectTCPIPExtraData(nc.ExtraData()); err != nil {
-				log.Println(err)
-				nc.Reject(ssh.UnknownChannelType, "failed to decode 'direct-tcpip' extra data")
+			// if channel type is 'direct-tcpip'
+			// extract host and port from extra data
+			var ed DirectTCPIPExtraData
+			if ed, err = decodeDirectTCPIPExtraData(nc.ExtraData()); err != nil {
+				nc.Reject(ssh.UnknownChannelType, "invalid extra data for 'direct-tcpip' new channel request")
+				log.Println("invalid extra data for 'direct-tcpip' new channel request:", err, "extra_data =", nc.ExtraData())
 				continue
 			}
 			// find the node
 			ns := types.NewNodeServiceClient(s.rpcConn)
 			var nRes *types.GetNodeResponse
-			if nRes, err = ns.GetNode(context.Background(), &types.GetNodeRequest{Hostname: pl.Host}); err != nil {
-				nc.Reject(ssh.ConnectionFailed, "host not found")
+			if nRes, err = ns.GetNode(context.Background(), &types.GetNodeRequest{Hostname: ed.Host}); err != nil {
+				nc.Reject(ssh.ConnectionFailed, "failed to find the target node")
+				log.Println("failed to find the target node:", err)
 				continue
 			}
 			// check __tunnel__ user permission with given node
@@ -309,46 +292,77 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 			if cRes, err = rs.CheckGrant(context.Background(), &types.CheckGrantRequest{
 				Account:  account,
 				User:     types.GrantUserTunnel,
-				Hostname: pl.Host,
+				Hostname: ed.Host,
 			}); err != nil {
-				nc.Reject(ssh.ConnectionFailed, "failed to check permission")
+				nc.Reject(ssh.ConnectionFailed, "failed to validate permission")
+				log.Println("failed to validate permission:", err)
 				continue
 			}
 			if !cRes.Ok {
 				nc.Reject(ssh.ConnectionFailed, "no permission")
+				log.Println("no permission, account =", account, ", node =", ed.Host)
 				continue
 			}
+			// accept the new channel
 			var c ssh.Channel
 			var crchan <-chan *ssh.Request
 			if c, crchan, err = nc.Accept(); err != nil {
-				log.Println("failed to accept new channel:", err)
+				log.Println("failed to accept new 'direct-tcpip' channel:", err)
 				continue
 			}
-			go ssh.DiscardRequests(crchan) // no channel-level requests for 'direct-tcpip'
-			go s.handleChannelDirectTCPIP(c, nRes.Node.Hostname, int(pl.Port))
+			// discard all channel-local requests
+			go ssh.DiscardRequests(crchan)
+			// dial and stream 'direct-tcpip'
+			go s.handleChannelDirectTCPIP(c, tp, nRes.Node.Address, int(ed.Port))
 		} else if nc.ChannelType() == channelTypeSession {
+			// find or create the sandbox
+			var sb sandbox.Sandbox
+			if sb, err = s.sandboxManager.FindOrCreate(account); err != nil {
+				nc.Reject(ssh.ConnectionFailed, "failed to find or create the sandbox")
+				continue
+			}
+
+			// load public key from sandbox /root/.ssh/id_rsa.pub
+			if err = s.updateSandboxPublicKey(sb, account); err != nil {
+				log.Println("failed to extract sandbox public key:", err)
+			}
+			// write sandbox /root/.ssh/config
+			if err = s.updateSandboxSSHConfig(sb, account); err != nil {
+				log.Println("failed to write ssh config to sandbox:", err)
+			}
+
 			var c ssh.Channel
 			var crchan <-chan *ssh.Request
 			if c, crchan, err = nc.Accept(); err != nil {
-				log.Println("failed to accept new channel:", err)
+				log.Println("failed to accept new 'session' channel:", err)
 				continue
 			}
 			go s.handleChannelSession(c, crchan, account)
 		} else {
+			log.Println("unsupported channel type:", nc.ChannelType())
 			nc.Reject(ssh.UnknownChannelType, "only channel type 'session' and 'direct-tcpip' is allowed")
 			continue
 		}
 	}
-	log.Println("finished")
+	log.Println("connection finished:", account)
 	return
 }
 
-func (s *SSHD) handleChannelDirectTCPIP(c ssh.Channel, host string, port int) {
-	// TODO: implement it
-	c.Write([]byte(fmt.Sprintf("TARGET: %s:%d\n", host, port)))
-	c.Write([]byte("Bye\n"))
-	c.CloseWrite()
-	c.Close()
+func (s *SSHD) handleChannelDirectTCPIP(chn ssh.Channel, tp *TunnelPool, address string, port int) (err error) {
+	defer chn.Close()
+	// dial remote address
+	var c net.Conn
+	if c, err = tp.Dial(address, port); err != nil {
+		log.Println("failed to dial ssh tunnel connection:", err)
+		return
+	}
+	defer c.Close()
+	// bi-copy streams
+	err = utils.BiCopy(c, chn)
+	if err != nil {
+		log.Println("failed to pipe:", err)
+	}
+	return
 }
 
 func (s *SSHD) handleChannelSession(c ssh.Channel, crchan <-chan *ssh.Request, account string) {
