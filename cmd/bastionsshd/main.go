@@ -6,7 +6,6 @@ import (
 
 	"github.com/yankeguo/bastion/sshd"
 	"github.com/yankeguo/bastion/types"
-	"github.com/yankeguo/bastion/utils"
 	"os"
 	"os/signal"
 	"syscall"
@@ -24,7 +23,7 @@ func main() {
 	flag.StringVar(&optionsFile, "c", "/etc/bastion/bastion.yml", "bastion config file")
 	flag.Parse()
 	log.Println("loading", optionsFile)
-	if options, err = utils.LoadOptions(optionsFile); err != nil {
+	if options, err = types.LoadOptions(optionsFile); err != nil {
 		log.Println("failed to load config file", err)
 		os.Exit(1)
 		return

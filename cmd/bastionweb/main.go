@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"github.com/yankeguo/bastion/types"
-	"github.com/yankeguo/bastion/utils"
 	"github.com/yankeguo/bastion/web"
 	"log"
 	"os"
@@ -23,7 +22,7 @@ func main() {
 	flag.BoolVar(&dev, "dev", false, "dev flag, overriding web.dev")
 	flag.Parse()
 	log.Println("loading", optionsFile)
-	if options, err = utils.LoadOptions(optionsFile); err != nil {
+	if options, err = types.LoadOptions(optionsFile); err != nil {
 		log.Println("failed to load config file", err)
 		os.Exit(1)
 		return

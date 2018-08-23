@@ -4,7 +4,7 @@ import (
 	"github.com/jinzhu/copier"
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
-	"github.com/yankeguo/bastion/utils"
+	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -43,7 +43,7 @@ func (d *Daemon) CreateUser(c context.Context, req *types.CreateUserRequest) (re
 		// assign values
 		copier.Copy(&u, req)
 		// create password
-		if u.PasswordDigest, err = utils.BcryptGenerate(req.Password); err != nil {
+		if u.PasswordDigest, err = bcryptGenerate(req.Password); err != nil {
 			err = errInternal
 			return
 		}
@@ -110,7 +110,7 @@ func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (re
 		u.Nickname = req.Nickname
 	}
 	if req.UpdatePassword {
-		if u.PasswordDigest, err = utils.BcryptGenerate(req.Password); err != nil {
+		if u.PasswordDigest, err = bcryptGenerate(req.Password); err != nil {
 			err = errInternal
 			return
 		}
@@ -133,7 +133,7 @@ func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUser
 		return
 	}
 	// validate password
-	if !utils.BcryptValidate(u.PasswordDigest, req.Password) {
+	if err = bcrypt.CompareHashAndPassword([]byte(u.PasswordDigest), []byte(req.Password)); err != nil {
 		err = errInvalidAuthentication
 		return
 	}

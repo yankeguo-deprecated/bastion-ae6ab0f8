@@ -4,7 +4,6 @@ import (
 	"context"
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
-	"github.com/yankeguo/bastion/utils"
 	"google.golang.org/grpc"
 	"testing"
 	"time"
@@ -82,7 +81,7 @@ func TestDaemon_TouchUser(t *testing.T) {
 			IsAdmin:   false,
 			IsBlocked: true,
 		}
-		u.PasswordDigest, _ = utils.BcryptGenerate("qwerty")
+		u.PasswordDigest, _ = bcryptGenerate("qwerty")
 		daemon.db.Save(&u)
 		res, err := c.TouchUser(context.Background(), &types.TouchUserRequest{
 			Account: "testuser",
@@ -152,7 +151,7 @@ func TestDaemon_AuthenticateUser(t *testing.T) {
 			IsAdmin:   false,
 			IsBlocked: true,
 		}
-		u.PasswordDigest, _ = utils.BcryptGenerate("qwerty")
+		u.PasswordDigest, _ = bcryptGenerate("qwerty")
 		daemon.db.Save(&u)
 		_, err = c.AuthenticateUser(context.Background(), &types.AuthenticateUserRequest{
 			Account:  "testuser",

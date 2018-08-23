@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-func BiCopy(c1 io.ReadWriteCloser, c2 io.ReadWriteCloser) (err error) {
+func DualCopy(c1 io.ReadWriteCloser, c2 io.ReadWriteCloser) (err error) {
 	wr := &sync.WaitGroup{}
 	wr.Add(2)
 	go func() {

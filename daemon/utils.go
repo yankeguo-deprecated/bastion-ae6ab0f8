@@ -3,6 +3,7 @@ package daemon
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -16,4 +17,9 @@ func newToken() string {
 		panic(err)
 	}
 	return hex.EncodeToString(buf)
+}
+
+func bcryptGenerate(password string) (string, error) {
+	buf, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(buf), err
 }

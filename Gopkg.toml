@@ -58,6 +58,14 @@
   name = "gopkg.in/yaml.v2"
   version = "2.2.1"
 
+[[constraint]]
+  name = "github.com/docker/docker"
+  version = "v17.03.2-ce"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/kballard/go-shellquote"
+
 [prune]
   go-tests = true
   unused-packages = true

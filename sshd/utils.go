@@ -55,7 +55,31 @@ type DirectTCPIPExtraData struct {
 	OriginatorPort uint32
 }
 
-func decodeDirectTCPIPExtraData(p []byte) (pl DirectTCPIPExtraData, err error) {
-	err = ssh.Unmarshal(p, &pl)
-	return
+type PtyRequestPayload struct {
+	Term   string
+	Cols   uint32
+	Rows   uint32
+	Width  uint32
+	Height uint32
+	Modes  string
+}
+
+type EnvRequestPayload struct {
+	Name  string
+	Value string
+}
+
+type ExecRequestPayload struct {
+	Command string
+}
+
+type WindowChangeRequestPayload struct {
+	Cols   uint32
+	Rows   uint32
+	Width  uint32
+	Height uint32
+}
+
+type ExitStatusRequestPayload struct {
+	Code uint32
 }

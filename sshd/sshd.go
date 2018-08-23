@@ -3,6 +3,7 @@ package sshd
 import (
 	"context"
 	"fmt"
+	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
 	"github.com/yankeguo/bastion/sshd/sandbox"
 	"github.com/yankeguo/bastion/types"
@@ -11,6 +12,7 @@ import (
 	"google.golang.org/grpc"
 	"log"
 	"net"
+	"sync"
 )
 
 const (
@@ -261,7 +263,7 @@ func (s *SSHD) updateSandboxSSHConfig(sb sandbox.Sandbox, account string) (err e
 
 func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
 	account := sconn.Permissions.Extensions[keyAccount]
-	log.Println("new connection:", account)
+	log.Println("connection established:", account, "lv1")
 	// discard global requests
 	go ssh.DiscardRequests(grchan)
 	// pre-create a connection-local tunnel pool for failure isolation
@@ -273,7 +275,7 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 			// if channel type is 'direct-tcpip'
 			// extract host and port from extra data
 			var ed DirectTCPIPExtraData
-			if ed, err = decodeDirectTCPIPExtraData(nc.ExtraData()); err != nil {
+			if err = ssh.Unmarshal(nc.ExtraData(), &ed); err != nil {
 				nc.Reject(ssh.UnknownChannelType, "invalid extra data for 'direct-tcpip' new channel request")
 				log.Println("invalid extra data for 'direct-tcpip' new channel request:", err, "extra_data =", nc.ExtraData())
 				continue
@@ -337,7 +339,7 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 				log.Println("failed to accept new 'session' channel:", err)
 				continue
 			}
-			go s.handleChannelSession(c, crchan, account)
+			go s.handleChannelSession(c, crchan, sb)
 		} else {
 			log.Println("unsupported channel type:", nc.ChannelType())
 			nc.Reject(ssh.UnknownChannelType, "only channel type 'session' and 'direct-tcpip' is allowed")
@@ -358,15 +360,126 @@ func (s *SSHD) handleChannelDirectTCPIP(chn ssh.Channel, tp *TunnelPool, address
 	}
 	defer c.Close()
 	// bi-copy streams
-	err = utils.BiCopy(c, chn)
-	if err != nil {
+	if err = utils.DualCopy(c, chn); err != nil {
 		log.Println("failed to pipe:", err)
+		return
 	}
 	return
 }
 
-func (s *SSHD) handleChannelSession(c ssh.Channel, crchan <-chan *ssh.Request, account string) {
-	// TODO: implement it
+func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request, sb sandbox.Sandbox) (err error) {
+	defer chn.Close()
+	// variables
+	cmd, cmdReady, cmdMissing, cmdCond := "", false, false, sync.NewCond(&sync.Mutex{})
+	env := make([]string, 0)
+	pty, ptyCols, ptyRows, term, wch := false, uint32(0), uint32(0), "", make(chan sandbox.Window, 4)
+	// range all requests
+	go func() {
+		for req := range crchan {
+			switch req.Type {
+			case "pty-req":
+				var pl PtyRequestPayload
+				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
+					log.Println("failed to decode pty-req payload:", err)
+					break
+				}
+				pty, ptyCols, ptyRows, term = true, pl.Cols, pl.Rows, pl.Term
+				wch <- sandbox.Window{
+					Width:  uint(pl.Cols),
+					Height: uint(pl.Rows),
+				}
+				if req.WantReply {
+					req.Reply(true, nil)
+				}
+			case "env":
+				var pl EnvRequestPayload
+				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
+					log.Println("failed to decode env request payload:", err)
+					break
+				}
+				env = append(env, fmt.Sprintf("%s=%s", pl.Name, pl.Value))
+				if req.WantReply {
+					req.Reply(true, nil)
+				}
+			case "window-change":
+				var pl WindowChangeRequestPayload
+				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
+					log.Println("failed to decode window-change request payload", err)
+					break
+				}
+				wch <- sandbox.Window{
+					Width:  uint(pl.Cols),
+					Height: uint(pl.Rows),
+				}
+				if req.WantReply {
+					req.Reply(true, nil)
+				}
+			case "shell", "exec":
+				// decode command
+				if req.Type == "exec" {
+					var pl ExecRequestPayload
+					if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
+						log.Println("failed to decode exec request payload", err)
+						break
+					}
+					cmd = pl.Command
+				}
+				if req.WantReply {
+					req.Reply(true, nil)
+				}
+				// signal cmdCond
+				cmdReady = true
+				cmdCond.Signal()
+			default:
+				if req.WantReply {
+					req.Reply(false, nil)
+				}
+			}
+		}
+
+		// if cmdReady not set, then cmd is missing, ensure cmdCond is always signaled
+		if !cmdReady {
+			cmdMissing = true
+			cmdCond.Signal()
+		}
+	}()
+	// wait for cmdCond
+	cmdCond.L.Lock()
+	for !cmdReady && !cmdMissing {
+		cmdCond.Wait()
+	}
+	cmdCond.L.Unlock()
+	// check if cmd is missing
+	if cmdMissing {
+		log.Println("command is missing")
+		return
+	}
+	// split the command
+	var cmds []string
+	if cmds, err = shellquote.Split(cmd); err != nil {
+		log.Println("failed to split command")
+		return
+	}
+	// build the exec options
+	opts := sandbox.ExecAttachOptions{
+		Env:     env,
+		Command: cmds,
+		Stdin:   chn,
+		Stdout:  chn,
+		Stderr:  chn.Stderr(),
+	}
+	if pty {
+		opts.IsPty = true
+		opts.Term = term
+		opts.WindowChan = wch
+	}
+	// execute and returns exit status
+	es := ExitStatusRequestPayload{}
+	if err = sb.ExecAttach(opts); err != nil {
+		es.Code = 1
+	}
+	chn.SendRequest("exit-status", false, ssh.Marshal(&es))
+	return
 }
 
 func (s *SSHD) handleLv2Connection(sconn *ssh.ServerConn, nchan <-chan ssh.NewChannel, rchan <-chan *ssh.Request) (err error) {
