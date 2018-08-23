@@ -48,6 +48,16 @@ func isClosedError(err error) bool {
 	return err == os.ErrClosed
 }
 
+func shouldCommandBeRecorded(cmd []string) bool {
+	if len(cmd) == 0 {
+		return true
+	}
+	if strings.ToLower(strings.TrimSpace(cmd[0])) == "scp" {
+		return false
+	}
+	return true
+}
+
 type DirectTCPIPExtraData struct {
 	Host           string
 	Port           uint32

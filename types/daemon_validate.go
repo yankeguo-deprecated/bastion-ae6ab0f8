@@ -18,6 +18,10 @@ const (
 	NodeUserRoot = "root"
 
 	GrantUserTunnel = "__tunnel__" // special linux user for TCP tunnel permission
+
+	ReplayFrameTypeStdout     = uint32(1)
+	ReplayFrameTypeStderr     = uint32(2)
+	ReplayFrameTypeWindowSize = uint32(3)
 )
 
 var (

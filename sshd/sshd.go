@@ -339,7 +339,7 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 				log.Println("failed to accept new 'session' channel:", err)
 				continue
 			}
-			go s.handleChannelSession(c, crchan, sb)
+			go s.handleChannelSession(c, crchan, sb, account)
 		} else {
 			log.Println("unsupported channel type:", nc.ChannelType())
 			nc.Reject(ssh.UnknownChannelType, "only channel type 'session' and 'direct-tcpip' is allowed")
@@ -367,12 +367,14 @@ func (s *SSHD) handleChannelDirectTCPIP(chn ssh.Channel, tp *TunnelPool, address
 	return
 }
 
-func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request, sb sandbox.Sandbox) (err error) {
+func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request, sb sandbox.Sandbox, account string) (err error) {
 	defer chn.Close()
 	// variables
 	cmd, cmdReady, cmdMissing, cmdCond := "", false, false, sync.NewCond(&sync.Mutex{})
 	env := make([]string, 0)
 	pty, ptyCols, ptyRows, term, wch := false, uint32(0), uint32(0), "", make(chan sandbox.Window, 4)
+	// remember to close wch/rwch
+	defer close(wch)
 	// range all requests
 	go func() {
 		for req := range crchan {
@@ -460,6 +462,19 @@ func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request,
 		log.Println("failed to split command")
 		return
 	}
+	// determine should be recorded
+	isRecorded := shouldCommandBeRecorded(cmds)
+	// start session
+	ss := types.NewSessionServiceClient(s.rpcConn)
+	var sRes *types.CreateSessionResponse
+	if sRes, err = ss.CreateSession(context.Background(), &types.CreateSessionRequest{
+		Account:    account,
+		Command:    cmd,
+		IsRecorded: isRecorded,
+	}); err != nil {
+		log.Println("failed to create session", err)
+		return
+	}
 	// build the exec options
 	opts := sandbox.ExecAttachOptions{
 		Env:     env,
@@ -473,11 +488,20 @@ func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request,
 		opts.Term = term
 		opts.WindowChan = wch
 	}
+	// wrap options if isRecorded
+	if isRecorded {
+		r := StartRecording(&opts, sRes.Session.Id, s.rpcConn)
+		defer r.Stop()
+	}
 	// execute and returns exit status
 	es := ExitStatusRequestPayload{}
 	if err = sb.ExecAttach(opts); err != nil {
+		log.Println("exec attach returns error:", err)
 		es.Code = 1
 	}
+	// finish session
+	ss.FinishSession(context.Background(), &types.FinishSessionRequest{Id: sRes.Session.Id})
+	// send exit-status
 	chn.SendRequest("exit-status", false, ssh.Marshal(&es))
 	return
 }
