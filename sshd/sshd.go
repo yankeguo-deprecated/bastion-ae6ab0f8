@@ -490,7 +490,8 @@ func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request,
 	}
 	// wrap options if isRecorded
 	if isRecorded {
-		r := StartRecording(&opts, sRes.Session.Id, s.rpcConn)
+		rs := types.NewReplayServiceClient(s.rpcConn)
+		r := StartRecording(&opts, sRes.Session.Id, rs)
 		defer r.Stop()
 	}
 	// execute and returns exit status

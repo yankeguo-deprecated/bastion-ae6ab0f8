@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"github.com/yankeguo/bastion/sshd/sandbox"
 	"github.com/yankeguo/bastion/types"
-	"google.golang.org/grpc"
 	"io"
 	"log"
 	"time"
@@ -20,7 +19,7 @@ type Recorder struct {
 	c   types.ReplayService_WriteReplayClient
 }
 
-func StartRecording(opts *sandbox.ExecAttachOptions, sessionID int64, conn *grpc.ClientConn) (rec *Recorder) {
+func StartRecording(opts *sandbox.ExecAttachOptions, sessionID int64, rs types.ReplayServiceClient) (rec *Recorder) {
 	rec = &Recorder{}
 	var err error
 
@@ -28,7 +27,6 @@ func StartRecording(opts *sandbox.ExecAttachOptions, sessionID int64, conn *grpc
 	start := time.Now()
 
 	// build replay write client
-	rs := types.NewReplayServiceClient(conn)
 	if rec.c, err = rs.WriteReplay(context.Background()); err != nil {
 		return
 	}
