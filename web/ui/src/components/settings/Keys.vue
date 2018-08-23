@@ -28,15 +28,15 @@
         </template>
         <template slot="action" slot-scope="data">
           <b-link href="#" class="text-danger"
-                  v-if="data.item.source != 'sandbox' && data.item.fingerprint != fingerprintToDelete"
+                  v-if="data.item.source !== 'sandbox' && data.item.fingerprint !== fingerprintToDelete"
                   @click="onDeleteClick(data.item.fingerprint)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
           </b-link>
           <b-link href="#" class="text-danger"
-                  v-if="data.item.source != 'sandbox' && data.item.fingerprint == fingerprintToDelete"
+                  v-if="data.item.source !== 'sandbox' && data.item.fingerprint === fingerprintToDelete"
                   @click="onDeleteConfirmClick(data.item.fingerprint)"><i class="fa fa-trash" aria-hidden="true"></i>
             确认删除
           </b-link>
-          <span class="text-muted" v-if="data.item.source == 'sandbox'">(沙箱 SSH 公钥)</span>
+          <span class="text-muted" v-if="data.item.source === 'sandbox'">(沙箱公钥)</span>
         </template>
       </b-table>
     </b-col>

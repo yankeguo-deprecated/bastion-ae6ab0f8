@@ -4,7 +4,8 @@ daemon:
 web:
   ssh_domain: localhost
 sshd:
-  client_key:
+  port: 2222
+  client_keys:
     - testdata/client_rsa
   host_key: testdata/host_rsa
   sandbox_dir: testdata/sandboxes

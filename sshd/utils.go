@@ -40,3 +40,15 @@ func isClosedError(err error) bool {
 	}
 	return err == os.ErrClosed
 }
+
+type DirectTCPIPExtraData struct {
+	Host           string
+	Port           uint32
+	OriginatorIP   string
+	OriginatorPort uint32
+}
+
+func decodeDirectTCPIPExtraData(p []byte) (pl DirectTCPIPExtraData, err error) {
+	err = ssh.Unmarshal(p, &pl)
+	return
+}

@@ -1,25 +1,29 @@
 <template>
   <b-row class="mt-3">
-    <b-col md="4" lg="3">
-      <b-card title="1. 连接沙箱环境" title-tag="h5">
-        <p>使用如下命令连接沙箱环境（不需要指定用户名）</p>
-        <p><code>ssh {{ssh_domain}}</code></p>
-      </b-card>
-    </b-col>
-    <b-col md="8" lg="9">
-      <b-card title="2. 从沙箱环境连接服务器" title-tag="h5">
-        <p>当前有权限连接的服务器:</p>
-        <b-table v-if="grantItems.length > 0" :items="grantItems" :fields="fields">
-          <template slot="command" slot-scope="data">
-            <code>ssh {{data.item.hostname}}-{{data.item.user}}</code>
-          </template>
-        </b-table>
-        <div v-if="grantItems.length === 0" class="text-center">
-          <hr/>
-          <span class="text-muted">无</span>
-          <hr/>
-        </div>
-      </b-card>
+    <b-col>
+      <b-row>
+        <b-col md="4" lg="3">
+          <b-card title="1. 连接沙箱环境" title-tag="h5">
+            <p>使用如下命令连接沙箱环境（不需要指定用户名）</p>
+            <p><code>ssh {{ssh_domain}}</code></p>
+          </b-card>
+        </b-col>
+        <b-col md="8" lg="9">
+          <b-card title="2. 从沙箱环境连接服务器" title-tag="h5">
+            <p>当前有权限连接的服务器:</p>
+            <b-table v-if="grantItems.length > 0" :items="grantItems" :fields="fields">
+              <template slot="command" slot-scope="data">
+                <code>ssh {{data.item.hostname}}-{{data.item.user}}</code>
+              </template>
+            </b-table>
+            <div v-if="grantItems.length === 0" class="text-center">
+              <hr/>
+              <span class="text-muted">无</span>
+              <hr/>
+            </div>
+          </b-card>
+        </b-col>
+      </b-row>
     </b-col>
   </b-row>
 </template>

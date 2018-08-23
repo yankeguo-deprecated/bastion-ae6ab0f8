@@ -30,15 +30,15 @@ func (d *Daemon) CreateKey(c context.Context, req *types.CreateKeyRequest) (res 
 	}
 	k := models.Key{}
 	if err = d.db.Tx(true, func(db *Node) (err error) {
-		// check duplicated
-		if err = db.CheckDuplicated("Key", "fingerprint", req.Fingerprint); err != nil {
-			return
-		}
 		// delete existed sandbox keys
 		if req.Source == types.KeySourceSandbox {
 			if err = db.Select(q.Eq("Source", types.KeySourceSandbox), q.Eq("Account", req.Account)).Delete(new(models.Key)); err != nil {
 				return
 			}
+		}
+		// check duplicated
+		if err = db.CheckDuplicated("Key", "fingerprint", req.Fingerprint); err != nil {
+			return
 		}
 		// copy and save new key
 		copier.Copy(&k, req)

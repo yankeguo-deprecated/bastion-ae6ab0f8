@@ -60,14 +60,7 @@
                   <template slot="expired_at" slot-scope="data">
                     {{data.item.expired_at | formatUnixEpochExpired}}
                   </template>
-
                   <template slot="action" slot-scope="data">
-                    <!--
-                    <b-link href="#" class="text-primary" @click="onEditClick(data.item)"><i class="fa fa-edit"
-                                                                                             aria-hidden="true"></i> 编辑
-                    </b-link>
-                    <span class="text-muted">&nbsp;|&nbsp;</span>
-                    -->
                     <b-link href="#" class="text-danger"
                             v-if="data.item.user != grantToDelete.user || data.item.hostname_pattern != grantToDelete.hostname_pattern"
                             @click="onDeleteClick(data.item)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
@@ -245,13 +238,6 @@ export default {
         this.fetchUserGrants()
       })
     }
-    /*
-    ,
-    onEditClick (grant) {
-      this.form.user = grant.user
-      this.form.hostname_pattern = grant.hostname_pattern
-    }
-    */
   }
 }
 </script>

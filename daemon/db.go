@@ -191,6 +191,9 @@ func (q *Query) Count(data interface{}) (i int, err error) {
 
 func (q *Query) Delete(data interface{}) (err error) {
 	err = q.query.Delete(data)
+	if err == storm.ErrNotFound {
+		err = nil
+	}
 	transformStormError(&err)
 	return
 }

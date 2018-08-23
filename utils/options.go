@@ -4,6 +4,8 @@ import (
 	"github.com/yankeguo/bastion/types"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"path"
+	"os"
 )
 
 func defaultStr(s *string, d string) {
@@ -21,6 +23,16 @@ func defaultSts(s *[]string, d string) {
 func defaultInt(i *int, d int) {
 	if *i == 0 {
 		*i = d
+	}
+}
+
+func resolveDir(s *string) {
+	wd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	if !path.IsAbs(*s) {
+		*s = path.Join(wd, *s)
 	}
 }
 
@@ -48,6 +60,7 @@ func LoadOptions(f string) (opt types.Options, err error) {
 	defaultStr(&opt.SSHD.HostKey, "/etc/bastion/host_rsa")
 	defaultStr(&opt.SSHD.SandboxImage, "bastion-sandbox")
 	defaultStr(&opt.SSHD.SandboxDir, "/var/lib/bastion/sandboxes")
+	resolveDir(&opt.SSHD.SandboxDir)
 	defaultStr(&opt.SSHD.SandboxEndpoint, "172.17.0.1")
 	return
 }

@@ -67,10 +67,10 @@ func (o WebOptions) String() string {
 // SSHDOptions sshd options
 type SSHDOptions struct {
 	// Host host to bind for bastion sshd, default to "0.0.0.0"
-	Host string `yaml:"sshd_host"`
+	Host string `yaml:"host"`
 
 	// Port port to bind for bastion sshd, default to 22
-	Port int `yaml:"sshd_port"`
+	Port int `yaml:"port"`
 
 	// DaemonEndpoint address of bastion daemon rpc service, default to "127.0.0.1:9777"
 	DaemonEndpoint string `yaml:"daemon_endpoint"`
@@ -78,7 +78,7 @@ type SSHDOptions struct {
 	// ClientKeys client key file path for bastion ssh proxy
 	// should presents on all target hosts' /root/.ssh/authorized_keys
 	// default to "/etc/bastion/client_rsa"
-	ClientKeys []string `yaml:"client_key"`
+	ClientKeys []string `yaml:"client_keys"`
 
 	// HostKey host key file path for bastion sshd
 	// default to "/etc/bastion/host_rsa"

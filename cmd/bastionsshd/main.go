@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 		return
 	} else {
-		log.Println(options.Daemon)
+		log.Println(options.SSHD)
 	}
 
 	// create daemon
