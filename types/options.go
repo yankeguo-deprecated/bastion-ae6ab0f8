@@ -2,10 +2,10 @@ package types
 
 import (
 	"encoding/json"
+	"gopkg.in/yaml.v2"
+	"io/ioutil"
 	"os"
 	"path"
-	"io/ioutil"
-	"gopkg.in/yaml.v2"
 )
 
 // Options options for bastion

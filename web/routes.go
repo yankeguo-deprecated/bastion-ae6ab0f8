@@ -22,10 +22,10 @@ func mountRoutes(n *nova.Nova) {
 		routeGetCurrentUser,
 	)
 	/*
-	router.Route(n).Post("/api/users/current/update_nickname").Use(
-		requiresLoggedIn(false),
-		routeUpdateCurrentUserNickname,
-	)
+		router.Route(n).Post("/api/users/current/update_nickname").Use(
+			requiresLoggedIn(false),
+			routeUpdateCurrentUserNickname,
+		)
 	*/
 	router.Route(n).Post("/api/users/current/update_password").Use(
 		requiresLoggedIn(false),

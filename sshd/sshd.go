@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
+	"github.com/yankeguo/bastion/sshd/recorder"
 	"github.com/yankeguo/bastion/sshd/sandbox"
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
@@ -185,9 +186,6 @@ func (s *SSHD) Run() (err error) {
 	for {
 		var c net.Conn
 		if c, err = s.listener.Accept(); err != nil {
-			if isClosedError(err) {
-				err = nil
-			}
 			return
 		}
 		go s.handleConnection(c)
@@ -491,8 +489,8 @@ func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request,
 	// wrap options if isRecorded
 	if isRecorded {
 		rs := types.NewReplayServiceClient(s.rpcConn)
-		r := StartRecording(&opts, sRes.Session.Id, rs)
-		defer r.Stop()
+		r := recorder.StartRecording(&opts, sRes.Session.Id, rs)
+		defer r.Close()
 	}
 	// execute and returns exit status
 	es := ExitStatusRequestPayload{}

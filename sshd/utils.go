@@ -4,7 +4,6 @@ import (
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
-	"os"
 	"strings"
 )
 
@@ -39,13 +38,6 @@ func isSandboxConnection(conn ssh.ConnMetadata, endpoint string) bool {
 		return addr.IP.Equal(hostIP)
 	}
 	return false
-}
-
-func isClosedError(err error) bool {
-	if opErr, ok := err.(*net.OpError); ok {
-		return opErr.Err == os.ErrClosed
-	}
-	return err == os.ErrClosed
 }
 
 func shouldCommandBeRecorded(cmd []string) bool {

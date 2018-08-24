@@ -5,6 +5,16 @@ import (
 	"sync"
 )
 
+var (
+	DummyCloser io.Closer = dummyCloser(0)
+)
+
+type dummyCloser int
+
+func (d dummyCloser) Close() error {
+	return nil
+}
+
 func DualCopy(c1 io.ReadWriteCloser, c2 io.ReadWriteCloser) (err error) {
 	wr := &sync.WaitGroup{}
 	wr.Add(2)

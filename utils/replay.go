@@ -6,6 +6,13 @@ import (
 	"io"
 )
 
+func MarshalReplayFrameWindowSizePayload(width, height uint32) []byte {
+	buf := make([]byte, 8, 8)
+	binary.BigEndian.PutUint32(buf, width)
+	binary.BigEndian.PutUint32(buf[4:], height)
+	return buf
+}
+
 func WriteReplayFrame(f *types.ReplayFrame, w io.Writer) (err error) {
 	// TIMESTAMP (4 bytes) + TYPE (1 byte) + PAYLOAD_LEN (4 bytes) + PAYLOAD
 	l := 4 + 1 + 4 + len(f.Payload)
