@@ -1,12 +1,24 @@
 package sshd
 
 import (
+	"fmt"
 	"github.com/kballard/go-shellquote"
+	"github.com/rs/zerolog/log"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
 	"strings"
+	"sync"
 )
+
+func discardRequests(in <-chan *ssh.Request) {
+	for req := range in {
+		log.Debug().Str("requestType", req.Type).Msg("request discarded")
+		if req.WantReply {
+			req.Reply(false, nil)
+		}
+	}
+}
 
 func fixSSHAddress(address string) string {
 	if len(strings.Split(address, ":")) < 2 {
@@ -58,38 +70,51 @@ func commandSwitchUser(user string, input string) string {
 	return shellquote.Join("sudo", "-S", "-n", "-u", user, "-i")
 }
 
-type DirectTCPIPExtraData struct {
-	Host           string
-	Port           uint32
-	OriginatorIP   string
-	OriginatorPort uint32
+type TunnelPool struct {
+	clientSigners []ssh.Signer
+	clients       map[string]*ssh.Client
+	clientsMutex  *sync.Mutex
 }
 
-type PtyRequestPayload struct {
-	Term   string
-	Cols   uint32
-	Rows   uint32
-	Width  uint32
-	Height uint32
-	Modes  string
+func NewTunnelPool(clientSigners []ssh.Signer) *TunnelPool {
+	return &TunnelPool{
+		clientSigners: clientSigners,
+		clients:       map[string]*ssh.Client{},
+		clientsMutex:  &sync.Mutex{},
+	}
 }
 
-type EnvRequestPayload struct {
-	Name  string
-	Value string
+func (t *TunnelPool) GetClient(address string) (c *ssh.Client, err error) {
+	t.clientsMutex.Lock()
+	defer t.clientsMutex.Unlock()
+	address = fixSSHAddress(address)
+	c = t.clients[address]
+	if c == nil {
+		if c, err = ssh.Dial("tcp", address, &ssh.ClientConfig{
+			User:            "root",
+			Auth:            []ssh.AuthMethod{ssh.PublicKeys(t.clientSigners...)},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}); err != nil {
+			return
+		}
+		t.clients[address] = c
+	}
+	return
 }
 
-type ExecRequestPayload struct {
-	Command string
+func (t *TunnelPool) Dial(address string, port int) (c net.Conn, err error) {
+	var cl *ssh.Client
+	if cl, err = t.GetClient(address); err != nil {
+		return
+	}
+	return cl.Dial("tcp", fmt.Sprintf("%s:%d", "127.0.0.1", port))
 }
 
-type WindowChangeRequestPayload struct {
-	Cols   uint32
-	Rows   uint32
-	Width  uint32
-	Height uint32
-}
-
-type ExitStatusRequestPayload struct {
-	Code uint32
+func (t *TunnelPool) Close() {
+	t.clientsMutex.Lock()
+	defer t.clientsMutex.Unlock()
+	for _, c := range t.clients {
+		c.Close()
+	}
+	t.clients = map[string]*ssh.Client{}
 }

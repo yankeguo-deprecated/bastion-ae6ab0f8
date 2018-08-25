@@ -11,7 +11,6 @@ package sandbox
 
 import (
 	"bytes"
-	"log"
 	"text/template"
 )
 
@@ -69,7 +68,7 @@ type SSHEntry struct {
 func createScript(name string, tmpl string, data map[string]interface{}) string {
 	t, err := template.New(name).Parse(tmpl)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 	buf := &bytes.Buffer{}
 	t.Execute(buf, data)

@@ -2,11 +2,11 @@ package recorder
 
 import (
 	"context"
+	"github.com/rs/zerolog/log"
 	"github.com/yankeguo/bastion/sshd/sandbox"
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
 	"io"
-	"log"
 	"time"
 )
 
@@ -27,7 +27,7 @@ func StartRecording(opts *sandbox.ExecAttachOptions, sessionID int64, rs types.R
 	// build replay write client
 	var rc types.ReplayService_WriteReplayClient
 	if rc, err = rs.WriteReplay(context.Background()); err != nil {
-		log.Println("failed to create replay write stream, dummy closer is returned")
+		log.Error().Err(err).Int64("sessionId", sessionID).Msg("failed to create replay write stream, dummy closer is returned")
 		return utils.DummyCloser
 	}
 
@@ -48,7 +48,7 @@ func StartRecording(opts *sandbox.ExecAttachOptions, sessionID int64, rs types.R
 					Type:      types.ReplayFrameTypeWindowSize,
 					Payload:   utils.MarshalReplayFrameWindowSizePayload(uint32(w.Width), uint32(w.Height)),
 				}); err != nil {
-					log.Println("failed to send window-size record frame:", err)
+					log.Error().Err(err).Int64("sessionId", sessionID).Msg("failed to send window-size record frame")
 				}
 				// proxy channel
 				nWch <- w

@@ -9,100 +9,35 @@ import (
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
 	"golang.org/x/crypto/ssh"
-	"log"
 	"net"
 	"sync"
 )
 
-func bridgeLv1DirectTCPIPChannel(sc ssh.Channel, tp *TunnelPool, address string, port int) (err error) {
-	log.Println("lv1 direct-tcpip channel opened")
-	defer log.Println("lv1 direct-tcpip channel finished, error =", err)
+func handleLv1DirectTCPIPChannel(conn *ssh.ServerConn, sc ssh.Channel, tp *TunnelPool, address string, port int) (err error) {
+	ILog(conn).Str("channel", "direct-tcpip").Msg("channel opened")
+	defer ILog(conn).Str("channel", "direct-tcpip").Err(err).Msg("channel finished")
+	// remember to close channel
 	defer sc.Close()
 	// dial remote address
 	var c net.Conn
 	if c, err = tp.Dial(address, port); err != nil {
-		log.Println("failed to dial ssh tunnel connection:", err)
+		ELog(conn).Str("channel", "direct-tcpip").Err(err).Msg("failed to dial ssh tunnel connection")
 		return
 	}
 	defer c.Close()
 	// bi-copy streams
 	if err = utils.DualCopy(c, sc); err != nil {
-		log.Println("failed to pipe:", err)
+		ELog(conn).Str("channel", "direct-tcpip").Err(err).Msg("failed to pipe bridge connection")
 		return
 	}
 	return
 }
 
-func bridgeLv2SessionChannel(sc ssh.Channel, srchan <-chan *ssh.Request, tc ssh.Channel, trchan <-chan *ssh.Request, user string) (err error) {
-	log.Println("lv2 session channel opened")
-	defer log.Println("lv2 session channel finished, error =", err)
+func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan *ssh.Request, sb sandbox.Sandbox, account string, ss types.SessionServiceClient, rs types.ReplayServiceClient) (err error) {
+	ILog(conn).Str("channel", "session").Msg("channel opened")
+	defer ILog(conn).Str("channel", "session").Err(err).Msg("channel finished")
+	// remember to close channel
 	defer sc.Close()
-	defer tc.Close()
-	// stream stdin, stdout, stderr, srchan <-> trchan
-	wr := &sync.WaitGroup{}
-	wr.Add(5)
-	// srchan -> trchan
-	go func() {
-		for req := range srchan {
-			// modify request with sudo
-			switch req.Type {
-			case "exec":
-				var pl ExecRequestPayload
-				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					log.Println("failed to decode exec request payload", err)
-					continue
-				}
-				// switch user
-				pl.Command = commandSwitchUser(user, pl.Command)
-				// change payload
-				req.Payload = ssh.Marshal(&pl)
-			case "shell":
-				pl := ExecRequestPayload{
-					Command: commandSwitchUser(user, ""),
-				}
-				// change request type to "exec" and update payload
-				req.Type = "exec"
-				req.Payload = ssh.Marshal(&pl)
-			}
-			// ban "x11-req", "subsystem" requests
-			switch req.Type {
-			case "x11-req", "subsystem":
-				{
-					if req.WantReply {
-						req.Reply(false, nil)
-					}
-				}
-			default:
-				ok, _ := tc.SendRequest(req.Type, req.WantReply, req.Payload)
-				if req.WantReply {
-					req.Reply(ok, nil)
-				}
-			}
-		}
-		wr.Done()
-	}()
-	// trchan -> srchan
-	go func() {
-		// transparent bridge requests
-		for req := range trchan {
-			ok, _ := sc.SendRequest(req.Type, req.WantReply, req.Payload)
-			if req.WantReply {
-				req.Reply(ok, nil)
-			}
-		}
-		wr.Done()
-	}()
-	go utils.CopyWG(sc, tc, wr, &err)
-	go utils.CopyWG(tc, sc, wr, &err)
-	go utils.CopyWG(sc.Stderr(), tc.Stderr(), wr, &err)
-	wr.Wait()
-	return
-}
-
-func bridgeLv1SessionChannel(chn ssh.Channel, crchan <-chan *ssh.Request, sb sandbox.Sandbox, account string, ss types.SessionServiceClient, rs types.ReplayServiceClient) (err error) {
-	log.Println("lv1 session channel opened")
-	defer log.Println("lv1 session channel finished, error =", err)
-	defer chn.Close()
 	// variables
 	cmd, cmdReady, cmdMissing, cmdCond := "", false, false, sync.NewCond(&sync.Mutex{})
 	env := make([]string, 0)
@@ -111,12 +46,13 @@ func bridgeLv1SessionChannel(chn ssh.Channel, crchan <-chan *ssh.Request, sb san
 	defer close(wch)
 	// range all requests
 	go func() {
-		for req := range crchan {
+		for req := range srchan {
+			DLog(conn).Str("channel", "session").Str("request", req.Type).Msg("request received from user")
 			switch req.Type {
-			case "pty-req":
+			case RequestTypePtyReq:
 				var pl PtyRequestPayload
 				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					log.Println("failed to decode pty-req payload:", err)
+					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
 					continue
 				}
 				pty, ptyCols, ptyRows, term = true, pl.Cols, pl.Rows, pl.Term
@@ -127,20 +63,20 @@ func bridgeLv1SessionChannel(chn ssh.Channel, crchan <-chan *ssh.Request, sb san
 				if req.WantReply {
 					req.Reply(true, nil)
 				}
-			case "env":
+			case RequestTypeEnv:
 				var pl EnvRequestPayload
 				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					log.Println("failed to decode env request payload:", err)
+					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
 					continue
 				}
 				env = append(env, fmt.Sprintf("%s=%s", pl.Name, pl.Value))
 				if req.WantReply {
 					req.Reply(true, nil)
 				}
-			case "window-change":
+			case RequestTypeWindowChange:
 				var pl WindowChangeRequestPayload
 				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					log.Println("failed to decode window-change request payload", err)
+					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
 					continue
 				}
 				wch <- sandbox.Window{
@@ -150,12 +86,12 @@ func bridgeLv1SessionChannel(chn ssh.Channel, crchan <-chan *ssh.Request, sb san
 				if req.WantReply {
 					req.Reply(true, nil)
 				}
-			case "shell", "exec":
-				// decode command
-				if req.Type == "exec" {
+			case RequestTypeExec, RequestTypeShell:
+				// decode exec command
+				if req.Type == RequestTypeExec {
 					var pl ExecRequestPayload
 					if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-						log.Println("failed to decode exec request payload", err)
+						ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
 						continue
 					}
 					cmd = pl.Command
@@ -187,13 +123,13 @@ func bridgeLv1SessionChannel(chn ssh.Channel, crchan <-chan *ssh.Request, sb san
 	cmdCond.L.Unlock()
 	// check if cmd is missing
 	if cmdMissing {
-		log.Println("command is missing")
+		ELog(conn).Msg("command is missing")
 		return
 	}
 	// split the command
 	var cmds []string
 	if cmds, err = shellquote.Split(cmd); err != nil {
-		log.Println("failed to split command")
+		ELog(conn).Err(err).Str("command", cmd).Msg("failed to split command")
 		return
 	}
 	// determine should be recorded
@@ -205,16 +141,16 @@ func bridgeLv1SessionChannel(chn ssh.Channel, crchan <-chan *ssh.Request, sb san
 		Command:    cmd,
 		IsRecorded: isRecorded,
 	}); err != nil {
-		log.Println("failed to create session", err)
+		ELog(conn).Err(err).Msg("failed to create session")
 		return
 	}
 	// build the exec options
 	opts := sandbox.ExecAttachOptions{
 		Env:     env,
 		Command: cmds,
-		Stdin:   chn,
-		Stdout:  chn,
-		Stderr:  chn.Stderr(),
+		Stdin:   sc,
+		Stdout:  sc,
+		Stderr:  sc.Stderr(),
 	}
 	if pty {
 		opts.IsPty = true
@@ -229,12 +165,81 @@ func bridgeLv1SessionChannel(chn ssh.Channel, crchan <-chan *ssh.Request, sb san
 	// execute and returns exit status
 	es := ExitStatusRequestPayload{}
 	if err = sb.ExecAttach(opts); err != nil {
-		log.Println("exec attach returns error:", err)
+		ELog(conn).Err(err).Msg("exec attach returns error")
 		es.Code = 1
 	}
 	// finish session
 	ss.FinishSession(context.Background(), &types.FinishSessionRequest{Id: sRes.Session.Id})
 	// send exit-status
-	chn.SendRequest("exit-status", false, ssh.Marshal(&es))
+	sc.SendRequest(RequestTypeExitStatus, false, ssh.Marshal(&es))
+	return
+}
+
+func handleLv2SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan *ssh.Request, tc ssh.Channel, trchan <-chan *ssh.Request, user string) (err error) {
+	ILog(conn).Str("channel", "session").Msg("channel opened")
+	defer ILog(conn).Str("channel", "session").Err(err).Msg("channel finished")
+	// remember to close channels
+	defer sc.Close()
+	defer tc.Close()
+	// stream stdin, stdout, stderr, srchan <-> trchan
+	wr := &sync.WaitGroup{}
+	wr.Add(5)
+	// srchan -> trchan
+	go func() {
+		for req := range srchan {
+			DLog(conn).Str("channel", "session").Str("request", req.Type).Msg("request received from remote server")
+			// modify request with sudo
+			switch req.Type {
+			case RequestTypeExec:
+				var pl ExecRequestPayload
+				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
+					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
+					continue
+				}
+				// switch user
+				pl.Command = commandSwitchUser(user, pl.Command)
+				// change payload
+				req.Payload = ssh.Marshal(&pl)
+			case RequestTypeShell:
+				pl := ExecRequestPayload{
+					Command: commandSwitchUser(user, ""),
+				}
+				// change request type to "exec" and update payload
+				req.Type = RequestTypeExec
+				req.Payload = ssh.Marshal(&pl)
+			}
+			// ban "x11-req", "subsystem" requests
+			switch req.Type {
+			case RequestTypeX11Req, RequestTypeSubsystem:
+				{
+					if req.WantReply {
+						req.Reply(false, nil)
+					}
+				}
+			default:
+				ok, _ := tc.SendRequest(req.Type, req.WantReply, req.Payload)
+				if req.WantReply {
+					req.Reply(ok, nil)
+				}
+			}
+		}
+		wr.Done()
+	}()
+	// trchan -> srchan
+	go func() {
+		// transparent bridge requests
+		for req := range trchan {
+			DLog(conn).Str("channel", "session").Str("request", req.Type).Msg("request received from user")
+			ok, _ := sc.SendRequest(req.Type, req.WantReply, req.Payload)
+			if req.WantReply {
+				req.Reply(ok, nil)
+			}
+		}
+		wr.Done()
+	}()
+	go utils.CopyWG(sc, tc, wr, &err)
+	go utils.CopyWG(tc, sc, wr, &err)
+	go utils.CopyWG(sc.Stderr(), tc.Stderr(), wr, &err)
+	wr.Wait()
 	return
 }

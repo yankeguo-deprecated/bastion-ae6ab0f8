@@ -4,25 +4,12 @@ import (
 	"context"
 	"fmt"
 	"github.com/pkg/errors"
+	"github.com/rs/zerolog/log"
 	"github.com/yankeguo/bastion/sshd/sandbox"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
-	"log"
 	"net"
-)
-
-const (
-	keyMode    = "bastion-mode"
-	keyAccount = "bastion-account"
-	keyUser    = "bastion-user"
-	keyAddress = "bastion-address"
-
-	modeLv1 = "lv1"
-	modeLv2 = "lv2"
-
-	channelTypeDirectTCPIP = "direct-tcpip"
-	channelTypeSession     = "session"
 )
 
 type SSHD struct {
@@ -87,36 +74,57 @@ func (s *SSHD) initClientSigners() (err error) {
 func (s *SSHD) initSSHServerConfig() (err error) {
 	s.sshServerConfig = &ssh.ServerConfig{
 		PublicKeyCallback: func(conn ssh.ConnMetadata, key ssh.PublicKey) (ms *ssh.Permissions, err error) {
+			ILog(conn).Msg("connection accepted")
 			// decode target user and target node
 			tu, th := decodeTargetServer(conn.User())
 			// find the key
 			var kRes *types.GetKeyResponse
-			if kRes, err = s.keyService.GetKey(context.Background(), &types.GetKeyRequest{Fingerprint: ssh.FingerprintSHA256(key)}); err != nil {
+			fp := ssh.FingerprintSHA256(key)
+			if kRes, err = s.keyService.GetKey(context.Background(), &types.GetKeyRequest{Fingerprint: fp}); err != nil {
+				ELog(conn).Str("fingerprint", fp).Err(err).Msg("failed to lookup key")
+				err = errors.New("internal error: failed to lookup key")
 				return
 			}
 			// touch the key
-			s.keyService.TouchKey(context.Background(), &types.TouchKeyRequest{Fingerprint: kRes.Key.Fingerprint})
+			if _, ierr := s.keyService.TouchKey(context.Background(), &types.TouchKeyRequest{Fingerprint: kRes.Key.Fingerprint}); ierr != nil {
+				ELog(conn).Str("fingerprint", fp).Str("account", kRes.Key.Account).Err(ierr).Msg("failed to touch key")
+			}
 			// find the user
 			var uRes *types.GetUserResponse
 			if uRes, err = s.userService.GetUser(context.Background(), &types.GetUserRequest{Account: kRes.Key.Account}); err != nil {
+				ELog(conn).Str("fingerprint", fp).Str("account", kRes.Key.Account).Err(err).Msg("failed to lookup user")
+				err = errors.New("internal error: failed to lookup user")
 				return
 			}
 			// check blocked user
 			if uRes.User.IsBlocked {
-				err = errors.New("user is blocked")
+				ILog(conn).Str("account", uRes.User.Account).Msg("trying to login a blocked user")
+				err = errors.New("error: user is blocked")
 				return
 			}
 			// touch the user
-			s.userService.TouchUser(context.Background(), &types.TouchUserRequest{Account: uRes.User.Account})
+			if _, ierr := s.userService.TouchUser(context.Background(), &types.TouchUserRequest{Account: uRes.User.Account}); ierr != nil {
+				ELog(conn).Str("account", uRes.User.Account).Err(ierr).Msg("failed to touch user")
+			}
 			// check internal connection
 			if isSandboxConnection(conn, s.opts.SandboxEndpoint) {
-				// check target user and target hostname and confirm it's a sandbox key
-				if len(tu) == 0 || len(th) == 0 || kRes.Key.Source != types.KeySourceSandbox {
-					err = errors.New("invalid target or invalid ssh key")
+				// check key source
+				if kRes.Key.Source != types.KeySourceSandbox {
+					ILog(conn).Str("fingerprint", fp).Str("account", uRes.User.Account).Msg("trying to enter lv2 stage with a non-sandbox key")
+					err = errors.New("error: invalid key source")
 					return
 				}
+				// check format
+				if len(tu) == 0 || len(th) == 0 {
+					ILog(conn).Str("account", uRes.User.Account).Str("sshUser", conn.User()).Msg("invalid lv2 stage ssh user format")
+					err = errors.New("error: invalid format")
+					return
+				}
+				// check node
 				var nRes *types.GetNodeResponse
 				if nRes, err = s.nodeService.GetNode(context.Background(), &types.GetNodeRequest{Hostname: th}); err != nil {
+					ELog(conn).Str("account", uRes.User.Account).Err(err).Msg("failed to lookup node")
+					err = errors.New("internal error: failed to lookup node")
 					return
 				}
 				// check grant
@@ -126,31 +134,36 @@ func (s *SSHD) initSSHServerConfig() (err error) {
 					Account:  uRes.User.Account,
 					Hostname: nRes.Node.Hostname,
 				}); err != nil {
+					ELog(conn).Str("account", uRes.User.Account).Str("hostname", nRes.Node.Hostname).Str("user", tu).Err(err).Msg("failed to check grant")
+					err = errors.New("internal error: failed to check permission")
 					return
 				}
 				if !cRes.Ok {
-					err = errors.New("no permission")
+					ILog(conn).Str("account", uRes.User.Account).Str("hostname", nRes.Node.Hostname).Str("user", tu).Msg("trying to access a not granted server")
+					err = errors.New("error: no permission")
 					return
 				}
 				ms = &ssh.Permissions{
 					Extensions: map[string]string{
-						keyAccount: uRes.User.Account,
-						keyUser:    tu,
-						keyAddress: nRes.Node.Address,
-						keyMode:    modeLv2,
+						extKeyAccount:  uRes.User.Account,
+						extKeyUser:     tu,
+						extKeyAddress:  nRes.Node.Address,
+						extKeyHostname: nRes.Node.Hostname,
+						extKeyStage:    stageLv2,
 					},
 				}
 			} else {
 				// connection from external
 				// check recursive sandbox connection
 				if kRes.Key.Source == types.KeySourceSandbox {
-					err = errors.New("recursive sandbox connection")
+					ILog(conn).Str("fingerprint", fp).Str("account", uRes.User.Account).Msg("trying to enter lv1 stage with a sandbox key")
+					err = errors.New("error: invalid key source")
 					return
 				}
 				ms = &ssh.Permissions{
 					Extensions: map[string]string{
-						keyAccount: uRes.User.Account,
-						keyMode:    modeLv1,
+						extKeyAccount: uRes.User.Account,
+						extKeyStage:   stageLv1,
 					},
 				}
 			}
@@ -204,22 +217,22 @@ func (s *SSHD) Run() (err error) {
 func (s *SSHD) handleConnection(c net.Conn) {
 	var err error
 	// variables
-	var sconn *ssh.ServerConn
+	var conn *ssh.ServerConn
 	var nchan <-chan ssh.NewChannel
 	var rchan <-chan *ssh.Request
 	// upgrade connection to ssh connection
-	if sconn, nchan, rchan, err = ssh.NewServerConn(c, s.sshServerConfig); err != nil {
-		log.Println("failed to handshake:", err)
+	if conn, nchan, rchan, err = ssh.NewServerConn(c, s.sshServerConfig); err != nil {
+		log.Error().Err(err).Msg("failed to handshake")
 		return
 	}
-	if sconn.Permissions.Extensions[keyMode] == modeLv1 {
-		err = s.handleLv1Connection(sconn, nchan, rchan)
+	// handle the connection
+	ILog(conn).Msg("connection established")
+	if conn.Permissions.Extensions[extKeyStage] == stageLv1 {
+		err = s.handleLv1Connection(conn, nchan, rchan)
 	} else {
-		err = s.handleLv2Connection(sconn, nchan, rchan)
+		err = s.handleLv2Connection(conn, nchan, rchan)
 	}
-	if err != nil {
-		log.Println("failed to handle connection:", err)
-	}
+	ILog(conn).Msg("connection finished")
 	return
 }
 
@@ -264,31 +277,31 @@ func (s *SSHD) updateSandboxSSHConfig(sb sandbox.Sandbox, account string) (err e
 	return
 }
 
-func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
-	defer sconn.Close()
-	account := sconn.Permissions.Extensions[keyAccount]
-	log.Println("connection established:", account, "lv1")
+func (s *SSHD) handleLv1Connection(conn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
+	// remember to close the connection
+	defer conn.Close()
+	account := conn.Permissions.Extensions[extKeyAccount]
 	// discard global requests
-	go ssh.DiscardRequests(grchan)
+	go discardRequests(grchan)
 	// pre-create a connection-local tunnel pool for failure isolation
 	tp := NewTunnelPool(s.clientSigners)
 	defer tp.Close()
 	// handle new channels
 	for nc := range ncchan {
-		if nc.ChannelType() == channelTypeDirectTCPIP {
+		if nc.ChannelType() == ChannelTypeDirectTCPIP {
 			// if channel type is 'direct-tcpip'
 			// extract host and port from extra data
-			var ed DirectTCPIPExtraData
-			if err = ssh.Unmarshal(nc.ExtraData(), &ed); err != nil {
-				nc.Reject(ssh.UnknownChannelType, "invalid extra data for 'direct-tcpip' new channel request")
-				log.Println("invalid extra data for 'direct-tcpip' new channel request:", err, "extra_data =", nc.ExtraData())
+			var pl DirectTCPIPExtraData
+			if err = ssh.Unmarshal(nc.ExtraData(), &pl); err != nil {
+				nc.Reject(ssh.UnknownChannelType, "internal error: invalid extra data for 'direct-tcpip' new channel request")
+				ELog(conn).Str("channel", nc.ChannelType()).Hex("extraData", nc.ExtraData()).Err(err).Msg("invalid extra data for 'direct-tcpip'")
 				continue
 			}
 			// find the node
 			var nRes *types.GetNodeResponse
-			if nRes, err = s.nodeService.GetNode(context.Background(), &types.GetNodeRequest{Hostname: ed.Host}); err != nil {
-				nc.Reject(ssh.ConnectionFailed, "failed to find the target node")
-				log.Println("failed to find the target node:", err)
+			if nRes, err = s.nodeService.GetNode(context.Background(), &types.GetNodeRequest{Hostname: pl.Host}); err != nil {
+				nc.Reject(ssh.ConnectionFailed, "internal error: failed to lookup node")
+				ELog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Err(err).Msg("failed to lookup node")
 				continue
 			}
 			// check __tunnel__ user permission with given node
@@ -296,69 +309,68 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 			if cRes, err = s.grantService.CheckGrant(context.Background(), &types.CheckGrantRequest{
 				Account:  account,
 				User:     types.GrantUserTunnel,
-				Hostname: ed.Host,
+				Hostname: pl.Host,
 			}); err != nil {
-				nc.Reject(ssh.ConnectionFailed, "failed to validate permission")
-				log.Println("failed to validate permission:", err)
+				nc.Reject(ssh.ConnectionFailed, "internal error: failed to check permission")
+				ELog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Err(err).Msg("failed to lookup grant")
 				continue
 			}
 			if !cRes.Ok {
-				nc.Reject(ssh.ConnectionFailed, "no permission")
-				log.Println("no permission, account =", account, ", node =", ed.Host)
+				nc.Reject(ssh.ConnectionFailed, "error: no permission")
+				ILog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Msg("trying to create tunnel on a not granted node")
 				continue
 			}
 			// accept the new channel
-			var c ssh.Channel
-			var crchan <-chan *ssh.Request
-			if c, crchan, err = nc.Accept(); err != nil {
-				log.Println("failed to accept new 'direct-tcpip' channel:", err)
+			var sc ssh.Channel
+			var srchan <-chan *ssh.Request
+			if sc, srchan, err = nc.Accept(); err != nil {
+				ELog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Err(err).Msg("failed to accept new channel")
 				continue
 			}
 			// discard all channel-local requests
-			go ssh.DiscardRequests(crchan)
+			go discardRequests(srchan)
 			// dial and stream 'direct-tcpip'
-			go bridgeLv1DirectTCPIPChannel(c, tp, nRes.Node.Address, int(ed.Port))
-		} else if nc.ChannelType() == channelTypeSession {
+			go handleLv1DirectTCPIPChannel(conn, sc, tp, nRes.Node.Address, int(pl.Port))
+		} else if nc.ChannelType() == ChannelTypeSession {
 			// find or create the sandbox
 			var sb sandbox.Sandbox
 			if sb, err = s.sandboxManager.FindOrCreate(account); err != nil {
-				nc.Reject(ssh.ConnectionFailed, "failed to find or create the sandbox")
+				nc.Reject(ssh.ConnectionFailed, "internal error: failed to find or create the sandbox")
+				ELog(conn).Str("channel", nc.ChannelType()).Err(err).Msg("failed to find or create the sandbox")
 				continue
 			}
-
 			// load public key from sandbox /root/.ssh/id_rsa.pub
 			if err = s.updateSandboxPublicKey(sb, account); err != nil {
-				log.Println("failed to extract sandbox public key:", err)
+				ELog(conn).Str("channel", nc.ChannelType()).Err(err).Msg("failed to extract sandbox public key")
 			}
 			// write sandbox /root/.ssh/config
 			if err = s.updateSandboxSSHConfig(sb, account); err != nil {
-				log.Println("failed to write ssh config to sandbox:", err)
+				ELog(conn).Str("channel", nc.ChannelType()).Err(err).Msg("failed to write ssh config to sandbox")
 			}
-
-			var c ssh.Channel
-			var crchan <-chan *ssh.Request
-			if c, crchan, err = nc.Accept(); err != nil {
-				log.Println("failed to accept new 'session' channel:", err)
+			// accept the new channel
+			var sc ssh.Channel
+			var srchan <-chan *ssh.Request
+			if sc, srchan, err = nc.Accept(); err != nil {
+				ELog(conn).Str("channel", nc.ChannelType()).Err(err).Msg("failed to accept new channel")
 				continue
 			}
-			go bridgeLv1SessionChannel(c, crchan, sb, account, s.sessionService, s.replayService)
+			go handleLv1SessionChannel(conn, sc, srchan, sb, account, s.sessionService, s.replayService)
 		} else {
-			log.Println("unsupported channel type:", nc.ChannelType())
-			nc.Reject(ssh.UnknownChannelType, "only channel type 'session' and 'direct-tcpip' is allowed")
+			ELog(conn).Str("channel", nc.ChannelType()).Msg("unsupported channel type")
+			nc.Reject(ssh.UnknownChannelType, "error: only channel type 'session' and 'direct-tcpip' is allowed")
 			continue
 		}
 	}
-	log.Println("connection finished:", account)
 	return
 }
 
-func (s *SSHD) handleLv2Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
-	defer sconn.Close()
+func (s *SSHD) handleLv2Connection(conn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
+	defer conn.Close()
 	// extract connection parameters
-	user := sconn.Permissions.Extensions[keyUser]
-	address := sconn.Permissions.Extensions[keyAddress]
-	// no global requests is allowed in lv2 connection
-	go ssh.DiscardRequests(grchan)
+	user := conn.Permissions.Extensions[extKeyUser]
+	address := conn.Permissions.Extensions[extKeyAddress]
+	// no global requests is allowed in LV2 connection
+	go discardRequests(grchan)
 	// create ssh.Client
 	var client *ssh.Client
 	if client, err = ssh.Dial("tcp", fixSSHAddress(address), &ssh.ClientConfig{
@@ -366,36 +378,36 @@ func (s *SSHD) handleLv2Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 		Auth:            []ssh.AuthMethod{ssh.PublicKeys(s.clientSigners...)},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}); err != nil {
-		log.Println("failed to create ssh client to:", address)
+		ELog(conn).Str("address", address).Msg("failed to create ssh client")
 		return
 	}
 	defer client.Close()
 	// iterate new channel requests
 	for nc := range ncchan {
 		// check channel type
-		if nc.ChannelType() != "session" {
-			nc.Reject(ssh.UnknownChannelType, "only 'session' is allowed in lv2 connection")
-			log.Println("unsupported channel type:", nc.ChannelType())
+		if nc.ChannelType() != ChannelTypeSession {
+			nc.Reject(ssh.UnknownChannelType, "error: unsupported channel type")
+			ILog(conn).Str("channel", nc.ChannelType()).Msg("unsupported channel type")
 			continue
 		}
 		// open session on remote server
 		var tc ssh.Channel
 		var trchan <-chan *ssh.Request
-		if tc, trchan, err = client.OpenChannel("session", nil); err != nil {
-			nc.Reject(ssh.ConnectionFailed, "failed to create new session on remote server")
-			log.Println("failed to create session on remote server:", err)
+		if tc, trchan, err = client.OpenChannel(ChannelTypeSession, nil); err != nil {
+			nc.Reject(ssh.ConnectionFailed, "error: failed to create new session channel on remote server")
+			ELog(conn).Str("channel", nc.ChannelType()).Err(err).Msg("failed to create new session channel on remote server")
 			continue
 		}
 		// accept channel
-		var c ssh.Channel
-		var rchan <-chan *ssh.Request
-		if c, rchan, err = nc.Accept(); err != nil {
+		var sc ssh.Channel
+		var srchan <-chan *ssh.Request
+		if sc, srchan, err = nc.Accept(); err != nil {
 			tc.Close()
-			log.Println("failed to accept session channel:", err)
+			ELog(conn).Str("channel", nc.ChannelType()).Err(err).Msg("failed to accept new channel")
 			continue
 		}
 		// bridge channels
-		go bridgeLv2SessionChannel(c, rchan, tc, trchan, user)
+		go handleLv2SessionChannel(conn, sc, srchan, tc, trchan, user)
 	}
 	return
 }

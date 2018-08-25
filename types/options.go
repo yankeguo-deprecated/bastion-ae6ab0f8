@@ -56,7 +56,7 @@ type WebOptions struct {
 	// Port port to listen for bastion web, default to 9778
 	Port int `yaml:"port"`
 
-	// Dev development mode, will not use BinFS
+	// Dev development mode, will not use BinFS, and output colorful logs
 	Dev bool `yaml:"dev"`
 
 	// DaemonEndpoint address of bastion daemon rpc service, default to "127.0.0.1:9777"
@@ -70,6 +70,9 @@ func (o WebOptions) String() string {
 
 // SSHDOptions sshd options
 type SSHDOptions struct {
+	// Dev development mode, will output colorful logs
+	Dev bool `yaml:"dev"`
+
 	// Host host to bind for bastion sshd, default to "0.0.0.0"
 	Host string `yaml:"host"`
 

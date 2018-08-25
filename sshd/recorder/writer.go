@@ -1,9 +1,9 @@
 package recorder
 
 import (
+	"github.com/rs/zerolog/log"
 	"github.com/yankeguo/bastion/types"
 	"io"
-	"log"
 	"time"
 )
 
@@ -74,18 +74,18 @@ type RecordedWriter struct {
 	sessionId int64
 	typ       uint32
 	start     time.Time
-	client    *FrameWriter
+	fr        *FrameWriter
 }
 
 func (w *RecordedWriter) Write(p []byte) (int, error) {
 	var err error
-	if err = w.client.WriteFrame(&types.ReplayFrame{
+	if err = w.fr.WriteFrame(&types.ReplayFrame{
 		SessionId: w.sessionId,
 		Timestamp: timestamp(w.start),
 		Type:      w.typ,
 		Payload:   p,
 	}); err != nil {
-		log.Println("failed to write frame:", err)
+		log.Error().Err(err).Msg("failed to write replay frame")
 	}
 	return w.w.Write(p)
 }
@@ -103,6 +103,6 @@ func NewRecordedWriter(w io.Writer, sessionId int64, typ uint32, start time.Time
 		sessionId: sessionId,
 		typ:       typ,
 		start:     start,
-		client:    client,
+		fr:        client,
 	}
 }

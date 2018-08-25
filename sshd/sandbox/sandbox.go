@@ -12,8 +12,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"io"
-	"log"
 	"os"
 	"strings"
 	"sync"
@@ -177,7 +177,7 @@ func (s *sandbox) ExecAttach(opts ExecAttachOptions) (err error) {
 	}
 	// send SIGTERM to zombie process
 	if is.Running == true && is.Pid > 0 {
-		log.Println("Exec:", id.ID, "not terminated properly, sending SIGTERM")
+		log.Info().Str("containerName", s.name).Msg("docker exec not terminated properly, sending SIGTERM")
 		var p *os.Process
 		if p, err = os.FindProcess(is.Pid); err != nil {
 			return
