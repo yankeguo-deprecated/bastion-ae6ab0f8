@@ -3,17 +3,13 @@ package sshd
 import (
 	"context"
 	"fmt"
-	"github.com/kballard/go-shellquote"
 	"github.com/pkg/errors"
-	"github.com/yankeguo/bastion/sshd/recorder"
 	"github.com/yankeguo/bastion/sshd/sandbox"
 	"github.com/yankeguo/bastion/types"
-	"github.com/yankeguo/bastion/utils"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
 	"log"
 	"net"
-	"sync"
 )
 
 const (
@@ -31,12 +27,20 @@ const (
 
 type SSHD struct {
 	opts            types.SSHDOptions
+	listener        net.Listener
 	clientSigners   []ssh.Signer
 	hostSigner      ssh.Signer
 	sshServerConfig *ssh.ServerConfig
-	rpcConn         *grpc.ClientConn
-	listener        net.Listener
-	sandboxManager  sandbox.Manager
+
+	rpcConn        *grpc.ClientConn
+	sessionService types.SessionServiceClient
+	replayService  types.ReplayServiceClient
+	userService    types.UserServiceClient
+	keyService     types.KeyServiceClient
+	nodeService    types.NodeServiceClient
+	grantService   types.GrantServiceClient
+
+	sandboxManager sandbox.Manager
 }
 
 func New(opts types.SSHDOptions) *SSHD {
@@ -51,7 +55,15 @@ func (s *SSHD) initSandboxManager() (err error) {
 }
 
 func (s *SSHD) initRPCConn() (err error) {
-	s.rpcConn, err = grpc.Dial(s.opts.DaemonEndpoint, grpc.WithInsecure())
+	if s.rpcConn, err = grpc.Dial(s.opts.DaemonEndpoint, grpc.WithInsecure()); err != nil {
+		return
+	}
+	s.sessionService = types.NewSessionServiceClient(s.rpcConn)
+	s.replayService = types.NewReplayServiceClient(s.rpcConn)
+	s.userService = types.NewUserServiceClient(s.rpcConn)
+	s.keyService = types.NewKeyServiceClient(s.rpcConn)
+	s.nodeService = types.NewNodeServiceClient(s.rpcConn)
+	s.grantService = types.NewGrantServiceClient(s.rpcConn)
 	return
 }
 
@@ -75,20 +87,18 @@ func (s *SSHD) initClientSigners() (err error) {
 func (s *SSHD) initSSHServerConfig() (err error) {
 	s.sshServerConfig = &ssh.ServerConfig{
 		PublicKeyCallback: func(conn ssh.ConnMetadata, key ssh.PublicKey) (ms *ssh.Permissions, err error) {
-			// create the services
-			us, ks := types.NewUserServiceClient(s.rpcConn), types.NewKeyServiceClient(s.rpcConn)
 			// decode target user and target node
 			tu, th := decodeTargetServer(conn.User())
 			// find the key
 			var kRes *types.GetKeyResponse
-			if kRes, err = ks.GetKey(context.Background(), &types.GetKeyRequest{Fingerprint: ssh.FingerprintSHA256(key)}); err != nil {
+			if kRes, err = s.keyService.GetKey(context.Background(), &types.GetKeyRequest{Fingerprint: ssh.FingerprintSHA256(key)}); err != nil {
 				return
 			}
 			// touch the key
-			ks.TouchKey(context.Background(), &types.TouchKeyRequest{Fingerprint: kRes.Key.Fingerprint})
+			s.keyService.TouchKey(context.Background(), &types.TouchKeyRequest{Fingerprint: kRes.Key.Fingerprint})
 			// find the user
 			var uRes *types.GetUserResponse
-			if uRes, err = us.GetUser(context.Background(), &types.GetUserRequest{Account: kRes.Key.Account}); err != nil {
+			if uRes, err = s.userService.GetUser(context.Background(), &types.GetUserRequest{Account: kRes.Key.Account}); err != nil {
 				return
 			}
 			// check blocked user
@@ -97,23 +107,21 @@ func (s *SSHD) initSSHServerConfig() (err error) {
 				return
 			}
 			// touch the user
-			us.TouchUser(context.Background(), &types.TouchUserRequest{Account: uRes.User.Account})
+			s.userService.TouchUser(context.Background(), &types.TouchUserRequest{Account: uRes.User.Account})
 			// check internal connection
 			if isSandboxConnection(conn, s.opts.SandboxEndpoint) {
-				// connection from sandbox
-				ns, rs := types.NewNodeServiceClient(s.rpcConn), types.NewGrantServiceClient(s.rpcConn)
 				// check target user and target hostname and confirm it's a sandbox key
 				if len(tu) == 0 || len(th) == 0 || kRes.Key.Source != types.KeySourceSandbox {
 					err = errors.New("invalid target or invalid ssh key")
 					return
 				}
 				var nRes *types.GetNodeResponse
-				if nRes, err = ns.GetNode(context.Background(), &types.GetNodeRequest{Hostname: th}); err != nil {
+				if nRes, err = s.nodeService.GetNode(context.Background(), &types.GetNodeRequest{Hostname: th}); err != nil {
 					return
 				}
 				// check grant
 				var cRes *types.CheckGrantResponse
-				if cRes, err = rs.CheckGrant(context.Background(), &types.CheckGrantRequest{
+				if cRes, err = s.grantService.CheckGrant(context.Background(), &types.CheckGrantRequest{
 					User:     tu,
 					Account:  uRes.User.Account,
 					Hostname: nRes.Node.Hostname,
@@ -204,7 +212,6 @@ func (s *SSHD) handleConnection(c net.Conn) {
 		log.Println("failed to handshake:", err)
 		return
 	}
-	defer sconn.Close()
 	if sconn.Permissions.Extensions[keyMode] == modeLv1 {
 		err = s.handleLv1Connection(sconn, nchan, rchan)
 	} else {
@@ -226,8 +233,7 @@ func (s *SSHD) updateSandboxPublicKey(sb sandbox.Sandbox, account string) (err e
 		return
 	}
 	fp := ssh.FingerprintSHA256(pk)
-	ks := types.NewKeyServiceClient(s.rpcConn)
-	_, err = ks.CreateKey(context.Background(), &types.CreateKeyRequest{
+	_, err = s.keyService.CreateKey(context.Background(), &types.CreateKeyRequest{
 		Name:        "sandbox",
 		Account:     account,
 		Fingerprint: fp,
@@ -237,9 +243,8 @@ func (s *SSHD) updateSandboxPublicKey(sb sandbox.Sandbox, account string) (err e
 }
 
 func (s *SSHD) updateSandboxSSHConfig(sb sandbox.Sandbox, account string) (err error) {
-	rs := types.NewGrantServiceClient(s.rpcConn)
 	var riRes *types.ListGrantItemsResponse
-	if riRes, err = rs.ListGrantItems(context.Background(), &types.ListGrantItemsRequest{Account: account}); err != nil {
+	if riRes, err = s.grantService.ListGrantItems(context.Background(), &types.ListGrantItemsRequest{Account: account}); err != nil {
 		return
 	}
 	se := make([]sandbox.SSHEntry, 0)
@@ -260,6 +265,7 @@ func (s *SSHD) updateSandboxSSHConfig(sb sandbox.Sandbox, account string) (err e
 }
 
 func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
+	defer sconn.Close()
 	account := sconn.Permissions.Extensions[keyAccount]
 	log.Println("connection established:", account, "lv1")
 	// discard global requests
@@ -279,17 +285,15 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 				continue
 			}
 			// find the node
-			ns := types.NewNodeServiceClient(s.rpcConn)
 			var nRes *types.GetNodeResponse
-			if nRes, err = ns.GetNode(context.Background(), &types.GetNodeRequest{Hostname: ed.Host}); err != nil {
+			if nRes, err = s.nodeService.GetNode(context.Background(), &types.GetNodeRequest{Hostname: ed.Host}); err != nil {
 				nc.Reject(ssh.ConnectionFailed, "failed to find the target node")
 				log.Println("failed to find the target node:", err)
 				continue
 			}
 			// check __tunnel__ user permission with given node
-			rs := types.NewGrantServiceClient(s.rpcConn)
 			var cRes *types.CheckGrantResponse
-			if cRes, err = rs.CheckGrant(context.Background(), &types.CheckGrantRequest{
+			if cRes, err = s.grantService.CheckGrant(context.Background(), &types.CheckGrantRequest{
 				Account:  account,
 				User:     types.GrantUserTunnel,
 				Hostname: ed.Host,
@@ -313,7 +317,7 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 			// discard all channel-local requests
 			go ssh.DiscardRequests(crchan)
 			// dial and stream 'direct-tcpip'
-			go s.handleChannelDirectTCPIP(c, tp, nRes.Node.Address, int(ed.Port))
+			go bridgeLv1DirectTCPIPChannel(c, tp, nRes.Node.Address, int(ed.Port))
 		} else if nc.ChannelType() == channelTypeSession {
 			// find or create the sandbox
 			var sb sandbox.Sandbox
@@ -337,7 +341,7 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 				log.Println("failed to accept new 'session' channel:", err)
 				continue
 			}
-			go s.handleChannelSession(c, crchan, sb, account)
+			go bridgeLv1SessionChannel(c, crchan, sb, account, s.sessionService, s.replayService)
 		} else {
 			log.Println("unsupported channel type:", nc.ChannelType())
 			nc.Reject(ssh.UnknownChannelType, "only channel type 'session' and 'direct-tcpip' is allowed")
@@ -348,166 +352,51 @@ func (s *SSHD) handleLv1Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewC
 	return
 }
 
-func (s *SSHD) handleChannelDirectTCPIP(chn ssh.Channel, tp *TunnelPool, address string, port int) (err error) {
-	defer chn.Close()
-	// dial remote address
-	var c net.Conn
-	if c, err = tp.Dial(address, port); err != nil {
-		log.Println("failed to dial ssh tunnel connection:", err)
-		return
-	}
-	defer c.Close()
-	// bi-copy streams
-	if err = utils.DualCopy(c, chn); err != nil {
-		log.Println("failed to pipe:", err)
-		return
-	}
-	return
-}
-
-func (s *SSHD) handleChannelSession(chn ssh.Channel, crchan <-chan *ssh.Request, sb sandbox.Sandbox, account string) (err error) {
-	defer chn.Close()
-	// variables
-	cmd, cmdReady, cmdMissing, cmdCond := "", false, false, sync.NewCond(&sync.Mutex{})
-	env := make([]string, 0)
-	pty, ptyCols, ptyRows, term, wch := false, uint32(0), uint32(0), "", make(chan sandbox.Window, 4)
-	// remember to close wch/rwch
-	defer close(wch)
-	// range all requests
-	go func() {
-		for req := range crchan {
-			switch req.Type {
-			case "pty-req":
-				var pl PtyRequestPayload
-				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					log.Println("failed to decode pty-req payload:", err)
-					break
-				}
-				pty, ptyCols, ptyRows, term = true, pl.Cols, pl.Rows, pl.Term
-				wch <- sandbox.Window{
-					Width:  uint(pl.Cols),
-					Height: uint(pl.Rows),
-				}
-				if req.WantReply {
-					req.Reply(true, nil)
-				}
-			case "env":
-				var pl EnvRequestPayload
-				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					log.Println("failed to decode env request payload:", err)
-					break
-				}
-				env = append(env, fmt.Sprintf("%s=%s", pl.Name, pl.Value))
-				if req.WantReply {
-					req.Reply(true, nil)
-				}
-			case "window-change":
-				var pl WindowChangeRequestPayload
-				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					log.Println("failed to decode window-change request payload", err)
-					break
-				}
-				wch <- sandbox.Window{
-					Width:  uint(pl.Cols),
-					Height: uint(pl.Rows),
-				}
-				if req.WantReply {
-					req.Reply(true, nil)
-				}
-			case "shell", "exec":
-				// decode command
-				if req.Type == "exec" {
-					var pl ExecRequestPayload
-					if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-						log.Println("failed to decode exec request payload", err)
-						break
-					}
-					cmd = pl.Command
-				}
-				if req.WantReply {
-					req.Reply(true, nil)
-				}
-				// signal cmdCond
-				cmdReady = true
-				cmdCond.Signal()
-			default:
-				if req.WantReply {
-					req.Reply(false, nil)
-				}
-			}
-		}
-
-		// if cmdReady not set, then cmd is missing, ensure cmdCond is always signaled
-		if !cmdReady {
-			cmdMissing = true
-			cmdCond.Signal()
-		}
-	}()
-	// wait for cmdCond
-	cmdCond.L.Lock()
-	for !cmdReady && !cmdMissing {
-		cmdCond.Wait()
-	}
-	cmdCond.L.Unlock()
-	// check if cmd is missing
-	if cmdMissing {
-		log.Println("command is missing")
-		return
-	}
-	// split the command
-	var cmds []string
-	if cmds, err = shellquote.Split(cmd); err != nil {
-		log.Println("failed to split command")
-		return
-	}
-	// determine should be recorded
-	isRecorded := shouldCommandBeRecorded(cmds)
-	// start session
-	ss := types.NewSessionServiceClient(s.rpcConn)
-	var sRes *types.CreateSessionResponse
-	if sRes, err = ss.CreateSession(context.Background(), &types.CreateSessionRequest{
-		Account:    account,
-		Command:    cmd,
-		IsRecorded: isRecorded,
-	}); err != nil {
-		log.Println("failed to create session", err)
-		return
-	}
-	// build the exec options
-	opts := sandbox.ExecAttachOptions{
-		Env:     env,
-		Command: cmds,
-		Stdin:   chn,
-		Stdout:  chn,
-		Stderr:  chn.Stderr(),
-	}
-	if pty {
-		opts.IsPty = true
-		opts.Term = term
-		opts.WindowChan = wch
-	}
-	// wrap options if isRecorded
-	if isRecorded {
-		rs := types.NewReplayServiceClient(s.rpcConn)
-		r := recorder.StartRecording(&opts, sRes.Session.Id, rs)
-		defer r.Close()
-	}
-	// execute and returns exit status
-	es := ExitStatusRequestPayload{}
-	if err = sb.ExecAttach(opts); err != nil {
-		log.Println("exec attach returns error:", err)
-		es.Code = 1
-	}
-	// finish session
-	ss.FinishSession(context.Background(), &types.FinishSessionRequest{Id: sRes.Session.Id})
-	// send exit-status
-	chn.SendRequest("exit-status", false, ssh.Marshal(&es))
-	return
-}
-
-func (s *SSHD) handleLv2Connection(sconn *ssh.ServerConn, nchan <-chan ssh.NewChannel, rchan <-chan *ssh.Request) (err error) {
+func (s *SSHD) handleLv2Connection(sconn *ssh.ServerConn, ncchan <-chan ssh.NewChannel, grchan <-chan *ssh.Request) (err error) {
+	defer sconn.Close()
+	// extract connection parameters
+	user := sconn.Permissions.Extensions[keyUser]
+	address := sconn.Permissions.Extensions[keyAddress]
 	// no global requests is allowed in lv2 connection
-	go ssh.DiscardRequests(rchan)
+	go ssh.DiscardRequests(grchan)
+	// create ssh.Client
+	var client *ssh.Client
+	if client, err = ssh.Dial("tcp", fixSSHAddress(address), &ssh.ClientConfig{
+		User:            "root",
+		Auth:            []ssh.AuthMethod{ssh.PublicKeys(s.clientSigners...)},
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+	}); err != nil {
+		log.Println("failed to create ssh client to:", address)
+		return
+	}
+	defer client.Close()
+	// iterate new channel requests
+	for nc := range ncchan {
+		// check channel type
+		if nc.ChannelType() != "session" {
+			nc.Reject(ssh.UnknownChannelType, "only 'session' is allowed in lv2 connection")
+			log.Println("unsupported channel type:", nc.ChannelType())
+			continue
+		}
+		// open session on remote server
+		var tc ssh.Channel
+		var trchan <-chan *ssh.Request
+		if tc, trchan, err = client.OpenChannel("session", nil); err != nil {
+			nc.Reject(ssh.ConnectionFailed, "failed to create new session on remote server")
+			log.Println("failed to create session on remote server:", err)
+			continue
+		}
+		// accept channel
+		var c ssh.Channel
+		var rchan <-chan *ssh.Request
+		if c, rchan, err = nc.Accept(); err != nil {
+			tc.Close()
+			log.Println("failed to accept session channel:", err)
+			continue
+		}
+		// bridge channels
+		go bridgeLv2SessionChannel(c, rchan, tc, trchan, user)
+	}
 	return
 }
 

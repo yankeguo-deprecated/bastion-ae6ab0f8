@@ -1,6 +1,7 @@
 package sshd
 
 import (
+	"github.com/kballard/go-shellquote"
 	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"net"
@@ -48,6 +49,13 @@ func shouldCommandBeRecorded(cmd []string) bool {
 		return false
 	}
 	return true
+}
+
+func commandSwitchUser(user string, input string) string {
+	if len(input) > 0 {
+		return shellquote.Join("sudo", "-S", "-n", "-u", user, "-i", "--", "bash", "-c", input)
+	}
+	return shellquote.Join("sudo", "-S", "-n", "-u", user, "-i")
 }
 
 type DirectTCPIPExtraData struct {
