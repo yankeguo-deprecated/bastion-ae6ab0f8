@@ -2,7 +2,7 @@
   <b-row>
     <b-col md="6" lg="4">
       <b-card header="添加 SSH 公钥" header-tag="b">
-        <b-form @submit="onSubmit">
+        <b-form @submit.prevent="onSubmit">
           <b-form-group label="名称" label-class="text-right" description="仅作为备注，默认使用 SSH 公钥备注名" horizontal>
             <b-form-input v-model="form.name" placeholder="输入公钥名称" type="text"></b-form-input>
           </b-form-group>

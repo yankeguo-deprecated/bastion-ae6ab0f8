@@ -1,8 +1,8 @@
 <template>
   <b-row class="mt-4">
     <b-col md="4" offset-md="4" lg="2" offset-lg="5">
-      <b-card title="登录">
-        <b-form @submit="onSubmit">
+      <b-card header="登录" header-tag="b">
+        <b-form @submit.prevent="onSubmit">
           <b-form-group label="用户名">
             <b-form-input v-model="form.account" required type="text"></b-form-input>
           </b-form-group>

@@ -11,7 +11,7 @@
           <b-row>
             <b-col>
               <b-card header="用户信息" header-tag="b">
-                <b-form @submit="onProfileFormSubmit">
+                <b-form @submit.prevent="onProfileFormSubmit">
                   <b-form-group label="账户名" label-class="text-right" horizontal>
                     <b-form-input :value="user.account" readonly plaintext></b-form-input>
                   </b-form-group>
@@ -80,7 +80,7 @@
             <b-col>
               <b-card header="管理权限" header-tag="b" no-body>
                 <b-card-body>
-                  <b-form inline @submit="onSubmit">
+                  <b-form inline @submit.prevent="onSubmit">
                     <b-form-select v-model="form.user_mode" :options="user_modes" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
                     <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-if="form.user_mode == 'console'" v-model="form.user" placeholder="Linux 用户"/>
                     <i v-if="form.user_mode == 'console'" class="fa fa-at" aria-hidden="true"></i>
@@ -172,16 +172,16 @@ export default {
           tdClass: 'text-center'
         },
         {
-          key: 'expired_at',
+          key: 'created_at',
           sortable: true,
-          label: '过期时间',
+          label: '创建时间',
           thClass: 'text-center',
           tdClass: 'text-center'
         },
         {
-          key: 'created_at',
+          key: 'expired_at',
           sortable: true,
-          label: '创建时间',
+          label: '过期时间',
           thClass: 'text-center',
           tdClass: 'text-center'
         },

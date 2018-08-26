@@ -2,7 +2,7 @@
   <b-row>
     <b-col md="6" lg="4">
       <b-card header="修改密码" header-tag="b">
-        <b-form @submit="onSubmit">
+        <b-form @submit.prevent="onSubmit">
           <b-form-group label="旧密码" label-class="text-right" description="输入旧密码" horizontal>
             <b-form-input v-model="form.oldPassword" placeholder="输入旧密码" type="password"></b-form-input>
           </b-form-group>

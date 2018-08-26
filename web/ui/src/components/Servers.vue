@@ -2,7 +2,7 @@
   <b-row class="mt-4">
     <b-col md="4" lg="3">
       <b-card header="添加/更新服务器" header-tag="b">
-        <b-form @submit="onCreateSubmit">
+        <b-form @submit.prevent="onCreateSubmit">
           <b-form-group label="主机名" description="输入符合 Linux 规则的主机名">
             <b-form-input v-model="form.hostname" placeholder="请输入主机名" type="text"></b-form-input>
           </b-form-group>

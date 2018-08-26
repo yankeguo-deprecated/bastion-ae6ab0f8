@@ -2,7 +2,7 @@
   <b-row class="mt-4">
     <b-col md="4" lg="3">
       <b-card header="添加用户" header-tag="b">
-        <b-form @submit="onCreateSubmit">
+        <b-form @submit.prevent="onCreateSubmit">
           <b-form-group label="用户名" description="仅允许英文数字和'.' '-' '_'">
             <b-form-input v-model="form.account" placeholder="请输入用户名" type="text"></b-form-input>
           </b-form-group>
