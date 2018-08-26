@@ -7,7 +7,6 @@ import Dashboard from '@/components/Dashboard'
 import Servers from '@/components/Servers'
 import Users from '@/components/Users'
 import Sessions from '@/components/Sessions'
-import Replay from '@/components/Replay'
 import Settings from '@/components/Settings'
 
 // children of settings
@@ -71,15 +70,6 @@ let router = new Router({
       component: Sessions,
       meta: {
         requiresLoggedInAsAdmin: true
-      }
-    },
-    {
-      path: '/sessions/:id/replay',
-      name: 'Replay',
-      component: Replay,
-      meta: {
-        requiresLoggedInAsAdmin: true,
-        hidesNavigationBar: true
       }
     },
     {

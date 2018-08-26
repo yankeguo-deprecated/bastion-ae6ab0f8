@@ -13,6 +13,10 @@ module.exports = {
       '/api': {
         target: 'http://127.0.0.1:9778',
         changeOrigin: true,
+      },
+      '/replays': {
+        target: 'http://127.0.0.1:9778',
+        changeOrigin: true,
       }
     },
 

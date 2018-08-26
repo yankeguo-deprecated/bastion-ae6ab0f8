@@ -11,6 +11,7 @@ export default new Vuex.Store({
     tokens: [],
     users: [],
     grantItems: [],
+    grantTunnels: [],
     nodes: [],
     keys: [],
     ssh_domain: '',
@@ -48,6 +49,9 @@ export default new Vuex.Store({
     },
     setNumberOfSessionPages (state, num) {
       state.number_of_session_pages = num || 99999999
+    },
+    setGrantTunnels (state, gis) {
+      state.grantTunnels = gis || []
     }
   },
   plugins: [createPersistedState()]

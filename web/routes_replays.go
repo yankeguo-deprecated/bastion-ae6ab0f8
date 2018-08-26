@@ -3,6 +3,7 @@ package web
 import (
 	"github.com/novakit/nova"
 	"github.com/novakit/router"
+	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
 	"io"
@@ -31,5 +32,13 @@ func routeDownloadReplay(c *nova.Context) (err error) {
 			return
 		}
 	}
+	return
+}
+
+func routePageReplay(c *nova.Context) (err error) {
+	v, ar := view.Extract(c), router.PathParams(c)
+	v.Data["SessionId"] = ar.Get("id")
+	v.Data["ViewKey"] = c.Req.FormValue("viewKey")
+	v.HTML("replay")
 	return
 }

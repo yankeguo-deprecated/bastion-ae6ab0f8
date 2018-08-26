@@ -103,6 +103,7 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(true),
 		routeDownloadReplay,
 	)
+	router.Route(n).Get("/replays/:id").Use(routePageReplay)
 }
 
 func routeCheck(c *nova.Context) error {

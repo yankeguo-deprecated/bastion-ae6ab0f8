@@ -63,7 +63,9 @@ let API = {
     }
     Vue.prototype.$apiGetCurrentUserGrantItems = function () {
       return this.$http.get('/api/users/current/grant_items').then(res => {
-        store.commit('setGrantItems', res.body.grant_items)
+        let gis = res.body.grant_items || []
+        store.commit('setGrantItems', gis.filter((item) => item.user !== '__tunnel__'))
+        store.commit('setGrantTunnels', gis.filter((item) => item.user === '__tunnel__'))
         store.commit('setSSHDomain', res.body.ssh_domain)
         return res
       }, this.$apiErrorCallback())

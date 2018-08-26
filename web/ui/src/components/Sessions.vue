@@ -14,7 +14,8 @@
               <b-link :to="{name: 'UserDetail', params: {account: data.item.account}}">{{data.item.account}}</b-link>
             </template>
             <template slot="command" slot-scope="data">
-              <code>{{data.item.command}}</code>
+              <code v-if="data.item.command">{{data.item.command}}</code>
+              <code v-if="!data.item.command">(shell)</code>
             </template>
             <template slot="created_at" slot-scope="data">
               {{data.item.created_at | formatUnixEpoch}}
@@ -105,8 +106,7 @@ export default {
       })
     },
     onReplayClick (id) {
-      let r = this.$router.resolve({name: 'Replay', params: {id}})
-      window.open(r.href, '_blank')
+      window.open(`/replays/${id}`, '_blank')
     }
   }
 }

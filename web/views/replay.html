@@ -1,0 +1,316 @@
+<!--
+ Copyright (c) 2018 Yanke Guo <guoyk.cn@gmail.com>
+
+ This software is released under the MIT License.
+ https://opensource.org/licenses/MIT
+-->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <title>Bastion - 操作回放</title>
+    <meta charset="UTF-8" />
+    <meta name="session-id" content="{{.SessionId}}" />
+    <meta name="view-key" content="{{.ViewKey}}" />
+    <link href="//cdn.bootcss.com/bootswatch/3.3.7/flatly/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <link href="//cdn.bootcss.com/xterm/2.9.2/xterm.min.css" rel="stylesheet" crossorigin="anonymous" />
+    <style>
+        div#bunker-xterm {
+            background-color: black;
+            position: absolute;
+            padding: 4px;
+            top: 60px;
+            left: 0;
+            right: 0;
+            bottom: 60px;
+        }
+        div.replay-progress {
+            width: 640px;
+            margin-left: 15px;
+            margin-right: 15px;
+            margin-top: 25px;
+            margin-bottom: 25px;
+        }
+        a#play-button {
+            cursor: pointer;
+        }
+        body {
+            background-color: #333333;
+            padding-bottom: 70px;
+        }
+    </style>
+</head>
+
+<body>
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1"
+                    aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">操作回放</a>
+            <p class="navbar-text">
+                用户:&nbsp;<span id="field-user"></span>
+            </p>
+            <p class="navbar-text">
+                命令:&nbsp;<span id="field-command"></span>
+            </p>
+            <p class="navbar-text">
+                开始时间:&nbsp;<span id="field-created-at"></span>
+            </p>
+            <p class="navbar-text">
+                结束时间:&nbsp;<span id="field-finished-at"></span>
+            </p>
+        </div>
+    </div>
+</nav>
+<div id="bunker-xterm"></div>
+<nav class="navbar navbar-default navbar-fixed-bottom">
+    <div class="container-fluid">
+        <ul class="nav navbar-nav">
+            <li>
+                <a id="play-button">
+                    <i class="fa fa-play"></i>
+                </a>
+            </li>
+            <li>
+                <div id="replay-progress" class="progress replay-progress">
+                    <div id="replay-progress-bar" class="progress-bar progress-bar-info" style="width: 0%;"></div>
+                </div>
+            </li>
+            <li>
+                <p id="time-label" class="navbar-text"></p>
+            </li>
+        </ul>
+    </div>
+</nav>
+<script src="//cdn.bootcss.com/jquery/3.3.1/jquery.min.js" crossorigin="anonymous"></script>
+<script src="//cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+<script src="//cdn.bootcss.com/xterm/2.9.2/xterm.min.js" crossorigin="anonymous"></script>
+<script src="//cdn.bootcss.com/moment.js/2.22.1/moment.min.js" crossorigin="anonymous"></script>
+<script>
+    // decodeUint32 decode 4 bytes to a Uint32, big endian
+    function decodeUint32(a, i) {
+        return (a[i] << 24) + (a[i + 1] << 16) + (a[i + 2] << 8) + a[i + 3]
+    }
+    // fix2 1 -> "01"
+    function fix2(n) {
+        var s = String(n)
+        if (s.length == 1) return "0" + s
+        return s
+    }
+    // fix3 1 -> "001", 12 -> "012"
+    function fix3(n) {
+        var s = String(n)
+        if (s.length == 1) return "00" + s
+        if (s.length == 2) return "0" + s
+        return s
+    }
+    // prettyTime 12440123 -> "02:04:40.123"
+    function prettyTime(t) {
+        var h = Math.floor(t / (1000 * 60 * 60))
+        t = t - (h * 1000 * 60 * 60)
+        var m = Math.floor(t / (1000 * 60))
+        t = t - (m * 1000 * 60)
+        var s = Math.floor(t / 1000)
+        t = t - (s * 1000)
+        return fix2(h) + ":" + fix2(m) + ":" + fix2(s) + "." + fix3(t)
+    }
+    /*
+     * option:
+     *  playButton: jquery selector for play/pause button
+     *  timeLabel: jquery selector for time label
+     *  replayProgress: jquery for replayProgress
+     *  replayProgressBar: jquery selector for replayProgressBar
+     */
+    var ReplaySession = function (term, data, option) {
+        this.term = term
+        this.data = data
+        this.option = option
+        this.idx = 0 // current index, should always be first byte of next frame
+        this.time = 0 // current time
+        this.total = 0 // total time
+        this.scan()
+        this.updateLabel()
+        var that = this
+        $(option.playButton).click(function () {
+            if (that.itv) {
+                clearInterval(that.itv)
+                that.itv = null
+                $(option.playButton).html('<i class="fa fa-play"></i>')
+            } else {
+                if (that.time == 0) {
+                    that.term.clear()
+                }
+                that.play()
+                $(option.playButton).html('<i class="fa fa-pause"></i>')
+            }
+        })
+        $(option.replayProgress).click(function (e) {
+            if (that.itv) {
+                clearInterval(that.itv)
+                that.itv = null
+            }
+            $(option.playButton).html('<i class="fa fa-play"></i>')
+            that.term.reset()
+            that.idx = 0
+            that.time = 0
+            that.playUntil(Math.floor(that.total * (e.offsetX / 640)))
+        })
+    }
+    ReplaySession.prototype.play = function () {
+        this.playUntil(this.time + 100)
+        var that = this
+        this.itv = setInterval(function () {
+            if (that.idx >= that.data.length) {
+                clearInterval(that.itv)
+            }
+            that.playUntil(that.time + 100)
+        }, 100)
+    }
+    ReplaySession.prototype.updateLabel = function () {
+        if (this.idx >= this.data.length) {
+            $(this.option.timeLabel).text(prettyTime(this.total) + " / " + prettyTime(this.total) + " (" + moment(this.total + this.option.startedAt).format("YYYY-MM-DD HH:mm:ss.SSS") + ")")
+            $(this.option.replayProgressBar).attr("style", "width: 100%;")
+        } else {
+            $(this.option.timeLabel).text(prettyTime(this.time) + " / " + prettyTime(this.total) + " (" + moment(this.time + this.option.startedAt).format("YYYY-MM-DD HH:mm:ss.SSS") + ")")
+            var per = ((this.time / this.total) * 100).toFixed(2)
+            $(this.option.replayProgressBar).attr("style", "width: " + per + "%;")
+        }
+    }
+    // scan, calculate total time in milliseconds
+    ReplaySession.prototype.scan = function () {
+        var i = 0
+        var ts = 0
+        for (; ;) {
+            if (i >= this.data.length) break
+            ts = decodeUint32(this.data, i)
+            var len = decodeUint32(this.data, i + 5)
+            i += (9 + len)
+        }
+        this.total = ts
+    }
+    // playUntil, play frames until target time is reached
+    ReplaySession.prototype.playUntil = function (targetTime) {
+        for (; ;) {
+            if (this.idx >= this.data.length) break
+            var ts = decodeUint32(this.data, this.idx)
+            if (ts > targetTime) break
+            var typ = this.data[this.idx + 4]
+            var len = decodeUint32(this.data, this.idx + 5)
+            switch (typ) {
+                case 1:
+                case 2: {
+                    var payload = new TextDecoder("utf-8").decode(this.data.slice(this.idx + 9, this.idx + 9 + len))
+                    this.term.write(payload)
+                    break
+                }
+                case 3: {
+                    if (len != 8) {
+                        this.term.write("ERROR: 窗口尺寸帧结构错误\r\n")
+                    }
+                    var w = decodeUint32(this.data, this.idx + 9)
+                    var h = decodeUint32(this.data, this.idx + 13)
+                    this.term.resize(w, h)
+                    break
+                }
+                default: {
+                    this.term.write("ERROR: 未知的帧: " + typ + "\r\n")
+                }
+            }
+            this.idx += (9 + len)
+        }
+        this.time = targetTime
+        this.updateLabel()
+        this.fixSize()
+    }
+    ReplaySession.prototype.fixSize = function() {
+        var ch = $(this.option.container).height()
+        var th = $(this.term.element).height()
+        var r = ch / th
+        if (r >= 1) {
+            r = 1
+        }
+        $(this.term.element).attr('style', 'zoom:' + r + ';')
+    }
+    $(window).ready(function () {
+        // get session id
+        var sessionId = $('meta[name="session-id"]').attr('content')
+        var viewKey = $('meta[name="view-key"]').attr('content')
+        // build term
+        var term = new Terminal({
+            cursorBlink: false,
+            scrollBack: 1000000
+        });
+        term.open(document.getElementById('bunker-xterm'), true);
+        term.write("正在获取元数据...\r\n")
+        // extract currentToken
+        var currentToken
+        try {
+            currentToken = JSON.parse(localStorage.getItem("vuex")).currentToken.token
+        } catch (e) {
+            term.write("无法载入 API Token\r\n")
+            return
+        }
+        // load session information
+        $.ajax({
+            url: '/api/sessions/' + sessionId,
+            headers: {
+                'X-Bastion-Token': currentToken,
+            },
+            success: function (metaData, status, xhr) {
+                // assign fields
+                $("span#field-user").text(metaData.user.account + "(" + metaData.user.nickname + ")")
+                $("span#field-command").text(metaData.session.command || "(shell)")
+                if (metaData.session.created_at) {
+                    $("span#field-created-at").text(moment(metaData.session.created_at*1000).format("YYYY-MM-DD HH:mm:ss"))
+                }
+                if (metaData.session.finished_at) {
+                    $("span#field-finished-at").text(moment(metaData.session.finished_at*1000).format("YYYY-MM-DD HH:mm:ss"))
+                }
+
+                // download session replay file
+                $.ajax({
+                    url: '/api/replays/' + sessionId + "/download",
+                    headers: {
+                        'X-Bastion-Token': currentToken,
+                    },
+                    xhrFields: {
+                        responseType: 'arraybuffer'
+                    },
+                    success: function (data, status, xhr) {
+                        term.write("下载成功 !\r\n")
+                        term.write("\r\n")
+                        term.write("[请点击播放]\r\n")
+                        new ReplaySession(term, new Uint8Array(data), {
+                            container: "#bunker-xterm",
+                            timeLabel: "#time-label",
+                            playButton: "#play-button",
+                            replayProgress: "#replay-progress",
+                            replayProgressBar: "#replay-progress-bar",
+                            startedAt: (metaData.session.created_at || 0) * 1000
+                        })
+                        setTimeout(function () {
+                            $("#play-button").click()
+                        }, 500);
+                    },
+                    error: function (xhr, status, err) {
+                        term.write("无法下载回放文件: " + xhr.responseText + "\r\n")
+                    }
+                })
+            },
+            error: function (xhr, status, err) {
+                term.write("无法获取元信息: " + xhr.responseText + "\r\n")
+            }
+        })
+    })
+</script>
+</body>
+
+</html>
