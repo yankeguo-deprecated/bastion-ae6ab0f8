@@ -1,10 +1,15 @@
 #!/bin/bash
 
 COMMAND="$1"
+VERSION="$2"
 
 if [ -z "${COMMAND}" ]
 then
   COMMAND="help"
+fi
+if [ -z "${VERSION}" ]
+then
+  VERSION=`date '+%Y%m%d%H%M%S'`
 fi
 
 set -e
@@ -16,8 +21,15 @@ build_grpc () {
     protoc -I ${SRC_ROOT}/types --go_out=plugins=grpc:${SRC_ROOT}/types ${SRC_ROOT}/types/daemon.proto
 }
 
-build_binfs () {
+build_ui () {
     cd ${SRC_ROOT}/web/ui && yarn build
+    cp -f ${SRC_ROOT}/resources/package.json ${SRC_ROOT}/web/public/package.json
+    sed -i "" -e "s/__VERSION__/${VERSION}/g" ${SRC_ROOT}/web/public/package.json
+    sed -i "" -e "s/\\=\\/static/\\=\\/\\/unpkg.com\\/bastion-assets@1.0.${VERSION}\\/static/g" ${SRC_ROOT}/web/public/index.html
+    cd ${SRC_ROOT}/web/public && yarn publish
+}
+
+build_binfs () {
     cd ${SRC_ROOT}/web && PKG=web ${GOPATH}/bin/binfs public views > assets.bfs.go
 }
 
@@ -42,6 +54,10 @@ case "${COMMAND}" in
             build_grpc
             ;;
 
+        ui)
+            build_ui
+            ;;
+
         binfs)
             build_binfs
             ;;
@@ -52,11 +68,12 @@ case "${COMMAND}" in
 
         all)
             build_grpc
+            build_ui
             build_binfs
             build_cmd
             ;;
 
         *)
-            echo $"Usage: $0 {grpc|binfs|cmd|all}"
+            echo $"Usage: $0 {grpc|ui|binfs|cmd|all}"
             exit 1
 esac

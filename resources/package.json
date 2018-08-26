@@ -1,6 +1,6 @@
 {
   "name": "bastion-assets",
-  "version": "1.0.0-alpha",
+  "version": "1.0.__VERSION__",
   "description": "assets for bastion",
   "main": "index.html",
   "scripts": {

@@ -34,6 +34,7 @@ func NewServer(opts types.WebOptions) *http.Server {
 	n.Use(static.Handler(static.Options{
 		Directory: "public",
 		BinFS:     !opts.Dev,
+		Index:     true,
 	}))
 	// mount view module for json rendering only
 	n.Use(view.Handler(view.Options{
