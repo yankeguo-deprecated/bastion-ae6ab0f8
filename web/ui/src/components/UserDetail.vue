@@ -19,13 +19,13 @@
                     <b-form-input :value="user | formatUserStatus" readonly plaintext></b-form-input>
                   </b-form-group>
                   <b-form-group label="昵称" label-class="text-right" horizontal>
-                    <b-form-input v-model="userNickname" :disabled="profileFormBusy"></b-form-input>
+                    <b-form-input v-model="userNickname" :disabled="busy"></b-form-input>
                   </b-form-group>
                   <b-form-group label="创建时间" label-class="text-right" horizontal>
                     <b-form-input :value="user.created_at | formatUnixEpoch" readonly plaintext></b-form-input>
                   </b-form-group>
-                  <b-button type="submit" class="btn-block" :disabled="profileFormBusy" variant="primary"><i class="fa fa-upload"
-                                                                                                             aria-hidden="true"></i> 修改昵称</b-button>
+                  <b-button type="submit" class="btn-block" :disabled="busy" variant="primary"><i class="fa fa-upload"
+                                                                                                  aria-hidden="true"></i> 修改昵称</b-button>
                 </b-form>
               </b-card>
             </b-col>
@@ -33,40 +33,40 @@
           <b-row class="mt-3">
             <b-col>
               <b-card v-if="user.account !== currentUser.account" header="操作" header-tag="b">
-                  <b-button class="btn-block" variant="danger"
+                  <b-button :disabled="busy" class="btn-block" variant="danger"
                           v-if="user.is_admin && user.account !== accountToDowngrade"
                           @click="onDowngradeClick(user.account)"><i class="fa fa-level-down" aria-hidden="true"></i>
                     降级管理员
                   </b-button>
-                  <b-button class="btn-block" variant="danger"
+                  <b-button :disabled="busy" class="btn-block" variant="danger"
                           v-if="user.is_admin && user.account === accountToDowngrade"
                           @click="onDowngradeConfirmClick(user.account)"><i class="fa fa-level-down"
                                                                             aria-hidden="true"></i> 确认降级管理员
                   </b-button>
-                  <b-button class="btn-block" variant="success"
+                  <b-button :disabled="busy" class="btn-block" variant="success"
                           v-if="!user.is_admin && user.account !== accountToUpgrade"
                           @click="onUpgradeClick(user.account)"><i class="fa fa-level-up" aria-hidden="true"></i> 升级管理员
                   </b-button>
-                  <b-button class="btn-block" variant="success"
+                  <b-button :disabled="busy" class="btn-block" variant="success"
                           v-if="!user.is_admin && user.account === accountToUpgrade"
                           @click="onUpgradeConfirmClick(user.account)"><i class="fa fa-level-up"
                                                                           aria-hidden="true"></i> 确认升级管理员
                   </b-button>
-                  <b-button class="btn-block" variant="success"
+                  <b-button :disabled="busy" class="btn-block" variant="success"
                           v-if="user.is_blocked && user.account !== accountToUnblock"
                           @click="onUnblockClick(user.account)"><i class="fa fa-check-circle-o" aria-hidden="true"></i>
                     解封用户
                   </b-button>
-                  <b-button class="btn-block" variant="success"
+                  <b-button :disabled="busy" class="btn-block" variant="success"
                           v-if="user.is_blocked && user.account === accountToUnblock"
                           @click="onUnblockConfirmClick(user.account)"><i class="fa fa-check-circle-o"
                                                                           aria-hidden="true"></i> 确认解封用户
                   </b-button>
-                  <b-button class="btn-block" variant="danger"
+                  <b-button :disabled="busy" class="btn-block" variant="danger"
                           v-if="!user.is_blocked && user.account !== accountToBlock"
                           @click="onBlockClick(user.account)"><i class="fa fa-ban" aria-hidden="true"></i> 封禁用户
                   </b-button>
-                  <b-button class="btn-block" variant="danger"
+                  <b-button :disabled="busy" class="btn-block" variant="danger"
                           v-if="!user.is_blocked && user.account === accountToBlock"
                           @click="onBlockConfirmClick(user.account)"><i class="fa fa-ban" aria-hidden="true"></i>
                     确认封禁用户
@@ -201,7 +201,7 @@ export default {
         updated_at: 0
       },
       userNickname: '',
-      profileFormBusy: false,
+      busy: false,
       grants: [],
       form: {
         user_mode: 'console',
@@ -247,13 +247,13 @@ export default {
   },
   methods: {
     fetchUser () {
-      this.profileFormBusy = true
+      this.busy = true
       this.$apiGetUser(this.$route.params.account).then(res => {
-        this.profileFormBusy = false
+        this.busy = false
         this.user = res.body.user
         this.userNickname = this.user.nickname
       }, (res) => {
-        this.profileFormBusy = false
+        this.busy = false
       })
     },
     fetchUserGrants () {
@@ -294,13 +294,13 @@ export default {
       })
     },
     onProfileFormSubmit () {
-      this.profileFormBusy = true
+      this.busy = true
       this.$apiUpdateUserNickname({account: this.user.account, nickname: this.userNickname}).then((res) => {
         this.user = res.body.user
         this.userNickname = this.user.nickname
-        this.profileFormBusy = false
+        this.busy = false
       }, (res) => {
-        this.profileFormBusy = false
+        this.busy = false
       })
     },
     onDeleteClick (grant) {
@@ -323,8 +323,12 @@ export default {
     },
     onBlockConfirmClick (account) {
       this.clearActionStates()
+      this.busy = true
       this.$apiUpdateUserIsBlocked({account, is_blocked: true}).then((res) => {
         this.user = res.body.user
+        this.busy = false
+      }, (res) => {
+        this.busy = false
       })
     },
     onUnblockClick (account) {
@@ -333,8 +337,12 @@ export default {
     },
     onUnblockConfirmClick (account) {
       this.clearActionStates()
+      this.busy = true
       this.$apiUpdateUserIsBlocked({account, is_blocked: false}).then((res) => {
         this.user = res.body.user
+        this.busy = false
+      }, (res) => {
+        this.busy = false
       })
     },
     onUpgradeClick (account) {
@@ -343,8 +351,12 @@ export default {
     },
     onUpgradeConfirmClick (account) {
       this.clearActionStates()
+      this.busy = true
       this.$apiUpdateUserIsAdmin({account, is_admin: true}).then((res) => {
         this.user = res.body.user
+        this.busy = false
+      }, (res) => {
+        this.busy = false
       })
     },
     onDowngradeClick (account) {
@@ -353,8 +365,12 @@ export default {
     },
     onDowngradeConfirmClick (account) {
       this.clearActionStates()
+      this.busy = true
       this.$apiUpdateUserIsAdmin({account, is_admin: false}).then((res) => {
         this.user = res.body.user
+        this.busy = false
+      }, (res) => {
+        this.busy = false
       })
     }
   }

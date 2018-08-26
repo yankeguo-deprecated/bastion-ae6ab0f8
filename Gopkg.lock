@@ -97,6 +97,14 @@
   version = "v0.3.3"
 
 [[projects]]
+  branch = "master"
+  digest = "1:296cda2c4a6a7a54964d7b3b0815e2aed215da75217b72033060ffb1c4e4b6ae"
+  name = "github.com/felixge/httpsnoop"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "eadd4fad6aac69ae62379194fe0219f3dbc80fd3"
+
+[[projects]]
   digest = "1:4c0989ca0bcd10799064318923b9bc2db6b4d6338dd75f3f2d86c3511aaaf5cf"
   name = "github.com/golang/protobuf"
   packages = [
@@ -387,6 +395,7 @@
     "github.com/docker/docker/api/types/network",
     "github.com/docker/docker/client",
     "github.com/docker/docker/pkg/stdcopy",
+    "github.com/felixge/httpsnoop",
     "github.com/golang/protobuf/proto",
     "github.com/grpc-ecosystem/go-grpc-middleware",
     "github.com/grpc-ecosystem/go-grpc-middleware/recovery",
