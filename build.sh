@@ -18,7 +18,7 @@ build_grpc () {
 
 build_binfs () {
     cd ${SRC_ROOT}/web/ui && yarn build
-    cd ${SRC_ROOT}/web && PKG=web binfs public > public.bfs.go
+    cd ${SRC_ROOT}/web && PKG=web ${GOPATH}/bin/binfs public > public.bfs.go
 }
 
 build_cmd () {
