@@ -111,6 +111,17 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "master"
+  digest = "1:3696aeac96b2e5589b61f5fbaf5818eac15c8792a83a28cf4f38857268fecb58"
+  name = "github.com/grpc-ecosystem/go-grpc-middleware"
+  packages = [
+    ".",
+    "recovery",
+  ]
+  pruneopts = "UT"
+  revision = "15ea7401d63d2d8c2f17472d22359564615a9f7a"
+
+[[projects]]
   digest = "1:f8cb7c367c825e0c0be75f17e9b003d39b1240a1535fbbf095a18d7bb0d0c9c9"
   name = "github.com/hashicorp/consul"
   packages = ["api"]
@@ -377,6 +388,8 @@
     "github.com/docker/docker/client",
     "github.com/docker/docker/pkg/stdcopy",
     "github.com/golang/protobuf/proto",
+    "github.com/grpc-ecosystem/go-grpc-middleware",
+    "github.com/grpc-ecosystem/go-grpc-middleware/recovery",
     "github.com/hashicorp/consul/api",
     "github.com/jinzhu/copier",
     "github.com/kballard/go-shellquote",

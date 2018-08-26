@@ -27,6 +27,9 @@ func (o Options) String() string {
 
 // DaemonOptions daemon options for bastion
 type DaemonOptions struct {
+	// Dev dev mode
+	Dev bool `yaml:"dev"`
+
 	// DB database file path, using bolt, default to "/var/lib/bastion/database"
 	DB string `yaml:"db"`
 

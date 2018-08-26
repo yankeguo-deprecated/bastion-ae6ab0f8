@@ -2,14 +2,15 @@ package daemon
 
 import (
 	"fmt"
-	"net"
-	"os"
-	"path/filepath"
-
 	"github.com/asdine/storm"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
 	"google.golang.org/grpc"
+	"net"
+	"os"
+	"path/filepath"
 )
 
 // Daemon daemon instance
@@ -47,7 +48,10 @@ func (d *Daemon) createListener() (l net.Listener, err error) {
 }
 
 func (d *Daemon) createGRPCServer() *grpc.Server {
-	s := grpc.NewServer()
+	s := grpc.NewServer(
+		grpc_middleware.WithUnaryServerChain(zerologUnaryInterceptor, grpc_recovery.UnaryServerInterceptor()),
+		grpc_middleware.WithStreamServerChain(zerologStreamInterceptor, grpc_recovery.StreamServerInterceptor()),
+	)
 	types.RegisterUserServiceServer(s, d)
 	types.RegisterNodeServiceServer(s, d)
 	types.RegisterKeyServiceServer(s, d)
