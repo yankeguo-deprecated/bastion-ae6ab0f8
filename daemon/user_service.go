@@ -2,6 +2,7 @@ package daemon
 
 import (
 	"github.com/jinzhu/copier"
+	"github.com/rs/zerolog/log"
 	"github.com/yankeguo/bastion/daemon/models"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/crypto/bcrypt"
@@ -11,7 +12,8 @@ import (
 )
 
 var (
-	errInvalidAuthentication = status.Error(codes.InvalidArgument, "user not found or invalid password")
+	errInvalidPassword = status.Error(codes.InvalidArgument, "invalid password")
+	errUserBlocked     = status.Error(codes.InvalidArgument, "user blocked")
 )
 
 func (d *Daemon) ListUsers(c context.Context, req *types.ListUsersRequest) (res *types.ListUsersResponse, err error) {
@@ -102,6 +104,10 @@ func (d *Daemon) UpdateUser(c context.Context, req *types.UpdateUserRequest) (re
 	// update user
 	if req.UpdateIsBlocked {
 		u.IsBlocked = req.IsBlocked
+		// clear password failed when unblocking a user
+		if !req.IsBlocked {
+			u.PasswordFailed = 0
+		}
 	}
 	if req.UpdateIsAdmin {
 		u.IsAdmin = req.IsAdmin
@@ -132,10 +138,29 @@ func (d *Daemon) AuthenticateUser(c context.Context, req *types.AuthenticateUser
 	if err = d.db.One("Account", req.Account, &u); err != nil {
 		return
 	}
+	// check blocked
+	if u.IsBlocked {
+		err = errUserBlocked
+		return
+	}
 	// validate password
 	if err = bcrypt.CompareHashAndPassword([]byte(u.PasswordDigest), []byte(req.Password)); err != nil {
-		err = errInvalidAuthentication
+		err = errInvalidPassword
+		// update PasswordFailed, if failed too many times, block user
+		u.PasswordFailed = u.PasswordFailed + 1
+		log.Debug().Str("account", u.Account).Int64("failed", u.PasswordFailed).Msg("failed increased")
+		if u.PasswordFailed > 6 {
+			log.Debug().Str("account", u.Account).Int64("failed", u.PasswordFailed).Msg("blocked due to failed too much")
+			u.IsBlocked = true
+		}
+		d.db.Save(&u)
 		return
+	}
+	// clear PasswordFailed
+	if u.PasswordFailed > 0 {
+		u.PasswordFailed = 0
+		log.Debug().Str("account", u.Account).Int64("failed", u.PasswordFailed).Msg("failed cleared")
+		d.db.Save(&u)
 	}
 	// build response
 	res = &types.AuthenticateUserResponse{User: u.ToGRPCUser()}

@@ -66,6 +66,31 @@ func main() {
 					},
 				},
 				{
+					Name:  "unblock",
+					Usage: "unblock a user",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "account", Usage: "account name of the user"},
+					},
+					Action: func(c *cli.Context) error {
+						conn, err := newConnection(c)
+						if err != nil {
+							return err
+						}
+						defer conn.Close()
+						us := types.NewUserServiceClient(conn)
+						res, err := us.UpdateUser(context.Background(), &types.UpdateUserRequest{
+							Account:         c.String("account"),
+							UpdateIsBlocked: true,
+							IsBlocked:       false,
+						})
+						if err != nil {
+							return err
+						}
+						log.Println(res.User)
+						return nil
+					},
+				},
+				{
 					Name:  "list",
 					Usage: "list all users",
 					Action: func(c *cli.Context) error {

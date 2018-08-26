@@ -10,6 +10,7 @@ type User struct {
 	Account        string `storm:"id"` // primary key
 	Nickname       string
 	PasswordDigest string
+	PasswordFailed int64
 	IsAdmin        bool
 	IsBlocked      bool
 	CreatedAt      int64

@@ -16,6 +16,10 @@ func (d *Daemon) CreateToken(c context.Context, req *types.CreateTokenRequest) (
 		if err = db.One("Account", req.Account, &u); err != nil {
 			return
 		}
+		if u.IsBlocked {
+			err = errUserBlocked
+			return
+		}
 		t.Account = u.Account
 		t.Description = req.Description
 		t.Token = newToken()

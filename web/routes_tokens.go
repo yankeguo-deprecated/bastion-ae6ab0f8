@@ -19,7 +19,7 @@ func hideAuthenticationError(err *error) {
 	}
 	if s, ok := status.FromError(*err); ok {
 		if s.Code() == codes.InvalidArgument {
-			*err = errors.New("account not exists, or password is incorrect")
+			*err = errors.New("account not exists, password is incorrect, or user is blocked")
 		}
 	}
 }
