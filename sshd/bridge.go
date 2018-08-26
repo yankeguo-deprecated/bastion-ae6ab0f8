@@ -14,28 +14,28 @@ import (
 )
 
 func handleLv1DirectTCPIPChannel(conn *ssh.ServerConn, sc ssh.Channel, tp *TunnelPool, address string, port int) (err error) {
-	ILog(conn).Str("channel", "direct-tcpip").Msg("channel opened")
-	defer ILog(conn).Str("channel", "direct-tcpip").Err(err).Msg("channel finished")
+	ILog(conn).Str("channel", ChannelTypeDirectTCPIP).Msg("channel opened")
+	defer ILog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("channel finished")
 	// remember to close channel
 	defer sc.Close()
 	// dial remote address
 	var c net.Conn
 	if c, err = tp.Dial(address, port); err != nil {
-		ELog(conn).Str("channel", "direct-tcpip").Err(err).Msg("failed to dial ssh tunnel connection")
+		ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial ssh tunnel connection")
 		return
 	}
 	defer c.Close()
 	// bi-copy streams
 	if err = utils.DualCopy(c, sc); err != nil {
-		ELog(conn).Str("channel", "direct-tcpip").Err(err).Msg("failed to pipe bridge connection")
+		ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to pipe bridge connection")
 		return
 	}
 	return
 }
 
 func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan *ssh.Request, sb sandbox.Sandbox, account string, ss types.SessionServiceClient, rs types.ReplayServiceClient) (err error) {
-	ILog(conn).Str("channel", "session").Msg("channel opened")
-	defer ILog(conn).Str("channel", "session").Err(err).Msg("channel finished")
+	ILog(conn).Str("channel", ChannelTypeSession).Msg("channel opened")
+	defer ILog(conn).Str("channel", ChannelTypeSession).Err(err).Msg("channel finished")
 	// remember to close channel
 	defer sc.Close()
 	// variables
@@ -47,12 +47,12 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 	// range all requests
 	go func() {
 		for req := range srchan {
-			DLog(conn).Str("channel", "session").Str("request", req.Type).Msg("request received from user")
+			DLog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Msg("request received from user")
 			switch req.Type {
 			case RequestTypePtyReq:
 				var pl PtyRequestPayload
 				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
+					ELog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Err(err).Msg("failed to decode payload")
 					continue
 				}
 				pty, ptyCols, ptyRows, term = true, pl.Cols, pl.Rows, pl.Term
@@ -66,7 +66,7 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 			case RequestTypeEnv:
 				var pl EnvRequestPayload
 				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
+					ELog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Err(err).Msg("failed to decode payload")
 					continue
 				}
 				env = append(env, fmt.Sprintf("%s=%s", pl.Name, pl.Value))
@@ -76,7 +76,7 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 			case RequestTypeWindowChange:
 				var pl WindowChangeRequestPayload
 				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
+					ELog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Err(err).Msg("failed to decode payload")
 					continue
 				}
 				wch <- sandbox.Window{
@@ -91,7 +91,7 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 				if req.Type == RequestTypeExec {
 					var pl ExecRequestPayload
 					if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-						ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
+						ELog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Err(err).Msg("failed to decode payload")
 						continue
 					}
 					cmd = pl.Command
@@ -176,24 +176,24 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 }
 
 func handleLv2SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan *ssh.Request, tc ssh.Channel, trchan <-chan *ssh.Request, user string) (err error) {
-	ILog(conn).Str("channel", "session").Msg("channel opened")
-	defer ILog(conn).Str("channel", "session").Err(err).Msg("channel finished")
+	ILog(conn).Str("channel", ChannelTypeSession).Msg("channel opened")
+	defer ILog(conn).Str("channel", ChannelTypeSession).Err(err).Msg("channel finished")
 	// remember to close channels
 	defer sc.Close()
 	defer tc.Close()
 	// stream stdin, stdout, stderr, srchan <-> trchan
 	wr := &sync.WaitGroup{}
-	wr.Add(5)
+	wr.Add(3)
 	// srchan -> trchan
 	go func() {
 		for req := range srchan {
-			DLog(conn).Str("channel", "session").Str("request", req.Type).Msg("request received from remote server")
+			DLog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Msg("request received from remote server")
 			// modify request with sudo
 			switch req.Type {
 			case RequestTypeExec:
 				var pl ExecRequestPayload
 				if err = ssh.Unmarshal(req.Payload, &pl); err != nil {
-					ELog(conn).Str("channel", "session").Str("request", req.Type).Err(err).Msg("failed to decode payload")
+					ELog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Err(err).Msg("failed to decode payload")
 					continue
 				}
 				// switch user
@@ -223,19 +223,17 @@ func handleLv2SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 				}
 			}
 		}
-		wr.Done()
 	}()
 	// trchan -> srchan
 	go func() {
 		// transparent bridge requests
 		for req := range trchan {
-			DLog(conn).Str("channel", "session").Str("request", req.Type).Msg("request received from user")
+			DLog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Msg("request received from user")
 			ok, _ := sc.SendRequest(req.Type, req.WantReply, req.Payload)
 			if req.WantReply {
 				req.Reply(ok, nil)
 			}
 		}
-		wr.Done()
 	}()
 	go utils.CopyWG(sc, tc, wr, &err)
 	go utils.CopyWG(tc, sc, wr, &err)
