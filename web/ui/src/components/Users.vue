@@ -1,99 +1,54 @@
 <template>
   <b-row class="mt-4">
-    <b-modal id="modal1" title="添加用户" :hide-footer="true">
-      <b-form @submit="onCreateSubmit">
-        <b-form-group label="用户名:" label-class="text-right" description="仅允许英文数字和'.' '-' '_'" horizontal>
-          <b-form-input v-model="form.account" placeholder="请输入用户名" type="text"></b-form-input>
-        </b-form-group>
-        <b-form-group label="昵称:" label-class="text-right" description="建议使用姓名" horizontal>
-          <b-form-input v-model="form.nickname" placeholder="请输入昵称" type="text"></b-form-input>
-        </b-form-group>
-        <b-form-group label="密码:" label-class="text-right" description="长度必须大于6" horizontal>
-          <b-form-input v-model="form.password" placeholder="请输入密码" type="password"></b-form-input>
-        </b-form-group>
-        <b-form-group label="重复密码:" label-class="text-right" horizontal>
-          <b-form-input v-model="form.repPassword" placeholder="重复密码" type="password"></b-form-input>
-        </b-form-group>
-        <div class="text-right">
-          <b-button type="submit" :disabled="busy" variant="success"><i class="fa fa-plus-circle"
-                                                                        aria-hidden="true"></i> 添加
+    <b-col md="4" lg="3">
+      <b-card header="添加用户" header-tag="b">
+        <b-form @submit="onCreateSubmit">
+          <b-form-group label="用户名" description="仅允许英文数字和'.' '-' '_'">
+            <b-form-input v-model="form.account" placeholder="请输入用户名" type="text"></b-form-input>
+          </b-form-group>
+          <b-form-group label="昵称" description="建议使用姓名">
+            <b-form-input v-model="form.nickname" placeholder="请输入昵称" type="text"></b-form-input>
+          </b-form-group>
+          <b-form-group label="密码" description="长度必须大于6">
+            <b-form-input v-model="form.password" placeholder="请输入密码" type="password"></b-form-input>
+          </b-form-group>
+          <b-form-group label="重复密码">
+            <b-form-input v-model="form.repPassword" placeholder="重复密码" type="password"></b-form-input>
+          </b-form-group>
+          <b-button type="submit" class="btn-block" :disabled="busy" variant="success">
+            <i class="fa fa-plus-circle" aria-hidden="true"></i> 添加
           </b-button>
-        </div>
-      </b-form>
-    </b-modal>
-    <b-col>
+        </b-form>
+      </b-card>
+    </b-col>
+    <b-col md="8" lg="9">
       <b-row>
-        <b-col md="4" lg="3">
-          <b-form @reset="onReset" inline>
-            <b-input v-model="search" class="mb-2 mr-sm-2 mb-sm-0" placeholder="搜索用户名或昵称"/>
-            <b-button type="reset" :disabled="search == ''" variant="outline-danger"><i class="fa fa-ban"
-                                                                                        aria-hidden="true"></i> 清除
-            </b-button>
-          </b-form>
-        </b-col>
-        <b-col md="8" lg="9" class="text-right">
-          <b-btn variant="success" v-b-modal.modal1><i class="fa fa-plus-circle" aria-hidden="true"></i> 添加</b-btn>
-        </b-col>
-      </b-row>
-      <b-row class="mt-4">
         <b-col>
-          <b-table striped :items="filteredUsers" :fields="fields">
-            <template slot="account" slot-scope="data">
-              <b-link :to="{name: 'UserDetail', params: {account: data.item.account}}">{{data.item.account}}</b-link>
-            </template>
-            <template slot="created_at" slot-scope="data">
-              {{data.item.created_at | formatUnixEpoch}}
-            </template>
-            <template slot="viewed_at" slot-scope="data">
-              {{data.item.viewed_at | formatUnixEpoch}}
-            </template>
-            <template slot="action" slot-scope="data">
-              <b-link href="#" class="text-danger"
-                      v-if="data.item.account != currentUser.account && data.item.is_admin && data.item.account != accountToDowngrade"
-                      @click="onDowngradeClick(data.item.account)"><i class="fa fa-level-down" aria-hidden="true"></i>
-                降级管理员
-              </b-link>
-              <b-link href="#" class="text-danger"
-                      v-if="data.item.account != currentUser.account && data.item.is_admin && data.item.account == accountToDowngrade"
-                      @click="onDowngradeConfirmClick(data.item.account)"><i class="fa fa-level-down"
-                                                                             aria-hidden="true"></i> 确认降级管理员
-              </b-link>
-              <b-link href="#" class="text-success"
-                      v-if="data.item.account != currentUser.account && !data.item.is_admin && data.item.account != accountToUpgrade"
-                      @click="onUpgradeClick(data.item.account)"><i class="fa fa-level-up" aria-hidden="true"></i> 升级管理员
-              </b-link>
-              <b-link href="#" class="text-success"
-                      v-if="data.item.account != currentUser.account && !data.item.is_admin && data.item.account == accountToUpgrade"
-                      @click="onUpgradeConfirmClick(data.item.account)"><i class="fa fa-level-up"
-                                                                           aria-hidden="true"></i> 确认升级管理员
-              </b-link>
-              <span class="text-muted" v-if="data.item.account != currentUser.account">&nbsp;|&nbsp;</span>
-              <b-link href="#" class="text-success"
-                      v-if="data.item.account != currentUser.account && data.item.is_blocked && data.item.account != accountToUnblock"
-                      @click="onUnblockClick(data.item.account)"><i class="fa fa-check-circle-o" aria-hidden="true"></i>
-                解封用户
-              </b-link>
-              <b-link href="#" class="text-success"
-                      v-if="data.item.account != currentUser.account && data.item.is_blocked && data.item.account == accountToUnblock"
-                      @click="onUnblockConfirmClick(data.item.account)"><i class="fa fa-check-circle-o"
-                                                                           aria-hidden="true"></i> 确认解封用户
-              </b-link>
-              <b-link href="#" class="text-danger"
-                      v-if="data.item.account != currentUser.account && !data.item.is_blocked && data.item.account != accountToBlock"
-                      @click="onBlockClick(data.item.account)"><i class="fa fa-ban" aria-hidden="true"></i> 封禁用户
-              </b-link>
-              <b-link href="#" class="text-danger"
-                      v-if="data.item.account != currentUser.account && !data.item.is_blocked && data.item.account == accountToBlock"
-                      @click="onBlockConfirmClick(data.item.account)"><i class="fa fa-ban" aria-hidden="true"></i>
-                确认封禁用户
-              </b-link>
-
-              <span class="text-muted" v-if="data.item.account == currentUser.account">(当前用户)</span>
-            </template>
-            <template slot="status" slot-scope="data">
-              {{data.item | formatUserStatus }}
-            </template>
-          </b-table>
+          <b-card no-body header="用户列表" header-tag="b">
+            <b-card-body>
+              <b-form @reset="onReset" inline>
+                <b-input v-model="search" class="mb-2 mr-sm-2 mb-sm-0" placeholder="搜索用户名或昵称"/>
+                <b-button type="reset" :disabled="search == ''" variant="outline-danger">
+                  <i class="fa fa-ban" aria-hidden="true"></i> 清除
+                </b-button>
+              </b-form>
+            </b-card-body>
+            <b-table striped :items="filteredUsers" :fields="fields" class="mb-0">
+              <template slot="account" slot-scope="data">
+                <b-link :to="{name: 'UserDetail', params: {account: data.item.account}}">{{data.item.nickname}} ({{data.item.account}})</b-link>
+                <span class="text-muted pull-right" v-if="data.item.account == currentUser.account">当前用户</span>
+              </template>
+              <template slot="created_at" slot-scope="data">
+                {{data.item.created_at | formatUnixEpoch}}
+              </template>
+              <template slot="viewed_at" slot-scope="data">
+                {{data.item.viewed_at | formatUnixEpoch}}
+              </template>
+              <template slot="status" slot-scope="data">
+                {{data.item | formatUserStatus }}
+              </template>
+            </b-table>
+          </b-card>
         </b-col>
       </b-row>
     </b-col>
@@ -112,16 +67,9 @@ export default {
       fields: [
         {
           key: 'account',
-          label: '用户名',
+          label: '用户',
           sortable: true,
-          thClass: 'text-center',
-          tdClass: 'text-center'
-        },
-        {
-          key: 'nickname',
-          label: '昵称',
-          thClass: 'text-center',
-          tdClass: 'text-center'
+          thClass: 'text-center'
         },
         {
           key: 'status',
@@ -142,12 +90,6 @@ export default {
           sortable: true,
           thClass: 'text-center',
           tdClass: 'text-center'
-        },
-        {
-          key: 'action',
-          label: '    ',
-          thClass: 'text-center',
-          tdClass: 'action-cell-wide'
         }
       ],
       form: {
@@ -157,11 +99,7 @@ export default {
         repPassword: ''
       },
       search: '',
-      busy: false,
-      accountToBlock: '',
-      accountToUnblock: '',
-      accountToUpgrade: '',
-      accountToDowngrade: ''
+      busy: false
     }
   },
   mounted () {
@@ -183,12 +121,6 @@ export default {
     }
   },
   methods: {
-    clearActionStates () {
-      this.accountToBlock = ''
-      this.accountToUnblock = ''
-      this.accountToUpgrade = ''
-      this.accountToDowngrade = ''
-    },
     onReset () {
       this.search = ''
     },
@@ -200,43 +132,15 @@ export default {
           text: '重复密码不正确'
         })
       }
-      this.$apiCreateUser(this.form)
-    },
-    onBlockClick (account) {
-      this.clearActionStates()
-      this.accountToBlock = account
-    },
-    onBlockConfirmClick (account) {
-      this.clearActionStates()
-      this.$apiUpdateUserIsBlocked({account, is_blocked: true})
-    },
-    onUnblockClick (account) {
-      this.clearActionStates()
-      this.accountToUnblock = account
-    },
-    onUnblockConfirmClick (account) {
-      this.clearActionStates()
-      this.$apiUpdateUserIsBlocked({account, is_blocked: false})
-    },
-    onUpgradeClick (account) {
-      this.clearActionStates()
-      this.accountToUpgrade = account
-    },
-    onUpgradeConfirmClick (account) {
-      this.clearActionStates()
-      this.$apiUpdateUserIsAdmin({account, is_admin: true})
-    },
-    onDowngradeClick (account) {
-      this.clearActionStates()
-      this.accountToDowngrade = account
-    },
-    onDowngradeConfirmClick (account) {
-      this.clearActionStates()
-      this.$apiUpdateUserIsAdmin({account, is_admin: false})
+      this.$apiCreateUser(this.form).then((res) => {
+        this.form.account = ''
+        this.form.nickname = ''
+        this.form.password = ''
+        this.form.repPassword = ''
+      })
     }
   }
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

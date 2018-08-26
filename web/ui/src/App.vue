@@ -78,4 +78,8 @@ export default {
     width: 16rem;
     text-align: center;
   }
+
+  legend {
+    font-weight: bold;
+  }
 </style>

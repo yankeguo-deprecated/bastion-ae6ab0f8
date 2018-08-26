@@ -1,5 +1,5 @@
 <template>
-  <b-row id="main-row">
+  <b-row class="mt-4">
     <b-col md="4" offset-md="4" lg="2" offset-lg="5">
       <b-card title="登录">
         <b-form @submit="onSubmit">
@@ -45,8 +45,4 @@ export default {
 }
 </script>
 
-<style scoped>
-  #main-row {
-    margin-top: 2rem;
-  }
-</style>
+<style scoped></style>

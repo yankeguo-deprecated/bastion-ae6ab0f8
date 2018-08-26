@@ -1,18 +1,18 @@
 <template>
   <b-row>
     <b-col md="6" lg="4">
-      <b-card>
+      <b-card header="个人信息" header-tag="b">
         <b-form>
-          <b-form-group label="账户名:" label-class="text-right" horizontal>
+          <b-form-group label="账户名" label-class="text-right" horizontal>
             <b-form-input :value="currentUser.account" readonly plaintext></b-form-input>
           </b-form-group>
-          <b-form-group label="账户类型:" label-class="text-right" horizontal>
+          <b-form-group label="账户类型" label-class="text-right" horizontal>
             <b-form-input :value="currentUser | formatUserStatus" readonly plaintext></b-form-input>
           </b-form-group>
-          <b-form-group label="昵称:" label-class="text-right" horizontal>
+          <b-form-group label="昵称" label-class="text-right" horizontal>
             <b-form-input :value="nickname"  readonly plaintext></b-form-input>
           </b-form-group>
-          <b-form-group label="创建时间:" label-class="text-right" horizontal>
+          <b-form-group label="创建时间" label-class="text-right" horizontal>
             <b-form-input :value="currentUser.created_at | formatUnixEpoch" readonly plaintext></b-form-input>
           </b-form-group>
         </b-form>
@@ -42,5 +42,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

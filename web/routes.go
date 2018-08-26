@@ -21,12 +21,6 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(false),
 		routeGetCurrentUser,
 	)
-	/*
-		router.Route(n).Post("/api/users/current/update_nickname").Use(
-			requiresLoggedIn(false),
-			routeUpdateCurrentUserNickname,
-		)
-	*/
 	router.Route(n).Post("/api/users/current/update_password").Use(
 		requiresLoggedIn(false),
 		routeUpdateCurrentUserPassword,
@@ -74,6 +68,10 @@ func mountRoutes(n *nova.Nova) {
 	router.Route(n).Post("/api/users/update_is_blocked").Use(
 		requiresLoggedIn(true),
 		routeUpdateUserIsBlocked,
+	)
+	router.Route(n).Post("/api/users/update_nickname").Use(
+		requiresLoggedIn(true),
+		routeUpdateUserNickname,
 	)
 	router.Route(n).Get("/api/users/:account").Use(
 		requiresLoggedIn(true),

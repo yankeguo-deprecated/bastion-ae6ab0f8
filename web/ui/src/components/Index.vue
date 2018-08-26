@@ -3,19 +3,21 @@
 </template>
 
 <script>
-import store from '@/store'
+import {mapGetters} from 'vuex'
 
 export default {
   name: 'Index',
   mounted () {
-    if (!store.getters.isLoggedIn) {
+    if (!this.isLoggedIn) {
       this.$router.push('/login')
     } else {
       this.$router.push('/dashboard')
     }
+  },
+  computed: {
+    ...mapGetters(['isLoggedIn'])
   }
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

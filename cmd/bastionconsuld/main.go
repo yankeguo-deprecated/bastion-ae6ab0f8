@@ -4,9 +4,9 @@ import (
 	"context"
 	"flag"
 	"github.com/hashicorp/consul/api"
+	"github.com/rs/zerolog/log"
 	"github.com/yankeguo/bastion/types"
 	"google.golang.org/grpc"
-	"log"
 	"time"
 )
 
@@ -24,7 +24,6 @@ func main() {
 
 	for {
 		if err := update(); err != nil {
-			log.Println(err)
 			time.Sleep(time.Second * 10)
 		}
 	}
@@ -82,7 +81,7 @@ func update() (err error) {
 	// add all hosts from consul catalog
 	for _, cn := range cns {
 		if verbose {
-			log.Println("will add:", cn.Node, cn.Address)
+			log.Print("will add:", cn.Node, cn.Address)
 		}
 		if _, err = ns.PutNode(context.Background(), &types.PutNodeRequest{
 			Hostname: cn.Node,
@@ -96,7 +95,7 @@ func update() (err error) {
 	// delete all hosts not existed any more
 	for _, n := range removes {
 		if verbose {
-			log.Println("will remove:", n)
+			log.Print("will remove:", n)
 		}
 		if _, err = ns.DeleteNode(context.Background(), &types.DeleteNodeRequest{
 			Hostname: n,

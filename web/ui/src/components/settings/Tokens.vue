@@ -1,24 +1,26 @@
 <template>
-  <b-table striped :items="tokens" :fields="fields">
-    <template slot="created_at" slot-scope="data">
-      {{data.item.created_at | formatUnixEpoch}}
-    </template>
-    <template slot="viewed_at" slot-scope="data">
-      {{data.item.viewed_at | formatUnixEpoch}}
-    </template>
-    <template slot="description" slot-scope="data">
-      {{data.item.description | formatUserAgent}}
-    </template>
-    <template slot="action" slot-scope="data">
-      <b-link href="#" class="text-danger" v-if="data.item.id != currentToken.id && data.item.id != tokenToDelete"
-              @click="onDeleteClick(data.item.id)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
-      </b-link>
-      <b-link href="#" class="text-danger" v-if="data.item.id != currentToken.id && data.item.id == tokenToDelete"
-              @click="onDeleteConfirmClick(data.item.id)"><i class="fa fa-trash" aria-hidden="true"></i> 确认删除
-      </b-link>
-      <span class="text-muted" v-if="data.item.id == currentToken.id">(当前)</span>
-    </template>
-  </b-table>
+  <b-card no-body header="访问令牌列表" header-tag="b">
+    <b-table striped :items="tokens" :fields="fields" class="mb-0">
+      <template slot="created_at" slot-scope="data">
+        {{data.item.created_at | formatUnixEpoch}}
+      </template>
+      <template slot="viewed_at" slot-scope="data">
+        {{data.item.viewed_at | formatUnixEpoch}}
+      </template>
+      <template slot="description" slot-scope="data">
+        {{data.item.description | formatUserAgent}}
+      </template>
+      <template slot="action" slot-scope="data">
+        <b-link href="#" class="text-danger" v-if="data.item.id != currentToken.id && data.item.id != tokenToDelete"
+                @click="onDeleteClick(data.item.id)"><i class="fa fa-trash" aria-hidden="true"></i> 删除
+        </b-link>
+        <b-link href="#" class="text-danger" v-if="data.item.id != currentToken.id && data.item.id == tokenToDelete"
+                @click="onDeleteConfirmClick(data.item.id)"><i class="fa fa-trash" aria-hidden="true"></i> 确认删除
+        </b-link>
+        <span class="text-muted" v-if="data.item.id == currentToken.id">(当前)</span>
+      </template>
+    </b-table>
+  </b-card>
 </template>
 
 <script>
@@ -72,5 +74,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

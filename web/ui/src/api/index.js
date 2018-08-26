@@ -248,6 +248,23 @@ let API = {
           return res
         }, this.$apiErrorCallback())
     }
+    Vue.prototype.$apiUpdateUserNickname = function ({account, nickname}) {
+      return this.$http
+        .post(
+          '/api/users/update_nickname',
+          {account, nickname},
+          {emulateJSON: true}
+        )
+        .then(res => {
+          this.$apiListUsers()
+          this.$notify({
+            type: 'success',
+            title: '操作成功',
+            text: '昵称更新成功'
+          })
+          return res
+        }, this.$apiErrorCallback())
+    }
     Vue.prototype.$apiGetUser = function (account) {
       return this.$http
         .get(`/api/users/${account}`)
@@ -301,12 +318,6 @@ let API = {
     }
     Vue.prototype.$apiListSessions = function ({skip, limit}) {
       return this.$http.get('/api/sessions', {params: {skip, limit}}).then(null, this.$apiErrorCallback())
-    }
-    Vue.prototype.$apiDownloadReplay = function (id) {
-      return this.$http.get(`/api/replays/${id}/download`).then(null, this.$apiErrorCallback())
-    }
-    Vue.prototype.$apiGetSession = function (id) {
-      return this.$http.get(`/api/sessions/${id}`).then(null, this.$apiErrorCallback())
     }
   }
 }

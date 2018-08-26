@@ -1,15 +1,15 @@
 <template>
   <b-row>
     <b-col md="6" lg="4">
-      <b-card>
+      <b-card header="修改密码" header-tag="b">
         <b-form @submit="onSubmit">
-          <b-form-group label="旧密码:" label-class="text-right" description="输入旧密码" horizontal>
+          <b-form-group label="旧密码" label-class="text-right" description="输入旧密码" horizontal>
             <b-form-input v-model="form.oldPassword" placeholder="输入旧密码" type="password"></b-form-input>
           </b-form-group>
-          <b-form-group label="新密码:" label-class="text-right" description="长度不能小于6" horizontal>
+          <b-form-group label="新密码" label-class="text-right" description="长度不能小于6" horizontal>
             <b-form-input v-model="form.newPassword" placeholder="输入新密码" type="password"></b-form-input>
           </b-form-group>
-          <b-form-group label="重复密码:" label-class="text-right" horizontal>
+          <b-form-group label="重复密码" label-class="text-right" horizontal>
             <b-form-input v-model="form.repPassword" placeholder="重复输入新密码" type="password"></b-form-input>
           </b-form-group>
           <b-button type="submit" class="btn-block" :disabled="busy" variant="primary"><i class="fa fa-upload"
@@ -72,5 +72,4 @@ export default {
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

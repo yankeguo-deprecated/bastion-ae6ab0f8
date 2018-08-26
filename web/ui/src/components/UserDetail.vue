@@ -8,44 +8,92 @@
       </b-row>
       <b-row>
         <b-col md="4" lg="3">
-          <b-card>
-            <b-form>
-              <b-form-group label="账户名:" label-class="text-right" horizontal>
-                <b-form-input :value="user.account" readonly plaintext></b-form-input>
-              </b-form-group>
-              <b-form-group label="账户类型:" label-class="text-right" horizontal>
-                <b-form-input :value="user | formatUserStatus" readonly plaintext></b-form-input>
-              </b-form-group>
-              <b-form-group label="昵称:" label-class="text-right" horizontal>
-                <b-form-input :value="user.nickname" readonly plaintext></b-form-input>
-              </b-form-group>
-              <b-form-group label="创建时间:" label-class="text-right" horizontal>
-                <b-form-input :value="user.created_at | formatUnixEpoch" readonly plaintext></b-form-input>
-              </b-form-group>
-            </b-form>
-          </b-card>
+          <b-row>
+            <b-col>
+              <b-card header="用户信息" header-tag="b">
+                <b-form @submit="onProfileFormSubmit">
+                  <b-form-group label="账户名" label-class="text-right" horizontal>
+                    <b-form-input :value="user.account" readonly plaintext></b-form-input>
+                  </b-form-group>
+                  <b-form-group label="账户类型" label-class="text-right" horizontal>
+                    <b-form-input :value="user | formatUserStatus" readonly plaintext></b-form-input>
+                  </b-form-group>
+                  <b-form-group label="昵称" label-class="text-right" horizontal>
+                    <b-form-input v-model="userNickname" :disabled="profileFormBusy"></b-form-input>
+                  </b-form-group>
+                  <b-form-group label="创建时间" label-class="text-right" horizontal>
+                    <b-form-input :value="user.created_at | formatUnixEpoch" readonly plaintext></b-form-input>
+                  </b-form-group>
+                  <b-button type="submit" class="btn-block" :disabled="profileFormBusy" variant="primary"><i class="fa fa-upload"
+                                                                                                             aria-hidden="true"></i> 修改昵称</b-button>
+                </b-form>
+              </b-card>
+            </b-col>
+          </b-row>
+          <b-row class="mt-3">
+            <b-col>
+              <b-card v-if="user.account !== currentUser.account" header="操作" header-tag="b">
+                  <b-button class="btn-block" variant="danger"
+                          v-if="user.is_admin && user.account !== accountToDowngrade"
+                          @click="onDowngradeClick(user.account)"><i class="fa fa-level-down" aria-hidden="true"></i>
+                    降级管理员
+                  </b-button>
+                  <b-button class="btn-block" variant="danger"
+                          v-if="user.is_admin && user.account === accountToDowngrade"
+                          @click="onDowngradeConfirmClick(user.account)"><i class="fa fa-level-down"
+                                                                            aria-hidden="true"></i> 确认降级管理员
+                  </b-button>
+                  <b-button class="btn-block" variant="success"
+                          v-if="!user.is_admin && user.account !== accountToUpgrade"
+                          @click="onUpgradeClick(user.account)"><i class="fa fa-level-up" aria-hidden="true"></i> 升级管理员
+                  </b-button>
+                  <b-button class="btn-block" variant="success"
+                          v-if="!user.is_admin && user.account === accountToUpgrade"
+                          @click="onUpgradeConfirmClick(user.account)"><i class="fa fa-level-up"
+                                                                          aria-hidden="true"></i> 确认升级管理员
+                  </b-button>
+                  <b-button class="btn-block" variant="success"
+                          v-if="user.is_blocked && user.account !== accountToUnblock"
+                          @click="onUnblockClick(user.account)"><i class="fa fa-check-circle-o" aria-hidden="true"></i>
+                    解封用户
+                  </b-button>
+                  <b-button class="btn-block" variant="success"
+                          v-if="user.is_blocked && user.account === accountToUnblock"
+                          @click="onUnblockConfirmClick(user.account)"><i class="fa fa-check-circle-o"
+                                                                          aria-hidden="true"></i> 确认解封用户
+                  </b-button>
+                  <b-button class="btn-block" variant="danger"
+                          v-if="!user.is_blocked && user.account !== accountToBlock"
+                          @click="onBlockClick(user.account)"><i class="fa fa-ban" aria-hidden="true"></i> 封禁用户
+                  </b-button>
+                  <b-button class="btn-block" variant="danger"
+                          v-if="!user.is_blocked && user.account === accountToBlock"
+                          @click="onBlockConfirmClick(user.account)"><i class="fa fa-ban" aria-hidden="true"></i>
+                    确认封禁用户
+                  </b-button>
+              </b-card>
+            </b-col>
+          </b-row>
         </b-col>
         <b-col md="8" lg="9">
           <b-row>
             <b-col>
-              <b-card>
-                <b-form inline @submit="onSubmit">
-                  <b-form-select v-model="form.user_mode" :options="user_modes"
-                                 class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
-                  <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-if="form.user_mode == 'console'" v-model="form.user" placeholder="Linux 用户"/>
-                  <i v-if="form.user_mode == 'console'" class="fa fa-at" aria-hidden="true"></i>
-                  <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.hostname_pattern"
-                           placeholder="主机名，允许通配符 *"/>
-                  <span>,</span>
-                  <b-input v-if="form.expires_mode != 'n'" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"
-                           v-model="form.expires_in" type="number"/>
-                  <b-form-select v-model="form.expires_mode" :options="expire_modes"
-                                 class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
-                  <b-button type="submit" variant="success"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>
-                    添加/更新
-                  </b-button>
-                </b-form>
-                <b-table :items="grants" :fields="fields" class="mt-3">
+              <b-card header="管理权限" header-tag="b" no-body>
+                <b-card-body>
+                  <b-form inline @submit="onSubmit">
+                    <b-form-select v-model="form.user_mode" :options="user_modes" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
+                    <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-if="form.user_mode == 'console'" v-model="form.user" placeholder="Linux 用户"/>
+                    <i v-if="form.user_mode == 'console'" class="fa fa-at" aria-hidden="true"></i>
+                    <b-input class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.hostname_pattern" placeholder="主机名，允许通配符 *"/>
+                    <span>,</span>
+                    <b-input v-if="form.expires_mode != 'n'" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0" v-model="form.expires_in" type="number"/>
+                    <b-form-select v-model="form.expires_mode" :options="expire_modes" class="ml-sm-2 mb-2 mr-sm-2 mb-sm-0"></b-form-select>
+                    <b-button type="submit" variant="success"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                      添加/更新
+                    </b-button>
+                  </b-form>
+                </b-card-body>
+                <b-table :items="grants" :fields="fields" class="mb-0" empty-text="无" :show-empty="true">
                   <template slot="type" slot-scope="data">
                     <span v-if="data.item.user === '__tunnel__'"><i class="fa fa-link" aria-hidden="true"></i> 建立隧道</span>
                     <span v-if="data.item.user !== '__tunnel__'"><i class="fa fa-sign-in" aria-hidden="true"></i> 登录用户</span>
@@ -82,9 +130,13 @@
 
 <script>
 /* eslint-disable camelcase */
+import {mapState} from 'vuex'
 
 export default {
   name: 'UserDetail',
+  computed: {
+    ...mapState(['currentUser'])
+  },
   data () {
     return {
       navigationItems: [
@@ -148,6 +200,8 @@ export default {
         created_at: 0,
         updated_at: 0
       },
+      userNickname: '',
+      profileFormBusy: false,
       grants: [],
       form: {
         user_mode: 'console',
@@ -180,7 +234,11 @@ export default {
           text: '永不过期'
         }
       ],
-      grantToDelete: {}
+      grantToDelete: {},
+      accountToBlock: '',
+      accountToUnblock: '',
+      accountToUpgrade: '',
+      accountToDowngrade: ''
     }
   },
   mounted () {
@@ -189,8 +247,13 @@ export default {
   },
   methods: {
     fetchUser () {
+      this.profileFormBusy = true
       this.$apiGetUser(this.$route.params.account).then(res => {
+        this.profileFormBusy = false
         this.user = res.body.user
+        this.userNickname = this.user.nickname
+      }, (res) => {
+        this.profileFormBusy = false
       })
     },
     fetchUserGrants () {
@@ -230,6 +293,16 @@ export default {
         this.fetchUserGrants()
       })
     },
+    onProfileFormSubmit () {
+      this.profileFormBusy = true
+      this.$apiUpdateUserNickname({account: this.user.account, nickname: this.userNickname}).then((res) => {
+        this.user = res.body.user
+        this.userNickname = this.user.nickname
+        this.profileFormBusy = false
+      }, (res) => {
+        this.profileFormBusy = false
+      })
+    },
     onDeleteClick (grant) {
       this.grantToDelete = grant
     },
@@ -237,10 +310,55 @@ export default {
       this.$apiDestroyGrant(this.grantToDelete).then(() => {
         this.fetchUserGrants()
       })
+    },
+    clearActionStates () {
+      this.accountToBlock = ''
+      this.accountToUnblock = ''
+      this.accountToUpgrade = ''
+      this.accountToDowngrade = ''
+    },
+    onBlockClick (account) {
+      this.clearActionStates()
+      this.accountToBlock = account
+    },
+    onBlockConfirmClick (account) {
+      this.clearActionStates()
+      this.$apiUpdateUserIsBlocked({account, is_blocked: true}).then((res) => {
+        this.user = res.body.user
+      })
+    },
+    onUnblockClick (account) {
+      this.clearActionStates()
+      this.accountToUnblock = account
+    },
+    onUnblockConfirmClick (account) {
+      this.clearActionStates()
+      this.$apiUpdateUserIsBlocked({account, is_blocked: false}).then((res) => {
+        this.user = res.body.user
+      })
+    },
+    onUpgradeClick (account) {
+      this.clearActionStates()
+      this.accountToUpgrade = account
+    },
+    onUpgradeConfirmClick (account) {
+      this.clearActionStates()
+      this.$apiUpdateUserIsAdmin({account, is_admin: true}).then((res) => {
+        this.user = res.body.user
+      })
+    },
+    onDowngradeClick (account) {
+      this.clearActionStates()
+      this.accountToDowngrade = account
+    },
+    onDowngradeConfirmClick (account) {
+      this.clearActionStates()
+      this.$apiUpdateUserIsAdmin({account, is_admin: false}).then((res) => {
+        this.user = res.body.user
+      })
     }
   }
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

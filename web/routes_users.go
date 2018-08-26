@@ -55,11 +55,11 @@ func routeGetCurrentUserGrantItems(c *nova.Context) (err error) {
 	return
 }
 
-func routeUpdateCurrentUserNickname(c *nova.Context) (err error) {
-	a, us, v := authResult(c), userService(c), view.Extract(c)
+func routeUpdateUserNickname(c *nova.Context) (err error) {
+	us, v := userService(c), view.Extract(c)
 	var res1 *types.UpdateUserResponse
 	if res1, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
-		Account:        a.User.Account,
+		Account:        c.Req.FormValue("account"),
 		UpdateNickname: true,
 		Nickname:       c.Req.FormValue("nickname"),
 	}); err != nil {
