@@ -9,6 +9,7 @@ import (
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
 	"golang.org/x/crypto/ssh"
+	"io"
 	"net"
 	"sync"
 )
@@ -187,7 +188,7 @@ func handleLv2SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 	// srchan -> trchan
 	go func() {
 		for req := range srchan {
-			DLog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Msg("request received from remote server")
+			DLog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Msg("request received from user")
 			// modify request with sudo
 			switch req.Type {
 			case RequestTypeExec:
@@ -223,21 +224,26 @@ func handleLv2SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 				}
 			}
 		}
+		// not track srchan
 	}()
 	// trchan -> srchan
 	go func() {
 		// transparent bridge requests
 		for req := range trchan {
-			DLog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Msg("request received from user")
+			DLog(conn).Str("channel", ChannelTypeSession).Str("request", req.Type).Msg("request received from remote server")
 			ok, _ := sc.SendRequest(req.Type, req.WantReply, req.Payload)
 			if req.WantReply {
 				req.Reply(ok, nil)
 			}
 		}
+		// track trchan
+		wr.Done()
 	}()
+	// track sc <- tc
 	go utils.CopyWG(sc, tc, wr, &err)
-	go utils.CopyWG(tc, sc, wr, &err)
 	go utils.CopyWG(sc.Stderr(), tc.Stderr(), wr, &err)
+	// not track sc -> tc
+	go io.Copy(tc, sc)
 	wr.Wait()
 	return
 }
