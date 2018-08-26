@@ -2,6 +2,7 @@ package web
 
 import (
 	"fmt"
+	_ "github.com/novakit/binfs"
 	"github.com/novakit/nova"
 	"github.com/novakit/static"
 	"github.com/novakit/view"

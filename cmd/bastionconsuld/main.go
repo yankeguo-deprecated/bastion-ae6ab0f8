@@ -4,27 +4,45 @@ import (
 	"context"
 	"flag"
 	"github.com/hashicorp/consul/api"
+	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"github.com/yankeguo/bastion/types"
 	"google.golang.org/grpc"
+	"os"
 	"time"
 )
 
 var (
+	dev      bool
 	endpoint string
-	verbose  bool
 
 	lastIndex uint64
 )
 
 func main() {
+	var err error
+
+	// init logger
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+	log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, NoColor: true})
+
 	flag.StringVar(&endpoint, "endpoint", "127.0.0.1:9777", "endpoint address of bunkerd")
-	flag.BoolVar(&verbose, "verbose", false, "enable verbose mode")
+	flag.BoolVar(&dev, "dev", false, "enable dev mode")
 	flag.Parse()
 
+	// update logger
+	if dev {
+		zerolog.SetGlobalLevel(zerolog.DebugLevel)
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout})
+	}
+
 	for {
-		if err := update(); err != nil {
+		log.Debug().Msg("update started")
+		if err = update(); err != nil {
+			log.Error().Err(err).Msg("update failed")
 			time.Sleep(time.Second * 10)
+		} else {
+			log.Debug().Msg("update finished")
 		}
 	}
 }
@@ -58,48 +76,47 @@ func update() (err error) {
 	if lnr, err = ns.ListNodes(context.Background(), &types.ListNodesRequest{}); err != nil {
 		return
 	}
-	// find hostnames to remove
-	removes := make([]string, 0)
-	for _, bn := range lnr.Nodes {
+	// remove missing node
+remLoop:
+	for _, n := range lnr.Nodes {
 		// ignore non-consul hosts
-		if bn.Source != types.NodeSourceConsul {
+		if n.Source != types.NodeSourceConsul {
 			continue
 		}
 		// check if it's existed in consul catalog
-		var found bool
 		for _, cn := range cns {
-			if cn.Node == bn.Hostname {
-				found = true
-				break
+			if cn.Node == n.Hostname {
+				continue remLoop
 			}
 		}
-		// not found, mark to remove
-		if !found {
-			removes = append(removes, bn.Hostname)
+		log.Debug().Str("hostname", n.Hostname).Str("address", n.Address).Msg("remove node")
+		if _, err = ns.DeleteNode(context.Background(), &types.DeleteNodeRequest{
+			Hostname: n.Hostname,
+		}); err != nil {
+			log.Error().Str("hostname", n.Hostname).Str("address", n.Address).Err(err).Msg("failed to remove node")
+			err = nil
+			continue
 		}
 	}
-	// add all hosts from consul catalog
+	// add new node
+addLoop:
 	for _, cn := range cns {
-		if verbose {
-			log.Print("will add:", cn.Node, cn.Address)
+		// check existed and equal
+		for _, n := range lnr.Nodes {
+			if n.Hostname == cn.Node && n.User == types.NodeUserRoot && n.Address == cn.Address && n.Source == types.NodeSourceConsul {
+				log.Debug().Str("hostname", cn.Node).Str("address", cn.Address).Msg("synced node")
+				continue addLoop
+			}
 		}
+		log.Debug().Str("hostname", cn.Node).Str("address", cn.Address).Msg("add node")
 		if _, err = ns.PutNode(context.Background(), &types.PutNodeRequest{
 			Hostname: cn.Node,
 			User:     types.NodeUserRoot,
 			Address:  cn.Address,
 			Source:   types.NodeSourceConsul,
 		}); err != nil {
-			return
-		}
-	}
-	// delete all hosts not existed any more
-	for _, n := range removes {
-		if verbose {
-			log.Print("will remove:", n)
-		}
-		if _, err = ns.DeleteNode(context.Background(), &types.DeleteNodeRequest{
-			Hostname: n,
-		}); err != nil {
+			log.Error().Str("hostname", cn.Node).Str("address", cn.Address).Err(err).Msg("failed to add node")
+			err = nil
 			return
 		}
 	}
