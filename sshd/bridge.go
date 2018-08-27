@@ -145,6 +145,7 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 		ELog(conn).Err(err).Msg("failed to create session")
 		return
 	}
+	ILog(conn).Int64("sessionId", sRes.Session.Id).Msg("session allocated")
 	// build the exec options
 	opts := sandbox.ExecAttachOptions{
 		Env:     env,
@@ -160,6 +161,7 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 	}
 	// wrap options if isRecorded
 	if isRecorded {
+		ILog(conn).Int64("sessionId", sRes.Session.Id).Msg("session is recorded")
 		r := recorder.StartRecording(&opts, sRes.Session.Id, rs)
 		defer r.Close()
 	}
@@ -171,6 +173,7 @@ func handleLv1SessionChannel(conn *ssh.ServerConn, sc ssh.Channel, srchan <-chan
 	}
 	// finish session
 	ss.FinishSession(context.Background(), &types.FinishSessionRequest{Id: sRes.Session.Id})
+	ILog(conn).Int64("sessionId", sRes.Session.Id).Msg("session finished")
 	// send exit-status
 	sc.SendRequest(RequestTypeExitStatus, false, ssh.Marshal(&es))
 	return
