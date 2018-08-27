@@ -18,6 +18,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"time"
 
 	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -151,39 +152,63 @@ func (s *sandbox) ExecAttach(opts ExecAttachOptions) (err error) {
 		execCfg.Cmd = []string{"/bin/bash"}
 	}
 	// create exec
-	var id dockerTypes.IDResponse
-	if id, err = s.client.ContainerExecCreate(context.Background(), s.name, execCfg); err != nil {
+	var idRes dockerTypes.IDResponse
+	if idRes, err = s.client.ContainerExecCreate(context.Background(), s.name, execCfg); err != nil {
+		log.Error().Str("containerName", s.name).Err(err).Msg("failed to docker exec/create")
 		return
 	}
 	// exec attach
-	var hr dockerTypes.HijackedResponse
-	if hr, err = s.client.ContainerExecAttach(context.Background(), id.ID, execCfg); err != nil {
+	var hjRes dockerTypes.HijackedResponse
+	if hjRes, err = s.client.ContainerExecAttach(context.Background(), idRes.ID, execCfg); err != nil {
+		log.Error().Str("containerName", s.name).Err(err).Msg("failed to docker exec/attach")
 		return
 	}
 	// pipe window size
 	if opts.IsPty && opts.WindowChan != nil {
-		go sandboxPipeWindowSize(s.client, id.ID, opts.WindowChan)
+		go sandboxPipeWindowSize(s.client, idRes.ID, opts.WindowChan)
 	}
 	// pipe stdin
-	go sandboxPipeStdin(hr, opts.Stdin, &err)
+	go sandboxPipeStdin(hjRes, opts.Stdin, &err)
 	// pipe stdout/stderr
-	sandboxPipeStdoutStderr(hr, opts.Stdout, opts.Stderr, opts.IsPty, &err)
+	sandboxPipeStdoutStderr(hjRes, opts.Stdout, opts.Stderr, opts.IsPty, &err)
 	// close hr
-	hr.Close()
-	// inspect exec
-	var is dockerTypes.ContainerExecInspect
-	if is, err = s.client.ContainerExecInspect(context.Background(), id.ID); err != nil {
+	hjRes.Close()
+	// wait 1 second
+	time.Sleep(time.Second)
+	// SIGTERM
+	s.signalExecIfNotExited(idRes.ID, syscall.SIGTERM)
+	// wait to check process exit
+	go func() {
+		// wait 10 seconds
+		time.Sleep(time.Second * 10)
+		// SIGKILL
+		s.signalExecIfNotExited(idRes.ID, syscall.SIGKILL)
+	}()
+	return
+}
+
+func (s *sandbox) signalExecIfNotExited(execId string, sig os.Signal) (err error) {
+	var eiRes dockerTypes.ContainerExecInspect
+	if eiRes, err = s.client.ContainerExecInspect(context.Background(), execId); err != nil {
+		log.Error().Str("containerName", s.name).Str("execId", execId).Err(err).Msg("failed to inspect docker exec")
 		return
 	}
-	// send SIGTERM to zombie process
-	if is.Running == true && is.Pid > 0 {
-		log.Info().Str("containerName", s.name).Msg("docker exec not terminated properly, sending SIGTERM")
-		var p *os.Process
-		if p, err = os.FindProcess(is.Pid); err != nil {
-			return
-		}
-		p.Signal(syscall.SIGTERM)
+	// return if already stopped
+	if !eiRes.Running || eiRes.Pid == 0 {
+		return
 	}
+	// find the process
+	var proc *os.Process
+	if proc, err = os.FindProcess(eiRes.Pid); err != nil {
+		log.Error().Str("containerName", s.name).Int("pid", eiRes.Pid).Str("execId", execId).Err(err).Msg("failed to find docker exec process")
+		return
+	}
+	// send the signal
+	if err = proc.Signal(sig); err != nil {
+		log.Error().Str("containerName", s.name).Int("pid", eiRes.Pid).Str("execId", execId).Str("signal", sig.String()).Err(err).Msg("failed to send signal to docker exec")
+		return
+	}
+	log.Info().Str("containerName", s.name).Int("pid", eiRes.Pid).Str("execId", execId).Str("signal", sig.String()).Msg("send signal to docker exec")
 	return
 }
 
