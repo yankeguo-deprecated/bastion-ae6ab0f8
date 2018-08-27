@@ -8,10 +8,10 @@ import (
 )
 
 func TestFilenameForSessionID(t *testing.T) {
-	if "/var/lib/bastion/replays/1234/4321/1234/1234432112344321" != filenameForSessionID(0x1234432112344321, "/var/lib/bastion/replays") {
+	if "/var/lib/bastion/replays/1234/4321/1234/1234432112344321" != FilenameForSessionID(0x1234432112344321, "/var/lib/bastion/replays") {
 		t.Fatal("failed 1")
 	}
-	if "/var/lib/bastion/replays/0000/4321/1234/0000432112344321" != filenameForSessionID(0x0000432112344321, "/var/lib/bastion/replays") {
+	if "/var/lib/bastion/replays/0000/4321/1234/0000432112344321" != FilenameForSessionID(0x0000432112344321, "/var/lib/bastion/replays") {
 		t.Fatal("failed 2")
 	}
 }

@@ -2,8 +2,6 @@ package daemon
 
 import (
 	"compress/gzip"
-	"encoding/binary"
-	"encoding/hex"
 	"io"
 	"os"
 	"path/filepath"
@@ -11,19 +9,6 @@ import (
 	"github.com/yankeguo/bastion/types"
 	"github.com/yankeguo/bastion/utils"
 )
-
-func filenameForSessionID(id int64, dir string) string {
-	buf := make([]byte, 8, 8)
-	binary.BigEndian.PutUint64(buf, uint64(id))
-	name := hex.EncodeToString(buf)
-	ret := make([]string, 0, 5)
-	ret = append(ret, dir)
-	ret = append(ret, name[:4])
-	ret = append(ret, name[4:8])
-	ret = append(ret, name[8:12])
-	ret = append(ret, name)
-	return filepath.Join(ret...)
-}
 
 func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error) {
 	var w *os.File
@@ -40,7 +25,7 @@ func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error
 		// ensure rec frame writer
 		if zw == nil {
 			// create filename
-			filename := filenameForSessionID(f.SessionId, d.opts.ReplayDir)
+			filename := FilenameForSessionID(f.SessionId, d.opts.ReplayDir)
 			// ensure directory
 			if err = os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
 				break
@@ -69,7 +54,7 @@ func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error
 }
 
 func (d *Daemon) ReadReplay(req *types.ReadReplayRequest, s types.ReplayService_ReadReplayServer) (err error) {
-	filename := filenameForSessionID(req.SessionId, d.opts.ReplayDir)
+	filename := FilenameForSessionID(req.SessionId, d.opts.ReplayDir)
 	var r *os.File
 	if r, err = os.Open(filename); err != nil {
 		return

@@ -6,7 +6,7 @@ import (
 )
 
 type Grant struct {
-	ID              string `storm:"id"`
+	Id              string `storm:"id"`
 	Account         string `storm:"index"`
 	HostnamePattern string
 	User            string
@@ -14,7 +14,7 @@ type Grant struct {
 	CreatedAt       int64
 }
 
-func (n Grant) BuildID() string {
+func (n Grant) BuildId() string {
 	return n.Account + "$" + n.HostnamePattern + "$" + n.User
 }
 

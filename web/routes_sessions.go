@@ -10,7 +10,7 @@ import (
 
 func routeGetSession(c *nova.Context) (err error) {
 	v, ss, us, pr := view.Extract(c), sessionService(c), userService(c), router.PathParams(c)
-	id, _ := strconv.ParseInt(pr.Get("id"), 10, 8)
+	id, _ := strconv.ParseInt(pr.Get("id"), 10, 64)
 	var res1 *types.GetSessionResponse
 	if res1, err = ss.GetSession(c.Req.Context(), &types.GetSessionRequest{Id: id}); err != nil {
 		return
@@ -26,8 +26,8 @@ func routeGetSession(c *nova.Context) (err error) {
 }
 
 func routeListSessions(c *nova.Context) (err error) {
-	skip, _ := strconv.ParseInt(c.Req.FormValue("skip"), 10, 8)
-	limit, _ := strconv.ParseInt(c.Req.FormValue("limit"), 10, 8)
+	skip, _ := strconv.ParseInt(c.Req.FormValue("skip"), 10, 64)
+	limit, _ := strconv.ParseInt(c.Req.FormValue("limit"), 10, 64)
 	v, ss := view.Extract(c), sessionService(c)
 	var res *types.ListSessionsResponse
 	if res, err = ss.ListSessions(c.Req.Context(), &types.ListSessionsRequest{

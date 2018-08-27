@@ -14,7 +14,7 @@ func (d *Daemon) PutGrant(c context.Context, req *types.PutGrantRequest) (res *t
 	}
 	n := models.Grant{}
 	copier.Copy(&n, req)
-	n.ID = n.BuildID()
+	n.Id = n.BuildId()
 	n.CreatedAt = now()
 	if err = d.db.Save(&n); err != nil {
 		return
@@ -45,7 +45,7 @@ func (d *Daemon) DeleteGrant(c context.Context, req *types.DeleteGrantRequest) (
 	}
 	n := models.Grant{}
 	copier.Copy(&n, req)
-	n.ID = n.BuildID()
+	n.Id = n.BuildId()
 	if err = d.db.DeleteStruct(&n); err != nil {
 		return
 	}

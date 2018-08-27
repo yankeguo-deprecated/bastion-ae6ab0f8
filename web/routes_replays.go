@@ -13,7 +13,7 @@ import (
 
 func routeDownloadReplay(c *nova.Context) (err error) {
 	rs, qp := replayService(c), router.PathParams(c)
-	id, _ := strconv.ParseInt(qp.Get("id"), 10, 8)
+	id, _ := strconv.ParseInt(qp.Get("id"), 10, 64)
 	var sess types.ReplayService_ReadReplayClient
 	if sess, err = rs.ReadReplay(c.Req.Context(), &types.ReadReplayRequest{SessionId: id}); err != nil {
 		return
