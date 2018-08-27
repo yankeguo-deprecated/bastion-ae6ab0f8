@@ -1,5 +1,5 @@
 <template>
-  <b-row class="mt-4">
+  <b-row class="mt-3 mb-3">
     <b-col md="4" lg="3">
       <b-card header="添加用户" header-tag="b">
         <b-form @submit.prevent="onCreateSubmit">

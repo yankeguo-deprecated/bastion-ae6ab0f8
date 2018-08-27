@@ -1,5 +1,5 @@
 <template>
-  <b-row class="mt-3">
+  <b-row class="mt-3 mb-3">
     <b-col md="4" lg="2">
       <b-list-group>
         <b-list-group-item to="/settings/profile"><i class="fa fa-user-circle-o" aria-hidden="true"></i> 个人信息</b-list-group-item>

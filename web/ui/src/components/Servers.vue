@@ -1,5 +1,5 @@
 <template>
-  <b-row class="mt-4">
+  <b-row class="mt-3 mb-3">
     <b-col md="4" lg="3">
       <b-card header="添加/更新服务器" header-tag="b">
         <b-form @submit.prevent="onCreateSubmit">
@@ -32,7 +32,8 @@
                 {{data.item.created_at | formatUnixEpoch}}
               </template>
               <template slot="source" slot-scope="data">
-                {{data.item.source}}
+                <span v-if="data.item.source === 'consul'" class="text-success">{{data.item.source}}</span>
+                <span v-if="data.item.source !== 'consul'" class="text-muted">{{data.item.source}}</span>
               </template>
               <template slot="action" slot-scope="data">
                 <b-link href="#" class="text-danger"
