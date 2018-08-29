@@ -196,6 +196,31 @@ func main() {
 						return nil
 					},
 				},
+				{
+					Name:  "change-password",
+					Usage: "change password",
+					Flags: []cli.Flag{
+						cli.StringFlag{Name: "account", Usage: "account name"},
+						cli.StringFlag{Name: "password", Usage: "new password"},
+					},
+					Action: func(c *cli.Context) error {
+						conn, err := newConnection(c)
+						if err != nil {
+							return err
+						}
+						defer conn.Close()
+						us := types.NewUserServiceClient(conn)
+						_, err = us.UpdateUser(context.Background(), &types.UpdateUserRequest{
+							Account:        c.String("account"),
+							UpdatePassword: true,
+							Password:       c.String("password"),
+						})
+						if err != nil {
+							return err
+						}
+						return nil
+					},
+				},
 			},
 		},
 		{
