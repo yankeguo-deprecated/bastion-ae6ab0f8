@@ -1,6 +1,7 @@
 package sshd
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/kballard/go-shellquote"
 	"github.com/rs/zerolog/log"
@@ -18,6 +19,30 @@ func discardRequests(in <-chan *ssh.Request) {
 			req.Reply(false, nil)
 		}
 	}
+}
+
+func sshClientOverrideKeys(client *ssh.Client, keys []ssh.Signer) (err error) {
+	if len(keys) == 0 {
+		return
+	}
+	var aks []byte
+	for _, key := range keys {
+		buf := ssh.MarshalAuthorizedKey(key.PublicKey())
+		buf = bytes.TrimSpace(buf)
+		aks = append(aks, buf...)
+		aks = append(aks, '\n')
+	}
+	var session *ssh.Session
+	if session, err = client.NewSession(); err != nil {
+		return
+	}
+	defer session.Close()
+	session.Stdin = bytes.NewReader([]byte(aks))
+	if err = session.Run("cat > /tmp/authorized_keys"); err != nil {
+		log.Error().Err(err).Msg("failed to execute command")
+		return
+	}
+	return
 }
 
 func fixSSHAddress(address string) string {

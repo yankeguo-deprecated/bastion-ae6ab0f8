@@ -179,6 +179,47 @@ func (s *SSHD) initListener() (err error) {
 	return
 }
 
+func (s *SSHD) OverrideKeys() (err error) {
+	// init client signers
+	if err = s.initClientSigners(); err != nil {
+		return
+	}
+	// init rpcConn
+	if err = s.initRPCConn(); err != nil {
+		return
+	}
+	// list all nodes
+	var res *types.ListNodesResponse
+	if res, err = s.nodeService.ListNodes(context.Background(), &types.ListNodesRequest{}); err != nil {
+		return
+	}
+	for _, node := range res.Nodes {
+		// ignore un-managed nodes
+		if !node.IsKeyManaged {
+			continue
+		}
+		// create client
+		var client *ssh.Client
+		if client, err = ssh.Dial("tcp", fixSSHAddress(node.Address), &ssh.ClientConfig{
+			User:            "root",
+			Auth:            []ssh.AuthMethod{ssh.PublicKeys(s.clientSigners...)},
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		}); err != nil {
+			log.Error().Err(err).Str("address", node.Address).Str("hostname", node.Hostname).Msg("failed to create ssh client")
+			continue
+		}
+		// override keys
+		if err = sshClientOverrideKeys(client, s.clientSigners); err != nil {
+			log.Error().Err(err).Str("address", node.Address).Str("hostname", node.Hostname).Msg("failed to override keys")
+		} else {
+			log.Info().Str("address", node.Address).Str("hostname", node.Hostname).Msg("success")
+		}
+		// close client
+		client.Close()
+	}
+	return
+}
+
 func (s *SSHD) Run() (err error) {
 	// init host signer
 	if err = s.initHostSigner(); err != nil {

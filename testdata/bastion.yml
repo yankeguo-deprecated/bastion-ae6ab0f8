@@ -7,5 +7,6 @@ sshd:
   port: 2222
   client_keys:
     - testdata/client_rsa
+    - testdata/client_rsa2
   host_key: testdata/host_rsa
   sandbox_dir: testdata/sandboxes

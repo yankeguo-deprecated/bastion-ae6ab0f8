@@ -7,8 +7,6 @@ import (
 	"github.com/yankeguo/bastion/sshd"
 	"github.com/yankeguo/bastion/types"
 	"os"
-	"os/signal"
-	"syscall"
 )
 
 var (
@@ -51,21 +49,7 @@ func main() {
 	// create daemon
 	d := sshd.New(options.SSHD)
 
-	// run the signalHandler
-	go signalHandler(d)
-
-	// run the sshd
-	if err = d.Run(); err != nil {
-		log.Error().Err(err).Msg("exited")
-		os.Exit(1)
-		return
+	if err = d.OverrideKeys(); err != nil {
+		log.Error().Err(err).Msg("failed to override keys")
 	}
-}
-
-func signalHandler(d *sshd.SSHD) {
-	shutdown := make(chan os.Signal, 1)
-	signal.Notify(shutdown, syscall.SIGTERM, syscall.SIGINT)
-	s := <-shutdown
-	log.Info().Str("signal", s.String()).Msg("signal received")
-	d.Shutdown()
 }
