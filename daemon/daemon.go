@@ -59,6 +59,7 @@ func (d *Daemon) createGRPCServer() *grpc.Server {
 	types.RegisterSessionServiceServer(s, d)
 	types.RegisterTokenServiceServer(s, d)
 	types.RegisterReplayServiceServer(s, d)
+	types.RegisterMasterKeyServiceServer(s, d)
 	return s
 }
 

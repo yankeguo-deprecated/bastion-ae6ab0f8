@@ -19,13 +19,14 @@ type SSHD struct {
 	hostSigner      ssh.Signer
 	sshServerConfig *ssh.ServerConfig
 
-	rpcConn        *grpc.ClientConn
-	sessionService types.SessionServiceClient
-	replayService  types.ReplayServiceClient
-	userService    types.UserServiceClient
-	keyService     types.KeyServiceClient
-	nodeService    types.NodeServiceClient
-	grantService   types.GrantServiceClient
+	rpcConn          *grpc.ClientConn
+	sessionService   types.SessionServiceClient
+	replayService    types.ReplayServiceClient
+	userService      types.UserServiceClient
+	keyService       types.KeyServiceClient
+	nodeService      types.NodeServiceClient
+	grantService     types.GrantServiceClient
+	masterKeyService types.MasterKeyServiceClient
 
 	sandboxManager sandbox.Manager
 }
@@ -51,6 +52,7 @@ func (s *SSHD) initRPCConn() (err error) {
 	s.keyService = types.NewKeyServiceClient(s.rpcConn)
 	s.nodeService = types.NewNodeServiceClient(s.rpcConn)
 	s.grantService = types.NewGrantServiceClient(s.rpcConn)
+	s.masterKeyService = types.NewMasterKeyServiceClient(s.rpcConn)
 	return
 }
 
@@ -179,6 +181,18 @@ func (s *SSHD) initListener() (err error) {
 	return
 }
 
+func (s *SSHD) submitClientSigners() (err error) {
+	mks := make([]*types.MasterKey, 0, len(s.clientSigners))
+	for _, cs := range s.clientSigners {
+		mks = append(mks, &types.MasterKey{
+			Fingerprint: string(ssh.FingerprintSHA256(cs.PublicKey())),
+			PublicKey:   string(ssh.MarshalAuthorizedKey(cs.PublicKey())),
+		})
+	}
+	_, err = s.masterKeyService.UpdateAllMasterKeys(context.Background(), &types.UpdateAllMasterKeysRequest{MasterKeys: mks})
+	return
+}
+
 func (s *SSHD) OverrideKeys() (err error) {
 	// init client signers
 	if err = s.initClientSigners(); err != nil {
@@ -186,6 +200,10 @@ func (s *SSHD) OverrideKeys() (err error) {
 	}
 	// init rpcConn
 	if err = s.initRPCConn(); err != nil {
+		return
+	}
+	// submit client signers to daemon
+	if err = s.submitClientSigners(); err != nil {
 		return
 	}
 	// list all nodes
@@ -235,6 +253,10 @@ func (s *SSHD) Run() (err error) {
 	}
 	// init rpcConn
 	if err = s.initRPCConn(); err != nil {
+		return
+	}
+	// submit client signers to daemon
+	if err = s.submitClientSigners(); err != nil {
 		return
 	}
 	// init sshServerConfig, must after host signer and rpcConn

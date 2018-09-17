@@ -73,6 +73,10 @@ func replayService(c *nova.Context) types.ReplayServiceClient {
 	return types.NewReplayServiceClient(c.Values[contextKeyGRPCConn].(*grpc.ClientConn))
 }
 
+func masterKeyService(c *nova.Context) types.MasterKeyServiceClient {
+	return types.NewMasterKeyServiceClient(c.Values[contextKeyGRPCConn].(*grpc.ClientConn))
+}
+
 // Auth result
 type Auth struct {
 	Token *types.Token

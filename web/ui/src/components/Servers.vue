@@ -14,6 +14,11 @@
           </b-button>
         </b-form>
       </b-card>
+      <b-card class="mt-3" no-body>
+        <b-list-group>
+          <b-list-group-item href="/api/authorized_keys" target="_blank">查看主密钥公钥&nbsp;<i class="fa fa-chevron-right" aria-hidden="true"></i></b-list-group-item>
+        </b-list-group>
+      </b-card>
     </b-col>
     <b-col md="8" lg="9">
       <b-row>

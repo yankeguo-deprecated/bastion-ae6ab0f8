@@ -7,4 +7,5 @@ var AllModels = []interface{}{
 	new(Grant),
 	new(Session),
 	new(Token),
+	new(MasterKey),
 }

@@ -240,6 +240,33 @@ service KeyService {
     }
 }
 
+message MasterKey {
+    string fingerprint = 1;
+    string public_key = 2;
+}
+
+message ListMasterKeysRequest {
+}
+
+message ListMasterKeysResponse {
+    repeated MasterKey master_keys = 1;
+}
+
+message UpdateAllMasterKeysRequest {
+    repeated MasterKey master_keys = 1;
+}
+
+message UpdateAllMasterKeysResponse {
+}
+
+service MasterKeyService {
+    rpc ListMasterKeys (ListMasterKeysRequest) returns (ListMasterKeysResponse) {
+    }
+
+    rpc UpdateAllMasterKeys (UpdateAllMasterKeysRequest) returns (UpdateAllMasterKeysResponse) {
+    }
+}
+
 message Grant {
     string account = 1;
     string hostname_pattern = 2;

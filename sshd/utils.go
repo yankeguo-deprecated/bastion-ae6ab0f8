@@ -38,7 +38,7 @@ func sshClientOverrideKeys(client *ssh.Client, keys []ssh.Signer) (err error) {
 	}
 	defer session.Close()
 	session.Stdin = bytes.NewReader([]byte(aks))
-	if err = session.Run("cat > /tmp/authorized_keys"); err != nil {
+	if err = session.Run("cat > /root/.ssh/authorized_keys"); err != nil {
 		log.Error().Err(err).Msg("failed to execute command")
 		return
 	}

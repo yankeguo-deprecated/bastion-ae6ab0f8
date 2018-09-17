@@ -4,10 +4,13 @@ import (
 	"github.com/novakit/nova"
 	"github.com/novakit/router"
 	"github.com/novakit/view"
+	"github.com/yankeguo/bastion/types"
+	"strings"
 )
 
 func mountRoutes(n *nova.Nova) {
 	router.Route(n).Get("/api/check").Use(routeCheck)
+	router.Route(n).Get("/api/authorized_keys").Use(routeAuthorizedKeys)
 	router.Route(n).Post("/api/tokens/create").Use(routeCreateToken)
 	router.Route(n).Get("/api/tokens").Use(
 		requiresLoggedIn(false),
@@ -113,4 +116,18 @@ func routeCheck(c *nova.Context) error {
 	v.Data["ok"] = true
 	v.DataAsJSON()
 	return nil
+}
+
+func routeAuthorizedKeys(c *nova.Context) (err error) {
+	mks, v := masterKeyService(c), view.Extract(c)
+	var res *types.ListMasterKeysResponse
+	if res, err = mks.ListMasterKeys(c.Req.Context(), &types.ListMasterKeysRequest{}); err != nil {
+		return
+	}
+	var out string
+	for _, k := range res.MasterKeys {
+		out = out + strings.TrimSpace(k.PublicKey) + "\n"
+	}
+	v.Text(out)
+	return
 }

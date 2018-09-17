@@ -147,9 +147,7 @@ func TestDaemon_AuthenticateUser(t *testing.T) {
 			t.Fatal("failed 1")
 		}
 		u := models.User{
-			Account:   "testuser",
-			IsAdmin:   false,
-			IsBlocked: true,
+			Account: "testuser",
 		}
 		u.PasswordDigest, _ = bcryptGenerate("qwerty")
 		daemon.db.Save(&u)
