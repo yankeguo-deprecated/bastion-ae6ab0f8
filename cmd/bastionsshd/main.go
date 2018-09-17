@@ -12,9 +12,10 @@ import (
 )
 
 var (
-	dev         bool
-	optionsFile string
-	options     types.Options
+	dev          bool
+	overrideKeys bool
+	optionsFile  string
+	options      types.Options
 )
 
 func main() {
@@ -27,6 +28,7 @@ func main() {
 	// load command-line options
 	flag.BoolVar(&dev, "dev", false, "dev mode")
 	flag.StringVar(&optionsFile, "c", "/etc/bastion/bastion.yml", "bastion config file")
+	flag.BoolVar(&overrideKeys, "override-keys", false, "run a one-off operation to override keys for key-managed nodes")
 	flag.Parse()
 
 	// load options files
@@ -51,14 +53,21 @@ func main() {
 	// create daemon
 	d := sshd.New(options.SSHD)
 
-	// run the signalHandler
-	go signalHandler(d)
+	// one-off operation - override keys
+	if overrideKeys {
+		if err = d.OverrideKeys(); err != nil {
+			log.Error().Err(err).Msg("failed to override keys")
+			os.Exit(1)
+		}
+	} else {
+		// run the signalHandler
+		go signalHandler(d)
 
-	// run the sshd
-	if err = d.Run(); err != nil {
-		log.Error().Err(err).Msg("exited")
-		os.Exit(1)
-		return
+		// run the sshd
+		if err = d.Run(); err != nil {
+			log.Error().Err(err).Msg("exited")
+			os.Exit(1)
+		}
 	}
 }
 
