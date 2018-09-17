@@ -31,6 +31,11 @@
               <template slot="created_at" slot-scope="data">
                 {{data.item.created_at | formatUnixEpoch}}
               </template>
+              <template slot="key_managed" slot-scope="data">
+                <b-form-checkbox v-model="data.item.is_key_managed" @change="onKeyManagedChanged(data.item.hostname, !data.item.is_key_managed)">
+                  覆盖公钥
+                </b-form-checkbox>
+              </template>
               <template slot="source" slot-scope="data">
                 <span v-if="data.item.source === 'consul'" class="text-success">{{data.item.source}}</span>
                 <span v-if="data.item.source !== 'consul'" class="text-muted">{{data.item.source}}</span>
@@ -82,6 +87,12 @@ export default {
           label: '来源',
           thClass: 'text-center',
           tdClass: 'text-center'
+        },
+        {
+          key: 'key_managed',
+          label: '    ',
+          thClass: 'text-center',
+          tdClass: 'action-cell'
         },
         {
           key: 'created_at',
@@ -136,6 +147,9 @@ export default {
     },
     onCreateSubmit () {
       this.$apiCreateNode(this.form)
+    },
+    onKeyManagedChanged (hostname, is_key_managed) {
+      this.$apiUpdateNodeIsKeyManaged({hostname, is_key_managed})
     }
   }
 }

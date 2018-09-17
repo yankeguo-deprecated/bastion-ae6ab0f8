@@ -53,6 +53,10 @@ func mountRoutes(n *nova.Nova) {
 		requiresLoggedIn(true),
 		routeDestroyNode,
 	)
+	router.Route(n).Post("/api/nodes/update_is_key_managed").Use(
+		requiresLoggedIn(true),
+		routeUpdateNodeIsKeyManaged,
+	)
 	router.Route(n).Get("/api/users").Use(
 		requiresLoggedIn(true),
 		routeListUsers,

@@ -98,6 +98,7 @@ message Node {
     string source = 4;
     int64 created_at = 5;
     int64 viewed_at = 6;
+    bool is_key_managed = 7;
 }
 
 message ListNodesRequest {
@@ -141,6 +142,16 @@ message TouchNodeResponse {
     Node node = 1;
 }
 
+message UpdateNodeRequest {
+    string hostname = 1;
+    bool update_is_key_managed = 2;
+    bool is_key_managed = 3;
+}
+
+message UpdateNodeResponse {
+    Node node = 1;
+}
+
 service NodeService {
     rpc ListNodes (ListNodesRequest) returns (ListNodesResponse) {
     }
@@ -155,6 +166,9 @@ service NodeService {
     }
 
     rpc TouchNode (TouchNodeRequest) returns (TouchNodeResponse) {
+    }
+
+    rpc UpdateNode (UpdateNodeRequest) returns (UpdateNodeResponse) {
     }
 }
 

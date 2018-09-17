@@ -7,12 +7,13 @@ import (
 
 // Node server model
 type Node struct {
-	Hostname  string `storm:"id"`
-	User      string
-	Address   string
-	Source    string `storm:"index"`
-	CreatedAt int64
-	ViewedAt  int64
+	Hostname     string `storm:"id"`
+	User         string
+	Address      string
+	Source       string `storm:"index"`
+	CreatedAt    int64
+	IsKeyManaged bool
+	ViewedAt     int64
 }
 
 func (n Node) ToGRPCNode() *types.Node {

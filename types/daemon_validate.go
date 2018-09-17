@@ -165,6 +165,15 @@ func (m *TouchNodeRequest) Validate() (err error) {
 	return
 }
 
+func (m *UpdateNodeRequest) Validate() (err error) {
+	trimSpace(&m.Hostname)
+	if len(m.Hostname) == 0 {
+		err = errMissingField("hostname")
+		return
+	}
+	return
+}
+
 func (m *CreateKeyRequest) Validate() (err error) {
 	trimSpace(&m.Account)
 	if len(m.Account) == 0 {

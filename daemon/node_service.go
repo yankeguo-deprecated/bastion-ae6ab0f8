@@ -78,3 +78,26 @@ func (d *Daemon) TouchNode(c context.Context, req *types.TouchNodeRequest) (res 
 	res = &types.TouchNodeResponse{Node: n.ToGRPCNode()}
 	return
 }
+
+func (d *Daemon) UpdateNode(c context.Context, req *types.UpdateNodeRequest) (res *types.UpdateNodeResponse, err error) {
+	if err = req.Validate(); err != nil {
+		return
+	}
+	n := models.Node{}
+	if err = d.db.Tx(true, func(db *Node) (err error) {
+		if err = db.One("Hostname", req.Hostname, &n); err != nil {
+			return
+		}
+		if req.UpdateIsKeyManaged {
+			n.IsKeyManaged = req.IsKeyManaged
+		}
+		if err = db.Save(&n); err != nil {
+			return
+		}
+		return
+	}); err != nil {
+		return
+	}
+	res = &types.UpdateNodeResponse{Node: n.ToGRPCNode()}
+	return
+}

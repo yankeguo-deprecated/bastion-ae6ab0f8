@@ -319,6 +319,21 @@ let API = {
     Vue.prototype.$apiListSessions = function ({skip, limit}) {
       return this.$http.get('/api/sessions', {params: {skip, limit}}).then(null, this.$apiErrorCallback())
     }
+    Vue.prototype.$apiUpdateNodeIsKeyManaged = function ({hostname, is_key_managed}) {
+      return this.$http.post(
+        '/api/nodes/update_is_key_managed',
+        {hostname, is_key_managed},
+        {emulateJSON: true}
+      ).then((res) => {
+        this.$notify({
+          type: 'success',
+          title: '操作成功',
+          text: is_key_managed ? '已激活公钥覆盖' : '已取消公钥覆盖'
+        })
+        this.$apiListNodes()
+        return res
+      }, this.$apiErrorCallback())
+    }
   }
 }
 

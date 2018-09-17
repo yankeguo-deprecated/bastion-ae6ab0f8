@@ -55,3 +55,18 @@ func routeDestroyNode(c *nova.Context) (err error) {
 	v.DataAsJSON()
 	return
 }
+
+func routeUpdateNodeIsKeyManaged(c *nova.Context) (err error) {
+	ns, v := nodeService(c), view.Extract(c)
+	var res1 *types.UpdateNodeResponse
+	if res1, err = ns.UpdateNode(c.Req.Context(), &types.UpdateNodeRequest{
+		Hostname:           c.Req.FormValue("hostname"),
+		UpdateIsKeyManaged: true,
+		IsKeyManaged:       IsFormValueTrue(c.Req.FormValue("is_key_managed")),
+	}); err != nil {
+		return
+	}
+	v.Data["node"] = res1.Node
+	v.DataAsJSON()
+	return
+}

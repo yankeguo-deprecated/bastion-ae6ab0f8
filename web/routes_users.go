@@ -5,7 +5,6 @@ import (
 	"github.com/novakit/router"
 	"github.com/novakit/view"
 	"github.com/yankeguo/bastion/types"
-	"strings"
 )
 
 func routeListUsers(c *nova.Context) (err error) {
@@ -97,7 +96,7 @@ func routeUpdateUserIsAdmin(c *nova.Context) (err error) {
 	if res1, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
 		Account:       c.Req.FormValue("account"),
 		UpdateIsAdmin: true,
-		IsAdmin:       strings.HasPrefix(strings.ToLower(strings.TrimSpace(c.Req.FormValue("is_admin"))), "t"),
+		IsAdmin:       IsFormValueTrue(c.Req.FormValue("is_admin")),
 	}); err != nil {
 		return
 	}
@@ -112,7 +111,7 @@ func routeUpdateUserIsBlocked(c *nova.Context) (err error) {
 	if res1, err = us.UpdateUser(c.Req.Context(), &types.UpdateUserRequest{
 		Account:         c.Req.FormValue("account"),
 		UpdateIsBlocked: true,
-		IsBlocked:       strings.HasPrefix(strings.ToLower(strings.TrimSpace(c.Req.FormValue("is_blocked"))), "t"),
+		IsBlocked:       IsFormValueTrue(c.Req.FormValue("is_blocked")),
 	}); err != nil {
 		return
 	}
