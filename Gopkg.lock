@@ -178,6 +178,19 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:aa3d8d42865c42626b5c1add193692d045b3188b1479f0a0a88690d21fe20083"
+  name = "github.com/mailru/easyjson"
+  packages = [
+    ".",
+    "buffer",
+    "jlexer",
+    "jwriter",
+  ]
+  pruneopts = "UT"
+  revision = "60711f1a8329503b04e1c88535f419d0bb440bff"
+
+[[projects]]
+  branch = "master"
   digest = "1:c7354463195544b1ab3c1f1fadb41430947f5d28dfbf2cdbd38268c5717a5a03"
   name = "github.com/mitchellh/go-homedir"
   packages = ["."]
@@ -230,6 +243,18 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "f86c6ffbf70c367032685bae174f93da5f8f3563"
+
+[[projects]]
+  digest = "1:3371d8e907e3456fd56105ba454a63b8dc5537481929588162b3a7f78d5b64af"
+  name = "github.com/olivere/elastic"
+  packages = [
+    ".",
+    "config",
+    "uritemplates",
+  ]
+  pruneopts = "UT"
+  revision = "4982266e48e0dc5c639e389b50221dcef09cdc99"
+  version = "v6.2.12"
 
 [[projects]]
   digest = "1:40e195917a951a8bf867cd05de2a46aaf1806c50cf92eebf4c16f78cd196f747"
@@ -407,6 +432,7 @@
     "github.com/novakit/router",
     "github.com/novakit/static",
     "github.com/novakit/view",
+    "github.com/olivere/elastic",
     "github.com/pkg/errors",
     "github.com/rs/zerolog",
     "github.com/rs/zerolog/log",

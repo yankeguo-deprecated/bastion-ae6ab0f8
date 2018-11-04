@@ -2,10 +2,11 @@ package types
 
 import (
 	"encoding/json"
-	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
 	"path"
+
+	"gopkg.in/yaml.v2"
 )
 
 // Options options for bastion
@@ -32,6 +33,9 @@ type DaemonOptions struct {
 
 	// DB database file path, using bolt, default to "/var/lib/bastion/database"
 	DB string `yaml:"db"`
+
+	// elasticsearch urls, default to "http://127.0.0.1:9200"
+	Elasticsearch []string `yaml:"elasticsearch"`
 
 	// Host host to bind for bastion rpc, default to "127.0.0.1"
 	Host string `yaml:"host"`

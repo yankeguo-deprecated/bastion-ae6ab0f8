@@ -2,26 +2,34 @@ package daemon
 
 import (
 	"fmt"
-	"github.com/asdine/storm"
-	"github.com/grpc-ecosystem/go-grpc-middleware"
-	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
-	"github.com/yankeguo/bastion/daemon/models"
-	"github.com/yankeguo/bastion/types"
-	"google.golang.org/grpc"
 	"net"
 	"os"
 	"path/filepath"
+
+	"github.com/asdine/storm"
+	"github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/recovery"
+	"github.com/olivere/elastic"
+	"github.com/yankeguo/bastion/daemon/models"
+	"github.com/yankeguo/bastion/types"
+	"google.golang.org/grpc"
 )
 
 // Daemon daemon instance
 type Daemon struct {
-	opts   types.DaemonOptions
-	db     *DB
-	server *grpc.Server
+	opts     types.DaemonOptions
+	db       *DB
+	server   *grpc.Server
+	esClient *elastic.Client
 }
 
 func New(opts types.DaemonOptions) *Daemon {
 	return &Daemon{opts: opts}
+}
+
+func (d *Daemon) initEsClient() (err error) {
+	d.esClient, err = elastic.NewClient(elastic.SetURL(d.opts.Elasticsearch...))
+	return
 }
 
 func (d *Daemon) initDB() (err error) {
@@ -64,6 +72,11 @@ func (d *Daemon) createGRPCServer() *grpc.Server {
 }
 
 func (d *Daemon) Run() (err error) {
+	// create elasticsearch client
+	if err = d.initEsClient(); err != nil {
+		return
+	}
+
 	// open db
 	if err = d.initDB(); err != nil {
 		return

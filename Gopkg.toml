@@ -81,3 +81,6 @@
 [[constraint]]
   branch = "master"
   name = "github.com/felixge/httpsnoop"
+[[constraint]]
+  name = "github.com/olivere/elastic"
+  version = "6.2.12"
