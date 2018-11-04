@@ -2,13 +2,16 @@ package types
 
 import (
 	"fmt"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"regexp"
 	"strings"
+
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 const (
+	ReplayElasticsearchIndexPrefix = "bastion-replays-"
+
 	NodeSourceManual = "manual"
 	NodeSourceConsul = "consul"
 
@@ -366,6 +369,23 @@ func (m *GetTokenRequest) Validate() (err error) {
 	trimSpace(&m.Token)
 	if len(m.Token) == 0 && m.Id == 0 {
 		err = errMissingField("id")
+		return
+	}
+	return
+}
+
+func (m *SubmitReplayRequest) Validate() (err error) {
+	if m.SessionId == 0 {
+		err = errMissingField("session_id")
+		return
+	}
+	return
+}
+
+func (m *SearchReplayRequest) Validate() (err error) {
+	trimSpace(&m.Keyword)
+	if len(m.Keyword) < 3 {
+		err = errInvalidField("keyword", "longer than 3")
 		return
 	}
 	return

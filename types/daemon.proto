@@ -488,10 +488,31 @@ message ReadReplayRequest {
     int64 session_id = 1;
 }
 
+message SubmitReplayRequest {
+    int64 session_id = 1;
+}
+
+message SubmitReplayResponse {
+}
+
+message SearchReplayRequest {
+    string keyword = 1;
+}
+
+message SearchReplayResponse {
+    repeated Session sessions = 1;
+}
+
 service ReplayService {
     rpc WriteReplay (stream ReplayFrame) returns (WriteReplayResponse) {
     }
 
     rpc ReadReplay (ReadReplayRequest) returns (stream ReplayFrame) {
+    }
+
+    rpc SubmitReplay(SubmitReplayRequest) returns (SubmitReplayResponse) {
+    }
+
+    rpc SearchReplay(SearchReplayRequest) returns (SearchReplayResponse) {
     }
 }

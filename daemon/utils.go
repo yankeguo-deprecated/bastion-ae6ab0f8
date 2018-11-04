@@ -4,12 +4,17 @@ import (
 	"crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
+	"path/filepath"
+	"time"
+
+	"github.com/olivere/elastic"
 	"github.com/rs/zerolog/log"
+	"github.com/yankeguo/bastion/types"
+	"github.com/yankeguo/bastion/utils"
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"path/filepath"
-	"time"
 )
 
 func now() int64 {
@@ -53,4 +58,87 @@ func FilenameForSessionID(id int64, dir string) string {
 	ret = append(ret, name[8:12])
 	ret = append(ret, name)
 	return filepath.Join(ret...)
+}
+
+type ReplayIndice struct {
+	SessionId int64     `json:"session_id"`
+	Timestamp uint32    `json:"timestamp"`
+	Content   string    `json:"content"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type ReplaySubmitter struct {
+	SessionId int64
+	CreatedAt time.Time
+	Index     string
+	EsClient  *elastic.Client
+	timestamp uint32
+	cache     string
+	batch     []ReplayIndice
+}
+
+func NewReplaySubmitter(createdAt time.Time, sessionId int64, esClient *elastic.Client) (r *ReplaySubmitter) {
+	r = &ReplaySubmitter{
+		SessionId: sessionId,
+		CreatedAt: createdAt,
+		Index:     fmt.Sprintf("%s%04d-%02d-%02d", types.ReplayElasticsearchIndexPrefix, createdAt.Year(), createdAt.Month(), createdAt.Day()),
+		EsClient:  esClient,
+		batch:     []ReplayIndice{},
+	}
+	return
+}
+
+func (r *ReplaySubmitter) submitBatch() (err error) {
+	if len(r.batch) == 0 {
+		return
+	}
+	bulk := r.EsClient.Bulk()
+	for _, d := range r.batch {
+		bulk = bulk.Add(elastic.NewBulkIndexRequest().Index(r.Index).Type("_doc").Doc(d))
+	}
+	_, err = bulk.Do(context.Background())
+	r.batch = []ReplayIndice{}
+	return
+}
+
+func (r *ReplaySubmitter) Add(f types.ReplayFrame) (err error) {
+	if f.Type != types.ReplayFrameTypeStderr && f.Type != types.ReplayFrameTypeStdout {
+		return
+	}
+	s := utils.ExtractReadableString(f.Payload)
+	if len(s) == 0 {
+		return
+	}
+	r.cache = r.cache + s
+	if (f.Timestamp - r.timestamp) > 1000 {
+		r.batch = append(r.batch, ReplayIndice{
+			SessionId: r.SessionId,
+			Timestamp: r.timestamp,
+			Content:   r.cache,
+			CreatedAt: r.CreatedAt,
+		})
+		r.timestamp = f.Timestamp
+		r.cache = ""
+		if len(r.batch) > 100 {
+			if err = r.submitBatch(); err != nil {
+				return
+			}
+		}
+	}
+	return
+}
+
+func (r *ReplaySubmitter) Close() (err error) {
+	if len(r.cache) > 0 {
+		r.batch = append(r.batch, ReplayIndice{
+			SessionId: r.SessionId,
+			Timestamp: r.timestamp,
+			Content:   r.cache,
+			CreatedAt: r.CreatedAt,
+		})
+	}
+	if err = r.submitBatch(); err != nil {
+		return
+	}
+	return
 }
