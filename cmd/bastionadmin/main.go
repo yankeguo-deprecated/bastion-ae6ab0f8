@@ -2,14 +2,15 @@ package main
 
 import (
 	"context"
+	"io/ioutil"
+	"log"
+	"os"
+
 	"github.com/pkg/errors"
 	"github.com/urfave/cli"
 	"github.com/yankeguo/bastion/types"
 	"golang.org/x/crypto/ssh"
 	"google.golang.org/grpc"
-	"io/ioutil"
-	"log"
-	"os"
 )
 
 func newConnection(c *cli.Context) (conn *grpc.ClientConn, err error) {
@@ -311,6 +312,46 @@ func main() {
 							})
 						}
 						return nil
+					},
+				},
+				{
+					Name:  "submit",
+					Usage: "submit replays to elasticsearch",
+					Flags: []cli.Flag{
+						cli.BoolFlag{Name: "all", Usage: "submit all replays, ONLY use for migration"},
+					},
+					Action: func(c *cli.Context) (err error) {
+						if !c.Bool("all") {
+							err = errors.New("only support with all flag")
+							return
+						}
+						var conn *grpc.ClientConn
+						if conn, err = newConnection(c); err != nil {
+							return
+						}
+						ss := types.NewSessionServiceClient(conn)
+						var res1 *types.ListSessionsResponse
+						if res1, err = ss.ListSessions(context.Background(), &types.ListSessionsRequest{
+							Skip:  0,
+							Limit: 1,
+						}); err != nil {
+							return
+						}
+						if len(res1.Sessions) != 1 {
+							err = errors.New("no sessions")
+							return
+						}
+						sessionID := res1.Sessions[0].Id
+						rs := types.NewReplayServiceClient(conn)
+						for sessionID > 1 {
+							if _, err = rs.SubmitReplay(context.Background(), &types.SubmitReplayRequest{SessionId: sessionID}); err != nil {
+								log.Printf("%d failed\n", sessionID)
+							} else {
+								log.Printf("%d success\n", sessionID)
+							}
+							sessionID--
+						}
+						return
 					},
 				},
 			},
