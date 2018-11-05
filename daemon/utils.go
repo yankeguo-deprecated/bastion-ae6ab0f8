@@ -64,10 +64,12 @@ type ReplayIndice struct {
 	SessionId int64     `json:"session_id"`
 	Timestamp uint32    `json:"timestamp"`
 	Content   string    `json:"content"`
+	Account   string    `json:"account"`
 	CreatedAt time.Time `json:"created_at"`
 }
 
 type ReplaySubmitter struct {
+	Account   string
 	SessionId int64
 	CreatedAt time.Time
 	Index     string
@@ -77,10 +79,11 @@ type ReplaySubmitter struct {
 	batch     []ReplayIndice
 }
 
-func NewReplaySubmitter(createdAt time.Time, sessionId int64, esClient *elastic.Client) (r *ReplaySubmitter) {
+func NewReplaySubmitter(createdAt time.Time, sessionId int64, account string, esClient *elastic.Client) (r *ReplaySubmitter) {
 	r = &ReplaySubmitter{
 		SessionId: sessionId,
 		CreatedAt: createdAt,
+		Account:   account,
 		Index:     fmt.Sprintf("%s%04d-%02d-%02d", types.ReplayElasticsearchIndexPrefix, createdAt.Year(), createdAt.Month(), createdAt.Day()),
 		EsClient:  esClient,
 		batch:     []ReplayIndice{},
@@ -116,6 +119,7 @@ func (r *ReplaySubmitter) Add(f types.ReplayFrame) (err error) {
 			Timestamp: r.timestamp,
 			Content:   r.cache,
 			CreatedAt: r.CreatedAt,
+			Account:   r.Account,
 		})
 		r.timestamp = f.Timestamp
 		r.cache = ""
@@ -135,6 +139,7 @@ func (r *ReplaySubmitter) Close() (err error) {
 			Timestamp: r.timestamp,
 			Content:   r.cache,
 			CreatedAt: r.CreatedAt,
+			Account:   r.Account,
 		})
 	}
 	if err = r.submitBatch(); err != nil {

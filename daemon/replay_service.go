@@ -2,10 +2,13 @@ package daemon
 
 import (
 	"compress/gzip"
+	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/olivere/elastic"
 
 	"github.com/yankeguo/bastion/daemon/models"
 
@@ -108,7 +111,7 @@ func (d *Daemon) SubmitReplay(ctx context.Context, req *types.SubmitReplayReques
 	}
 	defer zr.Close()
 	// submitter
-	st := NewReplaySubmitter(time.Unix(s.CreatedAt, 0), s.Id, d.esClient)
+	st := NewReplaySubmitter(time.Unix(s.CreatedAt, 0), s.Id, s.Account, d.esClient)
 	for {
 		var f types.ReplayFrame
 		if err = utils.ReadReplayFrame(&f, zr); err != nil {
@@ -133,6 +136,36 @@ func (d *Daemon) SubmitReplay(ctx context.Context, req *types.SubmitReplayReques
 func (d *Daemon) SearchReplay(ctx context.Context, req *types.SearchReplayRequest) (resp *types.SearchReplayResponse, err error) {
 	if err = req.Validate(); err != nil {
 		return
+	}
+	var sres *elastic.SearchResult
+	if sres, err = d.esClient.Search().Index(types.ReplayElasticsearchIndexPrefix + "*").Query(elastic.NewTermQuery("content", req.Keyword)).From(0).Size(100).Do(context.Background()); err != nil {
+		return
+	}
+	hits := sres.Hits
+	if hits == nil {
+		err = errRecordNotFound
+		return
+	}
+	resp = &types.SearchReplayResponse{
+		Results: []*types.ReplaySearchResult{},
+	}
+	for _, h := range hits.Hits {
+		if h == nil {
+			continue
+		}
+		if h.Source == nil {
+			continue
+		}
+		var ri ReplayIndice
+		if err = json.Unmarshal(*h.Source, &ri); err != nil {
+			return
+		}
+		resp.Results = append(resp.Results, &types.ReplaySearchResult{
+			SessionId: ri.SessionId,
+			Timestamp: ri.Timestamp,
+			Account:   ri.Account,
+			CreatedAt: ri.CreatedAt.Unix(),
+		})
 	}
 	return
 }

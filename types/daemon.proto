@@ -481,6 +481,13 @@ message ReplayFrame {
     bytes payload = 4;
 }
 
+message ReplaySearchResult {
+    int64 session_id = 1;
+    uint32 timestamp = 2;
+    string account = 3;
+    int64 created_at = 4;
+}
+
 message WriteReplayResponse {
 }
 
@@ -500,7 +507,7 @@ message SearchReplayRequest {
 }
 
 message SearchReplayResponse {
-    repeated Session sessions = 1;
+    repeated ReplaySearchResult results = 1;
 }
 
 service ReplayService {
