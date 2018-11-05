@@ -20,6 +20,7 @@ import (
 func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error) {
 	var w *os.File
 	var zw *gzip.Writer
+	var sessionID int64
 	for {
 		var f *types.ReplayFrame
 		// receive frame
@@ -32,7 +33,8 @@ func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error
 		// ensure rec frame writer
 		if zw == nil {
 			// create filename
-			filename := FilenameForSessionID(f.SessionId, d.opts.ReplayDir)
+			sessionID = f.SessionId
+			filename := FilenameForSessionID(sessionID, d.opts.ReplayDir)
 			// ensure directory
 			if err = os.MkdirAll(filepath.Dir(filename), 0750); err != nil {
 				break
@@ -56,6 +58,12 @@ func (d *Daemon) WriteReplay(s types.ReplayService_WriteReplayServer) (err error
 	// close the GZIP writer won't close the file, so we have to close it manually
 	if w != nil {
 		w.Close()
+	}
+	// submit replay to elasticsearch
+	if sessionID > 0 {
+		if err = d.submitReplay(sessionID); err != nil {
+			return
+		}
 	}
 	return
 }
@@ -88,17 +96,14 @@ func (d *Daemon) ReadReplay(req *types.ReadReplayRequest, s types.ReplayService_
 	return
 }
 
-func (d *Daemon) SubmitReplay(ctx context.Context, req *types.SubmitReplayRequest) (resp *types.SubmitReplayResponse, err error) {
-	if err = req.Validate(); err != nil {
-		return
-	}
+func (d *Daemon) submitReplay(sessionID int64) (err error) {
 	// find session
 	s := models.Session{}
-	if err = d.db.One("Id", req.SessionId, &s); err != nil {
+	if err = d.db.One("Id", sessionID, &s); err != nil {
 		return
 	}
 	// open file
-	filename := FilenameForSessionID(req.SessionId, d.opts.ReplayDir)
+	filename := FilenameForSessionID(sessionID, d.opts.ReplayDir)
 	var r *os.File
 	if r, err = os.Open(filename); err != nil {
 		return
@@ -127,6 +132,16 @@ func (d *Daemon) SubmitReplay(ctx context.Context, req *types.SubmitReplayReques
 		}
 	}
 	if err = st.Close(); err != nil {
+		return
+	}
+	return
+}
+
+func (d *Daemon) SubmitReplay(ctx context.Context, req *types.SubmitReplayRequest) (resp *types.SubmitReplayResponse, err error) {
+	if err = req.Validate(); err != nil {
+		return
+	}
+	if err = d.submitReplay(req.SessionId); err != nil {
 		return
 	}
 	resp = &types.SubmitReplayResponse{}
