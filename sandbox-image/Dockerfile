@@ -9,7 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     apt-get update &&\
     apt-get install -y apt-utils &&\
     apt-get upgrade -yy &&\
-    apt-get install -y openssh-client git vim htop tmux bash-completion build-essential iputils-ping &&\
+    apt-get install -y openssh-client git vim htop tmux bash-completion build-essential iputils-ping tzdata &&\
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
