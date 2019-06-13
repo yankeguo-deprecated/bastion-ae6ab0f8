@@ -95,7 +95,7 @@ func (m *manager) FindOrCreate(account string) (s Sandbox, err error) {
 					Name: "always",
 				},
 				Resources: container.Resources{
-					Memory:   m.Config.SandboxMem,
+					Memory:   m.Config.SandboxMemory,
 					NanoCPUs: m.Config.SandboxNanoCPUs,
 				},
 			},
