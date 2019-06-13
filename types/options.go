@@ -107,6 +107,12 @@ type SSHDOptions struct {
 	// SandboxEndpoint accessible bastion IP from sandbox, basically the IP of docker0 virtual network adapter
 	// default to "172.17.0.1"
 	SandboxEndpoint string `yaml:"sandbox_endpoint"`
+
+	// SandboxMemory memory limitation of sandbox
+	SandboxMemory int64 `yaml:"sandbox_memory"`
+
+	// SandboxNanoCPUs mcpu limitation of sandbox
+	SandboxNanoCPUs int64 `yaml:"sandbox_nano_cpus"`
 }
 
 func (o SSHDOptions) String() string {

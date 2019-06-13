@@ -94,6 +94,10 @@ func (m *manager) FindOrCreate(account string) (s Sandbox, err error) {
 				RestartPolicy: container.RestartPolicy{
 					Name: "always",
 				},
+				Resources: container.Resources{
+					Memory:   m.Config.SandboxMem,
+					NanoCPUs: m.Config.SandboxNanoCPUs,
+				},
 			},
 			&network.NetworkingConfig{},
 			name,

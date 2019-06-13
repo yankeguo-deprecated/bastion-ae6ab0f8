@@ -13,3 +13,6 @@
 
 # target
 /build
+
+# Goland
+.idea/
