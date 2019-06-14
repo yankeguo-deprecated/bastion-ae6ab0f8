@@ -9,7 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive &&\
     apt-get update &&\
     apt-get install -y apt-utils &&\
     apt-get upgrade -yy &&\
-    apt-get install -y openssh-client git vim htop tmux bash-completion build-essential iputils-ping tzdata dialog language-pack-zh-hans &&\
+    apt-get install -y openssh-client git vim htop tmux bash-completion build-essential iputils-ping tzdata dialog language-pack-zh-hans python python-pip libmysqlclient-dev openjdk-8-jdk php7.2 php7.2-mysql &&\
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /root
