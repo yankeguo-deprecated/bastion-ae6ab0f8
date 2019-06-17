@@ -19,6 +19,6 @@ ADD etc/bash_completion.d/bastion_ssh_config /etc/bash_completion.d
 
 ENV LC_ALL=zh_CN.UTF-8
 ENV TZ=Asia/Shanghai
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
 
 CMD ["/usr/bin/dummy-init"]
