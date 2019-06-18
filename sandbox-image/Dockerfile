@@ -19,7 +19,7 @@ WORKDIR /root
 
 ADD dummy-init /usr/bin
 ADD etc/bash_completion.d/bastion_ssh_config /etc/bash_completion.d
-RUN printf "\nif [ -f /shared/common/bashrc ]; then\n  . /shared/common/bashrc\n  fi" >> /etc/bash.bashrc
+RUN printf "\nif [ -f /shared/common/bashrc ]; then\n  . /shared/common/bashrc\nfi\n" >> /etc/bash.bashrc
 
 
 ENV LC_ALL=zh_CN.UTF-8
