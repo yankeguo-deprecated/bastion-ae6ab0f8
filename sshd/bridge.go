@@ -14,24 +14,37 @@ import (
 	"sync"
 )
 
+func handleLv1RawIPDirectTCPIPChannel(conn *ssh.ServerConn, sc ssh.Channel, address string, port int) (err error) {
+	ILog(conn).Str("channel", ChannelTypeDirectTCPIP).Msg("channel opened")
+	defer ILog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("channel finished")
+	// remember to close channel
+	defer sc.Close()
+	// dial direct ip
+	var c net.Conn
+	if c, err = net.Dial("tcp", fmt.Sprintf("%s:%d", address, port)); err != nil {
+		ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial direct IP ssh tunnel connection")
+		return
+	}
+
+	defer c.Close()
+	// bi-copy streams
+	if err = utils.DualCopy(c, sc); err != nil {
+		ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to pipe bridge connection")
+		return
+	}
+	return
+}
+
 func handleLv1DirectTCPIPChannel(conn *ssh.ServerConn, sc ssh.Channel, tp *TunnelPool, address string, port int) (err error) {
 	ILog(conn).Str("channel", ChannelTypeDirectTCPIP).Msg("channel opened")
 	defer ILog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("channel finished")
 	// remember to close channel
 	defer sc.Close()
+	// dial remote address
 	var c net.Conn
-	if ip := net.ParseIP(address); ip != nil {
-		// dial direct ip
-		if c, err = net.Dial("tcp", fmt.Sprintf("%s:%d", address, port)); err != nil {
-			ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial direct IP ssh tunnel connection")
-			return
-		}
-	} else {
-		// dial remote address
-		if c, err = tp.Dial(address, port); err != nil {
-			ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial ssh tunnel connection")
-			return
-		}
+	if c, err = tp.Dial(address, port); err != nil {
+		ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial ssh tunnel connection")
+		return
 	}
 	defer c.Close()
 	// bi-copy streams

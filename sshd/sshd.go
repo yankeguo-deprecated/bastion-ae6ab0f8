@@ -360,28 +360,37 @@ func (s *SSHD) handleLv1Connection(conn *ssh.ServerConn, ncchan <-chan ssh.NewCh
 				ELog(conn).Str("channel", nc.ChannelType()).Hex("extraData", nc.ExtraData()).Err(err).Msg("invalid extra data for 'direct-tcpip'")
 				continue
 			}
-			// find the node
-			var nRes *types.GetNodeResponse
-			if nRes, err = s.nodeService.GetNode(context.Background(), &types.GetNodeRequest{Hostname: pl.Host}); err != nil {
-				nc.Reject(ssh.ConnectionFailed, "internal error: failed to lookup node")
-				ELog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Err(err).Msg("failed to lookup node")
-				continue
-			}
-			// check __tunnel__ user permission with given node
-			var cRes *types.CheckGrantResponse
-			if cRes, err = s.grantService.CheckGrant(context.Background(), &types.CheckGrantRequest{
-				Account:  account,
-				User:     types.GrantUserTunnel,
-				Hostname: pl.Host,
-			}); err != nil {
-				nc.Reject(ssh.ConnectionFailed, "internal error: failed to check permission")
-				ELog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Err(err).Msg("failed to lookup grant")
-				continue
-			}
-			if !cRes.Ok {
-				nc.Reject(ssh.ConnectionFailed, "error: no permission")
-				ILog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Msg("trying to create tunnel on a not granted node")
-				continue
+			var rawIP bool
+			var address string
+			if ip := net.ParseIP(pl.Host); ip != nil {
+				// raw IP, in theory, raw IP is allowed only if user can connect sandbox
+				rawIP = true
+				address = pl.Host
+			} else {
+				// find the node
+				var nRes *types.GetNodeResponse
+				if nRes, err = s.nodeService.GetNode(context.Background(), &types.GetNodeRequest{Hostname: pl.Host}); err != nil {
+					nc.Reject(ssh.ConnectionFailed, "internal error: failed to lookup node")
+					ELog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Err(err).Msg("failed to lookup node")
+					continue
+				}
+				// check __tunnel__ user permission with given node
+				var cRes *types.CheckGrantResponse
+				if cRes, err = s.grantService.CheckGrant(context.Background(), &types.CheckGrantRequest{
+					Account:  account,
+					User:     types.GrantUserTunnel,
+					Hostname: pl.Host,
+				}); err != nil {
+					nc.Reject(ssh.ConnectionFailed, "internal error: failed to check permission")
+					ELog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Err(err).Msg("failed to lookup grant")
+					continue
+				}
+				if !cRes.Ok {
+					nc.Reject(ssh.ConnectionFailed, "error: no permission")
+					ILog(conn).Str("channel", nc.ChannelType()).Str("hostname", pl.Host).Msg("trying to create tunnel on a not granted node")
+					continue
+				}
+				address = nRes.Node.Address
 			}
 			// accept the new channel
 			var sc ssh.Channel
@@ -393,7 +402,11 @@ func (s *SSHD) handleLv1Connection(conn *ssh.ServerConn, ncchan <-chan ssh.NewCh
 			// discard all channel-local requests
 			go discardRequests(srchan)
 			// dial and stream 'direct-tcpip'
-			go handleLv1DirectTCPIPChannel(conn, sc, tp, nRes.Node.Address, int(pl.Port))
+			if rawIP {
+				go handleLv1RawIPDirectTCPIPChannel(conn, sc, address, int(pl.Port))
+			} else {
+				go handleLv1DirectTCPIPChannel(conn, sc, tp, address, int(pl.Port))
+			}
 		} else if nc.ChannelType() == ChannelTypeSession {
 			// find or create the sandbox
 			var sb sandbox.Sandbox
