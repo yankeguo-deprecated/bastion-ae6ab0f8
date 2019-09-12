@@ -19,11 +19,19 @@ func handleLv1DirectTCPIPChannel(conn *ssh.ServerConn, sc ssh.Channel, tp *Tunne
 	defer ILog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("channel finished")
 	// remember to close channel
 	defer sc.Close()
-	// dial remote address
 	var c net.Conn
-	if c, err = tp.Dial(address, port); err != nil {
-		ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial ssh tunnel connection")
-		return
+	if ip := net.ParseIP(address); ip != nil {
+		// dial direct ip
+		if c, err = net.Dial("tcp", fmt.Sprintf("%s:%d", address, port)); err != nil {
+			ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial direct IP ssh tunnel connection")
+			return
+		}
+	} else {
+		// dial remote address
+		if c, err = tp.Dial(address, port); err != nil {
+			ELog(conn).Str("channel", ChannelTypeDirectTCPIP).Err(err).Msg("failed to dial ssh tunnel connection")
+			return
+		}
 	}
 	defer c.Close()
 	// bi-copy streams
